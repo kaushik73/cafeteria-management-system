@@ -17,10 +17,16 @@ import { MealTypes } from "../common/types";
 import OutputService from "./OutputService";
 import { Feedback } from "../models/Feedback";
 import { User } from "../models/Users";
+import { SharedService } from "./SharedService";
 
 export default class AdminService {
   static userDetail: User;
-
+  private static sharedService: SharedService;
+  // Static block to initialize the static property
+  static {
+    AdminService.sharedService = new SharedService();
+    console.log("object of shared service created");
+  }
   static showAdminMenu(userDetail: User): Promise<string> {
     AdminService.userDetail = userDetail;
 
@@ -30,8 +36,8 @@ export default class AdminService {
           `1.W View Menu\n` +
           `2.W Add Menu Item\n` +
           `3.W Update Menu Item\n` +
-          `4. Delete Menu Item\n` +
-          `5. Update Item Availability\n` +
+          `4.W Delete Menu Item\n` +
+          `5.W Update Item Availability\n` +
           `6.W View Feedbacks of Item\n` +
           `7.W inChef View Feedback Report\n` +
           `0. Logout`
@@ -45,16 +51,11 @@ export default class AdminService {
   }
 
   static async showMenuItems() {
-    return new Promise((resolve) => {
-      socketService.emitEvent(
-        "showMenuItems",
-        { meal_type: "desc" },
-        (response: any) => {
-          OutputService.printTable(response.message);
-          resolve(response.message);
-        }
-      );
-    });
+    console.log("temp2");
+
+    // await AdminService.sharedService.showMenuItems();
+    await AdminService.sharedService.showMenuItems();
+    console.log("temp3");
   }
 
   static async addMenuItem() {
@@ -152,26 +153,29 @@ export default class AdminService {
     });
   }
 
-  static updateItemAvailability() {
-    const itemID: number = parseInt(
-      InputService.takeInputWithValidation(
-        "Enter menu item ID to update availability: ",
-        validateMenuID
-      )
-    );
-    const availability: boolean =
-      InputService.takeInputWithValidation(
-        "Is the item available? (yes/no): ",
-        validateAvailabilityStatus
-      ) === "yes";
+  static async updateItemAvailability() {
+    return new Promise((resolve, reject) => {
+      const itemID: number = parseInt(
+        InputService.takeInputWithValidation(
+          "Enter menu item ID to update availability: ",
+          validateMenuID
+        )
+      );
+      const availability: boolean =
+        InputService.takeInputWithValidation(
+          "Is the item available? (yes/no): ",
+          validateAvailabilityStatus
+        ) === "yes";
 
-    socketService.emitEvent(
-      "updateItemAvailability",
-      { itemID, availability },
-      (response) => {
-        OutputService.printMessage(response);
-      }
-    );
+      socketService.emitEvent(
+        "updateItemAvailability",
+        { itemID, availability },
+        (response: { message: string }) => {
+          OutputService.printMessage(response.message);
+          resolve(response.message);
+        }
+      );
+    });
   }
 
   static async viewFeedbacksofItem() {

@@ -9,21 +9,21 @@ VALUES
         'Alice Johnson',
         'alice.johnson@example.com',
         101,
-        'password123'
+        'pass'
     ),
     (
         'chef',
         'Bob Smith',
         'bob.smith@example.com',
         102,
-        'password123'
+        'pass'
     ),
     (
         'employee',
         'Charlie Brown',
         'charlie.brown@example.com',
         103,
-        'password123'
+        'pass'
     ),
     (
         'employee',

@@ -29,15 +29,13 @@ class MenuService {
     }
   }
 
-  static async updateMenuItem(item: any) {
+  static async updateMenuItem(item: Menu) {
     try {
-      const result: any = await sqlDBOperations.update(
-        "Menu",
-        { menu_id: item.menu_id },
-        item
-      );
+      const result: any = await sqlDBOperations.update("Menu", item, {
+        menu_id: item.menu_id,
+      });
       // Insert notification into the Notification table
-      const notificationMessage = `Menu item updated: ${item.name}`;
+      const notificationMessage = `Menu item updated: ${item.item_name}`;
 
       await this.addNotification(
         "menuUpdate",
@@ -102,12 +100,14 @@ class MenuService {
       const result = await sqlDBOperations.delete("Menu", { menu_id: itemID });
       return result;
     } catch (error: any) {
-      throw new Error("Error deleting menu item: " + error.message);
+      throw new Error("Error deleting data");
     }
   }
 
-  static async updateItemAvailability(itemID: number, availability: boolean) {
+  static async updateItemAvailability(itemID: string, availability: boolean) {
     try {
+      console.log("itemID, availability", itemID, availability);
+
       const result = await sqlDBOperations.update(
         "Menu",
         { availability_status: availability },
@@ -116,16 +116,6 @@ class MenuService {
       return result;
     } catch (error: any) {
       throw new Error("Error updating item availability: " + error.message);
-    }
-  }
-
-  static async generateSalesReport() {
-    try {
-      // Placeholder for generating sales report logic
-      const report = { sales: 1000, itemsSold: 50 };
-      return report;
-    } catch (error: any) {
-      throw new Error("Error generating sales report: " + error.message);
     }
   }
 }

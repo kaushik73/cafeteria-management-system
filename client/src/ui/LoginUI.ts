@@ -9,8 +9,8 @@ import { User } from "../models/Users";
 import { chefUI } from "./ChefUI";
 
 class LoginUI {
-  private userID: string = "10001";
-  private password: string = "password123";
+  private userID: string = "101";
+  private password: string = "pass";
   public role!: Role;
 
   async showLoginMenu() {
@@ -19,10 +19,10 @@ class LoginUI {
     let loggedIn = false;
 
     while (!loggedIn) {
-      this.userID = InputService.takeInputWithValidation("Enter your userID: ");
-      this.password = InputService.takeInputWithValidation(
-        "Enter your Password: "
-      );
+      // this.userID = InputService.takeInputWithValidation("Enter your userID: ");
+      // this.password = InputService.takeInputWithValidation(
+      //   "Enter your Password: "
+      // );
 
       try {
         if (ValidationService.validateUserID(this.userID)) {

@@ -1,20 +1,25 @@
 import { User } from "../models/Users";
 import ValidationService from "../validations/ValidationService";
+import { SharedService } from "./SharedService";
 import InputService from "./InputService";
 import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
 
 export default class ChefService {
   static userDetail: User;
-
+  private static sharedService: SharedService;
+  constructor() {
+    ChefService.sharedService = new SharedService();
+  }
   static showChefMenu(userDetail: User): Promise<string> {
     ChefService.userDetail = userDetail;
     return new Promise((resolve, reject) => {
       OutputService.printMessage(
         `Chef Menu:\n` +
-          `1. View Food Recommendations\n` +
-          `2. Send Food Recommendation to Employees\n` +
-          `3.W View Feedback Report\n` +
+          `1.W View Menu Items\n` +
+          `2. View Food Recommendations\n` +
+          `3. Send Food Recommendation to Employees\n` +
+          `4.W View Feedback Report\n` +
           `0. Logout`
       );
       const choice = InputService.takeInputWithValidation(
@@ -23,6 +28,10 @@ export default class ChefService {
       );
       resolve(choice);
     });
+  }
+
+  static async showMenuItems() {
+    await ChefService.sharedService.showMenuItems();
   }
 
   static viewFeedbackReport() {

@@ -1,3 +1,5 @@
+CREATE database testDB;
+
 use testDB;
 
 CREATE TABLE Users (
@@ -24,8 +26,8 @@ CREATE TABLE Feedback (
     feedback_date DATETIME NOT NULL,
     user_id INT,
     menu_id INT,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE CASCADE
 );
 
 CREATE TABLE Notification (
@@ -38,7 +40,7 @@ CREATE TABLE Notification (
     message TEXT NOT NULL,
     notification_date DATETIME NOT NULL,
     menu_id INT,
-    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id)
+    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE CASCADE
 );
 
 CREATE TABLE Recommendation (
@@ -49,7 +51,7 @@ CREATE TABLE Recommendation (
     is_prepared BOOLEAN NULL,
     -- can be null
     menu_id INT,
-    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id)
+    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE CASCADE
 );
 
 CREATE TABLE Report (
@@ -58,8 +60,8 @@ CREATE TABLE Report (
     generated_date DATETIME NOT NULL,
     menu_id INT,
     recommendation_id INT,
-    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id),
-    FOREIGN KEY (recommendation_id) REFERENCES Recommendation(recommendation_id)
+    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE CASCADE,
+    FOREIGN KEY (recommendation_id) REFERENCES Recommendation(recommendation_id) ON DELETE CASCADE
 );
 
 -- from '2024-01-01' ;
@@ -84,4 +86,4 @@ GROUP BY
 ORDER BY
     averageRating DESC;
 
-END / / DELIMITER;
+END

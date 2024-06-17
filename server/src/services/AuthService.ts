@@ -7,7 +7,6 @@ class AuthService {
     password: string
   ): Promise<User> {
     try {
-      // const dbOp = new SqlOperation();
       const result: any = await sqlDBOperations.selectOne("users", {
         emp_id: employeeID,
         password: password,

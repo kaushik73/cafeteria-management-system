@@ -7,7 +7,6 @@ import { Socket } from "socket.io";
 import Employee from "./modules/Employee/Employee";
 import { recommendationService } from "./engine/services/RecommendationService";
 import Chef from "./modules/Chef/Chef";
-import { User } from "./modules/User/User";
 import { recommendationEngine } from "./engine";
 
 const server = createServer();
@@ -34,11 +33,10 @@ export default function main() {
           }
 
           callback({ userDetail: userDetail, message: "valid user" });
-          console.log("after cb");
         } else if (userDetail == null) {
           callback({ userDetail: null, message: "Invalid Credianlts" });
         } else {
-          callback({ userDetail: null, message: "else part" });
+          callback({ userDetail: null, message: "Error Validating User" });
           console.log(userDetail);
         }
       } catch (error) {

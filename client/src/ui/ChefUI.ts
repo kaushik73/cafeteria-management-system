@@ -14,12 +14,15 @@ export default class ChefUI {
 
       switch (choice) {
         case "1":
-          await ChefService.viewFoodRecommendation();
+          await ChefService.showMenuItems();
           break;
         case "2":
-          await ChefService.sendFoodRecommendationToEmployees();
+          await ChefService.viewFoodRecommendation();
           break;
         case "3":
+          await ChefService.sendFoodRecommendationToEmployees();
+          break;
+        case "4":
           await ChefService.viewFeedbackReport();
           break;
         case "0":

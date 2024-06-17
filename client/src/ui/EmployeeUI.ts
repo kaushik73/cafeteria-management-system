@@ -20,6 +20,9 @@ class EmployeeUI {
         case "2":
           await EmployeeService.seeNotifications();
           break;
+        case "3":
+          await EmployeeService.showMenuItems();
+          break;
         case "0":
           loginUI.showLoginMenu();
           break;

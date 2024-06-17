@@ -1,6 +1,6 @@
 import DatabaseOperation from "./databaseOperations";
 import { MySqlConnection } from "../mysqlDBConnection";
-import { Connection } from "mysql2/promise";
+import { Connection, Query } from "mysql2/promise";
 
 class SqlOperation {
   //implements DatabaseOperation     ---TODO: make it work
@@ -43,25 +43,61 @@ class SqlOperation {
     }
   }
 
-  async update(
+  //  Todo : Delete this fnx.
+
+  async updateOLD(
     entityName: string,
     filter: object,
-    data: unknown
+    data: object
   ): Promise<unknown> {
     try {
       await this.ensureInitialized();
       // console.log(`Updating data in ${entityName}...`);
-      const [result]: any = await this.connection.query(
+      const result: any = await this.connection.query(
         `UPDATE ${entityName} SET ? WHERE ?`,
         [data, filter]
       );
-      return result;
+      console.log(result);
+
+      return result.length > 0 ? [result] : null;
       // console.log(`Data updated in ${entityName} successfully.`);
     } catch (error) {
-      // console.error(`Error updating data in ${entityName}:`, error);
+      console.error(`Error updating data in ${entityName}:`, error);
       throw error;
     }
   }
+
+  async update(
+    entityName: string,
+    data: object, // Simplified filter handling (explained below)
+    filter?: object // Optional filter for specific updates
+  ): Promise<number | null> {
+    try {
+      await this.ensureInitialized();
+      // console.log(`Updating data in ${entityName}...`);
+
+      // Construct the UPDATE query with parameterized values
+      let updateQuery = `UPDATE ${entityName} SET ?`;
+      const params = [data];
+
+      // Add WHERE clause with parameterized values if filter is provided
+      if (filter) {
+        updateQuery += " WHERE ?";
+        params.push(filter);
+      }
+
+      const result: any = await this.connection.query(updateQuery, params);
+
+      // Return the number of affected rows for success or null for errors
+      return result[0].affectedRows > 0 ? result[0].affectedRows : null;
+
+      // console.log(`Data updated in ${entityName} successfully.`);
+    } catch (error) {
+      console.error(`Error updating data in ${entityName}:`, error);
+      throw error;
+    }
+  }
+
   //  Todo : Delete this fnx.
   async selectAllOLD(
     entityName: string,
@@ -154,51 +190,6 @@ class SqlOperation {
     }
   }
 
-  async selectAllTemp(
-    entityName: string,
-    filter?: { [key: string]: any },
-    orderBy?: { [key: string]: "asc" | "desc" },
-    operations?: { [key: string]: string }
-  ): Promise<unknown[]> {
-    try {
-      await this.ensureInitialized();
-      let query = `SELECT * FROM ${entityName}`;
-      let queryParams: any[] = [];
-
-      if (filter && Object.keys(filter).length > 0) {
-        const filterConditions = Object.keys(filter).map((key) => {
-          const value = filter[key];
-          const operation =
-            operations && operations[key] ? operations[key] : "=";
-
-          if (Array.isArray(value)) {
-            queryParams.push(...value);
-            return `${key} ${operation} (${value.map(() => "?").join(", ")})`;
-          } else {
-            queryParams.push(value);
-            return `${key} ${operation} ?`;
-          }
-        });
-
-        query += " WHERE " + filterConditions.join(" AND ");
-      }
-
-      if (orderBy && Object.keys(orderBy).length > 0) {
-        query +=
-          " ORDER BY " +
-          Object.keys(orderBy)
-            .map((key) => `${key} ${orderBy[key] === "asc" ? "ASC" : "DESC"}`)
-            .join(", ");
-      }
-      console.log(query, "---", queryParams);
-
-      const [rows]: any = await this.connection.query(query, queryParams);
-      return rows;
-    } catch (error) {
-      throw error;
-    }
-  }
-
   async selectOne(entityName: string, filter?: object): Promise<unknown> {
     try {
       await this.ensureInitialized();
@@ -232,14 +223,15 @@ class SqlOperation {
   async delete(entityName: string, filter: object): Promise<unknown> {
     try {
       await this.ensureInitialized();
-      // console.log(`Deleting data from ${entityName}...`);
-      return await this.connection.query(`DELETE FROM ${entityName} WHERE ?`, [
-        filter,
-      ]);
+      const row = await this.connection.query(
+        `DELETE FROM ${entityName} WHERE ?`,
+        [filter]
+      );
+      return row.length > 0 ? row[0] : null;
       // console.log(`Data deleted from ${entityName} successfully.`);
     } catch (error) {
-      // console.error(`Error deleting data from ${entityName}:`, error);
-      throw error;
+      console.error(`Error deleting data from ${entityName}:`, error);
+      throw new Error(`Error deleting data from ${entityName}`);
     }
   }
 

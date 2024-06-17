@@ -4,17 +4,22 @@ import { socketService } from "./SocketService";
 import validateService from "../validations/ValidationService";
 import { User } from "../models/Users";
 import { Menu } from "../models/Menu";
+import { SharedService } from "./SharedService";
 
 export default class EmployeeService {
   static userDetail: User;
-
+  private static sharedService: SharedService;
+  constructor() {
+    EmployeeService.sharedService = new SharedService();
+  }
   static showEmployeeMenu(userDetail: User): Promise<string> {
     EmployeeService.userDetail = userDetail;
     return new Promise((resolve, reject) => {
       OutputService.printMessage(
         `Employee Menu:\n` +
-          `1. Give Feedback\n` +
-          `2. See Notifications\n` +
+          `1.W Give Feedback\n` +
+          `2.W See Notifications\n` +
+          `3.W See Menu\n` +
           `0. Logout`
       );
       const choice = InputService.takeInputWithValidation(
@@ -23,6 +28,10 @@ export default class EmployeeService {
       );
       resolve(choice);
     });
+  }
+
+  static async showMenuItems() {
+    await EmployeeService.sharedService.showMenuItems();
   }
 
   static giveFeedback() {
@@ -62,7 +71,7 @@ export default class EmployeeService {
     return new Promise((resolve, reject) => {
       socketService.emitEvent(
         "getMenuIdFromName",
-        menu_name, // LEARN WHAT THINGS CHANGES wHEn Passing the menu_name as an object
+        menu_name, // Todo : LEARN WHAT THINGS CHANGES wHEn Passing the menu_name as an object
         (response: { message: number }) => {
           if (response && response.message) {
             resolve(response.message);
@@ -86,20 +95,6 @@ export default class EmployeeService {
         OutputService.printTable(filteredResponse);
         resolve(filteredResponse);
       });
-    });
-  }
-
-  // todo : same in adminService as well
-  static async showMenuItems() {
-    return new Promise((resolve) => {
-      socketService.emitEvent(
-        "showMenuItems",
-        { meal_type: "desc" },
-        (response: any) => {
-          OutputService.printTable(response.message);
-          resolve(response.message);
-        }
-      );
     });
   }
 }

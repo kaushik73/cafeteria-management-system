@@ -36,11 +36,11 @@ export default class Admin {
       "showMenuItems",
       Admin.handleShowMenuItems
     );
-    // socketService.registerEventHandler(
-    //   socket,
-    //   "seeNotifications",
-    //   Admin.handleSeeNotifications
-    // );
+    socketService.registerEventHandler(
+      socket,
+      "updateItemAvailability",
+      Admin.handleUpdateItemAvailability
+    );
   }
 
   static async handleShowMenuItems(
@@ -54,9 +54,8 @@ export default class Admin {
       console.log({ message: menuItems });
 
       console.log("Before callback"); // Add this line
-      // callback(menuItems);
-      console.log("After callback"); // Add this line
       callback({ message: menuItems });
+      console.log("After callback"); // Add this line
     } catch (error) {
       callback({ message: "Error getting menu items" });
       console.error("Error getting menu items:", error);
@@ -86,6 +85,56 @@ export default class Admin {
     }
   }
 
+  static async handleUpdateItemAvailability(
+    data: any,
+    callback: (response: any) => void
+  ) {
+    try {
+      console.log("handleUpdateItemAvailability inside");
+
+      const result = await MenuService.updateItemAvailability(
+        data.itemID,
+        data.availability
+      );
+      result == 1
+        ? callback({ message: "Item availability updated" })
+        : callback({ message: "Error in Item availability updated" });
+
+      console.log(result, "result ");
+    } catch (error) {
+      callback({ message: "Error updating item availability" });
+      console.error("Error updating item availability:", error);
+    }
+  }
+
+  //   socketService.registerEventHandler(
+  //     "updateItemAvailability",
+  //     async (socket, data, callback) => {
+  //       try {
+  //         await MenuService.updateItemAvailability(data.itemID, data.availability);
+  //         callback({ message: "Item availability updated" });
+  //       } catch (error) {
+  //         callback({ message: "Error updating item availability" });
+  //         console.error("Error updating item availability:", error);
+  //       }
+  //     }
+  //   );
+
+  static async handleDeleteMenuItem(
+    data: any,
+    callback: (response: any) => void
+  ) {
+    try {
+      const result = await MenuService.deleteMenuItem(data.itemID);
+      console.log("result before callbaclk", result);
+
+      callback({ message: "Menu item deleted" });
+    } catch (error) {
+      callback({ message: "Error deleting menu item" });
+      console.error("Error deleting menu item:", error);
+    }
+  }
+
   static async viewFeedbacks(data: any, callback: (response: any) => void) {
     try {
       console.log("viewFeedbacks from server - Admnin.ts", data);
@@ -98,18 +147,6 @@ export default class Admin {
     }
   }
 
-  static async handleDeleteMenuItem(
-    data: any,
-    callback: (response: any) => void
-  ) {
-    try {
-      await MenuService.deleteMenuItem(data.itemID);
-      callback({ message: "Menu item deleted" });
-    } catch (error) {
-      callback({ message: "Error deleting menu item" });
-      console.error("Error deleting menu item:", error);
-    }
-  }
   // static async handleSeeNotifications(
   //   data: any,
   //   callback: (response: any) => void

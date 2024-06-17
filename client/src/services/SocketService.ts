@@ -4,13 +4,8 @@ class SocketService {
   private socket: Socket;
 
   constructor(serverUrl: string) {
-    //   this.socket = io(serverUrl, {
-    //     transports: ["websocket"], // Force the use of WebSocket
-    //     pingTimeout: 200000, //  20 sec
-    //   });
-
     this.socket = io(serverUrl, {
-      transports: ["websocket"], // Force the use of WebSocket
+      transports: ["websocket"],
       timeout: 200000, // 20 sec
     });
   }
@@ -33,14 +28,14 @@ class SocketService {
     });
   }
 
-  // // to catch  the msg
-  // public onEvent(eventName: string, callback: (data: any) => void): void {
-  //   this.socket.on(eventName, (data) => {
-  //     console.log(`Received event ${eventName} with data:`, data);
-  //     callback(data);
-  //   });
-  // }
-  // to send the msg
+  // // to catch  the event
+  public onEvent(eventName: string, callback: (data: any) => void): void {
+    this.socket.on(eventName, (data) => {
+      console.log(`Received event ${eventName} with data:`, data);
+      callback(data);
+    });
+  }
+  // to send the event
   public emitEvent<T>(
     eventName: string,
     data: any,
@@ -53,4 +48,4 @@ class SocketService {
   }
 }
 
-export const socketService = new SocketService("http://localhost:3001"); // Replace with server URL
+export const socketService = new SocketService("http://localhost:3001"); // server URL

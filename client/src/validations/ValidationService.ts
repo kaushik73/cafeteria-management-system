@@ -16,5 +16,9 @@ export default class ValidationService {
   static validateOption(EmployeeID: string): boolean {
     return !isNaN(parseInt(EmployeeID));
   }
-  
+
+  static validateDate(dateString: string): boolean {
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+    return datePattern.test(dateString) && !isNaN(Date.parse(dateString));
+  }
 }

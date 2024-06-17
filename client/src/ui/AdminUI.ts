@@ -1,44 +1,53 @@
+import { User } from "../models/Users";
 import AdminService from "../services/AdminService";
 import OutputService from "../services/OutputService";
-import LoginUI from "./LoginUI";
+import { loginUI } from "./LoginUI";
 
 class AdminUI {
-  async showAdminMenu() {
+  static userDetail: User;
+
+  async showAdminMenu(userDetail: User) {
     let continueLoop = true;
 
     while (continueLoop) {
-      const choice: string = await AdminService.showAdminMenu();
+      const choice: string = await AdminService.showAdminMenu(userDetail);
       console.log(`User chose: ${choice}`);
 
       switch (choice) {
         case "1":
-          await AdminService.addMenuItem();
+          await AdminService.showMenuItems();
           break;
         case "2":
           await AdminService.showMenuItems();
-          await AdminService.updateMenuItem();
+          await AdminService.addMenuItem();
           break;
         case "3":
           await AdminService.showMenuItems();
-          await AdminService.deleteMenuItem();
-
+          await AdminService.updateMenuItem();
           break;
         case "4":
-          AdminService.updateItemAvailability();
+          await AdminService.showMenuItems();
+          await AdminService.deleteMenuItem();
           break;
         case "5":
-          AdminService.generateSalesReport();
+          await AdminService.showMenuItems();
+          await AdminService.updateItemAvailability();
           break;
         case "6":
-          // AdminService.sendNotifications();
+          await AdminService.showMenuItems();
+          await AdminService.viewFeedbacksofItem();
+        case "7":
+          AdminService.viewFeedbackReport();
           break;
         case "0":
           continueLoop = false;
-          LoginUI.showLoginMenu();
+          loginUI.showLoginMenu();
           break;
         default:
-          OutputService.printMessage("Invalid choice. Please select a valid option.");
-          break;
+          OutputService.printMessage(
+            "Invalid choice. Please select a valid option."
+          );
+          AdminService.showAdminMenu(userDetail);
       }
     }
   }

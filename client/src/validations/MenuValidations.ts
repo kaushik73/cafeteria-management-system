@@ -27,7 +27,7 @@ export function validateAvailabilityStatus(input: string): boolean {
 }
 
 // Function to validate item ID
-export function validateItemID(input: string): boolean {
+export function validateMenuID(input: string): boolean {
   const id = parseInt(input);
   return !isNaN(id) && id > 0;
 }

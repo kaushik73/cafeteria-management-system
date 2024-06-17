@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import MenuService from "../../services/MenuService";
 import SocketService from "../../services/SocketService";
 import NotificationService from "../../services/NotificationService";
+import FeedbackService from "../../services/FeedbackService";
 
 export default class Admin {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -11,6 +12,11 @@ export default class Admin {
       socket,
       "addMenuItem",
       Admin.handleAddMenuItem
+    );
+    socketService.registerEventHandler(
+      socket,
+      "viewFeedbacks",
+      Admin.viewFeedbacks
     );
 
     socketService.registerEventHandler(
@@ -77,6 +83,18 @@ export default class Admin {
     } catch (error) {
       callback({ message: "Error updating menu item" });
       console.error("Error updating menu item:", error);
+    }
+  }
+
+  static async viewFeedbacks(data: any, callback: (response: any) => void) {
+    try {
+      console.log("viewFeedbacks from server - Admnin.ts", data);
+
+      const feedbacks = await FeedbackService.viewFeedbacks(data);
+      callback({ message: feedbacks });
+    } catch (error) {
+      callback({ message: "Error getting Feedbacks" });
+      console.error("Error getting Feedbacks:", error);
     }
   }
 

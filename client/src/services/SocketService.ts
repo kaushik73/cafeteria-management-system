@@ -4,8 +4,14 @@ class SocketService {
   private socket: Socket;
 
   constructor(serverUrl: string) {
+    //   this.socket = io(serverUrl, {
+    //     transports: ["websocket"], // Force the use of WebSocket
+    //     pingTimeout: 200000, //  20 sec
+    //   });
+
     this.socket = io(serverUrl, {
       transports: ["websocket"], // Force the use of WebSocket
+      timeout: 200000, // 20 sec
     });
   }
 
@@ -34,7 +40,7 @@ class SocketService {
   //     callback(data);
   //   });
   // }
-// to send the msg
+  // to send the msg
   public emitEvent<T>(
     eventName: string,
     data: any,

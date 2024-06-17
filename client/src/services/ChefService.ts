@@ -1,67 +1,79 @@
+import { User } from "../models/Users";
+import ValidationService from "../validations/ValidationService";
 import InputService from "./InputService";
-import { socket } from "./SocketService";
+import OutputService from "./OutputService";
+import { socketService } from "./SocketService";
 
 export default class ChefService {
-  static generateFoodRecommendations() {
-    // Implement logic for generating food recommendations
-  }
+  static userDetail: User;
 
-  static respondToFeedback() {
-    const feedbackID = parseInt(
-      InputService.takeInput("Enter feedback ID to respond: ")
-    );
-    const response = InputService.takeInput("Enter your response: ");
-
-    socket.emitEvent(
-      "respondToFeedback",
-      { feedbackID, response },
-      (response) => {
-        console.log(response);
-      }
-    );
-  }
-
-  static generateMonthlyFeedbackReport() {
-    socket.emitEvent("generateMonthlyFeedbackReport", {}, (response) => {
-      console.log(response);
+  static showChefMenu(userDetail: User): Promise<string> {
+    ChefService.userDetail = userDetail;
+    return new Promise((resolve, reject) => {
+      OutputService.printMessage(
+        `Chef Menu:\n` +
+          `1. View Food Recommendations\n` +
+          `2. Send Food Recommendation to Employees\n` +
+          `3.W View Feedback Report\n` +
+          `0. Logout`
+      );
+      const choice = InputService.takeInputWithValidation(
+        "Choose an option: ",
+        ValidationService.validateOption
+      );
+      resolve(choice);
     });
   }
 
-  static viewReports() {
-    socket.emitEvent("viewReports", {}, (response) => {
-      console.log(response);
+  static viewFeedbackReport() {
+    return new Promise(async (resolve, reject) => {
+      const fromInput = InputService.takeInputWithValidation(
+        "Enter the start date (YYYY-MM-DD): ",
+        ValidationService.validateDate
+      );
+      const toInput = InputService.takeInputWithValidation(
+        "Enter the end date (YYYY-MM-DD): ",
+        ValidationService.validateDate
+      );
+
+      const from = fromInput;
+      const to = toInput;
+
+      // const formattedFrom = Vali.formatDate(from);
+      // const formattedTo = DateService.formatDate(to);
+
+      socketService.emitEvent(
+        "viewFeedbackReport",
+        { from, to },
+        // { from: formattedFrom, to: formattedTo },
+        (response: any) => {
+          OutputService.printTable(response.message);
+          resolve(response.message);
+        }
+      );
     });
   }
 
-  static sendRecommendationNotification() {
-    const message = InputService.takeInput("Enter notification message: ");
-
-    socket.emitEvent(
-      "sendRecommendationNotification",
-      { message },
-      (response) => {
+  static viewFoodRecommendation() {
+    return new Promise(async (resolve, reject) => {
+      socketService.emitEvent("viewFoodRecommendation", {}, (response) => {
         console.log(response);
-      }
-    );
-  }
+      });
 
-  static sendMenuUpdateNotification() {
-    const message = InputService.takeInput("Enter notification message: ");
-
-    socket.emitEvent("sendMenuUpdateNotification", { message }, (response) => {
-      console.log(response);
+      resolve("temp");
     });
   }
+  static sendFoodRecommendationToEmployees() {
+    return new Promise(async (resolve, reject) => {
+      socketService.emitEvent(
+        "sendFoodRecommendationToEmployees",
+        {},
+        (response) => {
+          console.log(response);
+        }
+      );
 
-  static sendAvailabilityNotification() {
-    const message = InputService.takeInput("Enter notification message: ");
-
-    socket.emitEvent(
-      "sendAvailabilityNotification",
-      { message },
-      (response) => {
-        console.log(response);
-      }
-    );
+      resolve("temp");
+    });
   }
 }

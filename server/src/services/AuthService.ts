@@ -1,18 +1,20 @@
-import SqlOperation from "../database/operations/sqlDBOperations";
-import { Role } from "../common/types";
+import { sqlDBOperations } from "../database/operations/sqlDBOperations";
+import { User } from "../models/Users";
 
 class AuthService {
-  static async getUserRole(
+  static async getUserDetail(
     employeeID: string,
     password: string
-  ): Promise<Role | null> {
+  ): Promise<User> {
     try {
-      const dbOp = new SqlOperation();
-      const result: any = await dbOp.selectOne("users", {
+      // const dbOp = new SqlOperation();
+      const result: any = await sqlDBOperations.selectOne("users", {
         emp_id: employeeID,
         password: password,
       });
-      return result ? result.role : null;
+      console.log("xx", result);
+
+      return result ? result : null;
     } catch (error) {
       console.error("Error retrieving user role:", error);
       throw error;

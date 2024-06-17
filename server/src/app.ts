@@ -5,8 +5,10 @@ import Admin from "./modules/Admin/Admin";
 import { Role } from "./common/types";
 import { Socket } from "socket.io";
 import Employee from "./modules/Employee/Employee";
-// import { Employee } from "./modules/Employee/Employee";
-// import { Chef } from "./modules/Chef/Chef";
+import { recommendationService } from "./engine/services/RecommendationService";
+import Chef from "./modules/Chef/Chef";
+import { User } from "./modules/User/User";
+import { recommendationEngine } from "./engine";
 
 const server = createServer();
 export default function main() {
@@ -14,26 +16,51 @@ export default function main() {
   socketService.initialize();
 
   socketService.onConnection((socket) => {
-    socket.on("getUserRole", async (data, callback) => {
+    socket.on("getUserDetail", async (data, callback) => {
       try {
         const { employeeID, password } = data;
-        const role = await AuthService.getUserRole(employeeID, password);
-        callback({ role });
+        const userDetail: any = await AuthService.getUserDetail(
+          employeeID,
+          password
+        );
+        console.log(userDetail);
+        if (userDetail) {
+          const role = userDetail.role;
+          navigateToClass(role as Role, socketService, socket);
+
+          if (role == Role.Employee) {
+            console.log("inside employees emit Room if");
+            SocketService.joinRoom(socket, "employees");
+          }
+
+          callback({ userDetail: userDetail, message: "valid user" });
+          console.log("after cb");
+        } else if (userDetail == null) {
+          callback({ userDetail: null, message: "Invalid Credianlts" });
+        } else {
+          callback({ userDetail: null, message: "else part" });
+          console.log(userDetail);
+        }
       } catch (error) {
-        callback({ error: "Internal server error" });
+        callback({ userDetail: null, message: "Internal server error" });
         console.error("Error retrieving user role:", error);
       }
     });
 
-    socket.on("setRole", (role: Role, callback: (response: any) => void) => {
-      console.log(`Client with id ${socket.id} set role to ${role}`);
-      navigateToClass(role, socketService, socket);
-      // if ((role = Role.Employee)) {
-      //   SocketService.joinRoom(socket, "employees");
-      // }
-      callback("success");
-      console.log(`Role set to ${role}, handlers registered`);
-    });
+    // socket.on(
+    //   "setUserDetail",
+    //   (userDetail, callback: (response: any) => void) => {
+    //     console.log(
+    //       `Client with id ${socket.id} set role to ${userDetail.role}`
+    //     );
+    //     navigateToClass(userDetail.role, socketService, socket);
+    //     // if ((role = Role.Employee)) {
+    //     //   SocketService.joinRoom(socket, "employees");
+    //     // }
+    //     callback(userDetail);
+    //     console.log(`Role set to ${userDetail.role}, handlers registered`);
+    //   }
+    // );
 
     socket.on("disconnect", (reason) => {
       console.log(
@@ -47,6 +74,11 @@ function navigateToClass(
   socketService: SocketService,
   socket: Socket
 ) {
+  // recommendationEngine.registerHandlers(socketService, socket);
+
+  // recommendationEngine.generateDailyRecommendation((data: any) => {
+  //   console.log(data);
+  // });
   switch (role) {
     case Role.Admin:
       Admin.registerHandlers(socketService, socket);
@@ -54,9 +86,9 @@ function navigateToClass(
     case Role.Employee:
       Employee.registerHandlers(socketService, socket);
       break;
-    // case Role.Chef:
-    //   Chef.registerHandlers(socketService, socket);
-    //   break;
+    case Role.Chef:
+      Chef.registerHandlers(socketService, socket);
+      break;
     default:
       console.log(`Unknown role: ${role}`);
   }

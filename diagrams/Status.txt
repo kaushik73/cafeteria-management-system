@@ -1,3 +1,6 @@
-add, update of admind done
+add, update of admin done
 
 send, see notification done
+add feedback done
+
+TODO : send and recive notification using socket.

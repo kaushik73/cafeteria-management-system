@@ -1,55 +1,3 @@
-// import InputService from "../services/InputService";
-// import ValidationService from "../validations/ValidationService";
-// import AuthService from "../services/AuthService";
-// import { adminUI } from "./AdminUI";
-// import { employeeUI } from "./EmployeeUI";
-// import { Role } from "../common/types";
-// import OutputService from "../services/OutputService";
-
-// export default class LoginUI {
-//   private static userID: string = "1001";
-//   private static password: string = "password123";
-
-//   static async showLoginMenu() {
-//     OutputService.printMessage("Welcome to the system! Please log in.");
-//     this.userID = InputService.takeInput("Enter your userID: ");
-//     this.password = InputService.takeInput("Enter your Password: ");
-
-//     if (ValidationService.validateUserID(this.userID)) {
-//       try {
-//         const role = await AuthService.getUserRole(
-//           this.userID,
-//           this.password
-//         );
-//         OutputService.printMessage(`Role received: ${role}`);
-//         await AuthService.setRole(role);
-//         OutputService.printMessage("Role set successfully on server");
-//         this.navigateToRoleMenu(role);
-//       } catch (error: any) {
-//         console.error(error.message);
-//       }
-//     } else {
-//       OutputService.printMessage("Invalid User ID.");
-//     }
-//   }
-
-//   static navigateToRoleMenu(role: Role) {
-//     switch (role) {
-//       case Role.Admin:
-//         adminUI.showAdminMenu();
-//         break;
-//       case Role.Chef:
-//         // chefUI.showChefMenu();
-//         break;
-//       case Role.Employee:
-//         employeeUI.showEmployeeMenu();
-//         break;
-//       default:
-//         OutputService.printMessage("Invalid role!");
-//     }
-//   }
-// }
-
 import InputService from "../services/InputService";
 import ValidationService from "../validations/ValidationService";
 import AuthService from "../services/AuthService";
@@ -57,53 +5,60 @@ import { adminUI } from "./AdminUI";
 import { employeeUI } from "./EmployeeUI";
 import { Role } from "../common/types";
 import OutputService from "../services/OutputService";
+import { User } from "../models/Users";
+import { chefUI } from "./ChefUI";
 
-export default class LoginUI {
-  private static userID: string = "1001";
-  private static password: string = "password123";
+class LoginUI {
+  private userID: string = "10001";
+  private password: string = "password123";
+  public role!: Role;
 
-  static async showLoginMenu() {
+  async showLoginMenu() {
     OutputService.printMessage("Welcome to the system! Please log in.");
 
     let loggedIn = false;
 
     while (!loggedIn) {
-      this.userID = InputService.takeInput("Enter your userID: ");
-      this.password = InputService.takeInput("Enter your Password: ");
+      this.userID = InputService.takeInputWithValidation("Enter your userID: ");
+      this.password = InputService.takeInputWithValidation(
+        "Enter your Password: "
+      );
 
-      if (ValidationService.validateUserID(this.userID)) {
-        try {
-          const role = await AuthService.getUserRole(
+      try {
+        if (ValidationService.validateUserID(this.userID)) {
+          const userDetail = await AuthService.getUserDetail(
             this.userID,
             this.password
           );
-          OutputService.printMessage(`Role received: ${role}`);
-          await AuthService.setRole(role);
-          OutputService.printMessage("Role set successfully on server");
-          this.navigateToRoleMenu(role);
+          this.role = userDetail.role;
+          OutputService.printMessage(`Role received: ${this.role}`);
+          console.log("Role ", this.role, "set successfully on server");
+          this.navigateToRoleMenu(userDetail);
           loggedIn = true; // Set loggedIn to true to exit the loop upon successful login
-        } catch (error: any) {
-          OutputService.printMessage(error.message);
+        } else {
+          OutputService.printMessage("Invalid userID format.");
         }
-      } else {
-        OutputService.printMessage("Invalid User ID.");
+      } catch (error: any) {
+        OutputService.printMessage(error.message);
       }
     }
   }
 
-  static navigateToRoleMenu(role: Role) {
-    switch (role) {
+  navigateToRoleMenu(userDetail: User) {
+    switch (userDetail.role) {
       case Role.Admin:
-        adminUI.showAdminMenu();
+        adminUI.showAdminMenu(userDetail);
         break;
       case Role.Chef:
-        // chefUI.showChefMenu();
+        chefUI.showChefMenu(userDetail);
         break;
       case Role.Employee:
-        employeeUI.showEmployeeMenu();
+        employeeUI.showEmployeeMenu(userDetail);
         break;
       default:
         OutputService.printMessage("Invalid role!");
     }
   }
 }
+
+export const loginUI = new LoginUI();

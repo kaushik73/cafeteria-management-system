@@ -2,7 +2,8 @@ import DatabaseOperation from "./databaseOperations";
 import { MySqlConnection } from "../mysqlDBConnection";
 import { Connection } from "mysql2/promise";
 
-export default class SqlOperation implements DatabaseOperation {
+class SqlOperation {
+  //implements DatabaseOperation     ---TODO: make it work
   private connection!: Connection;
 
   constructor() {
@@ -50,7 +51,7 @@ export default class SqlOperation implements DatabaseOperation {
     try {
       await this.ensureInitialized();
       // console.log(`Updating data in ${entityName}...`);
-      const [result] : any = await this.connection.query(
+      const [result]: any = await this.connection.query(
         `UPDATE ${entityName} SET ? WHERE ?`,
         [data, filter]
       );
@@ -61,12 +62,12 @@ export default class SqlOperation implements DatabaseOperation {
       throw error;
     }
   }
-
-  async selectAll(
+  //  Todo : Delete this fnx.
+  async selectAllOLD(
     entityName: string,
     filter?: object,
     orderBy?: any,
-    condition?: any
+    operation?: any
   ): Promise<unknown[]> {
     try {
       await this.ensureInitialized();
@@ -75,12 +76,14 @@ export default class SqlOperation implements DatabaseOperation {
       let query = `SELECT * FROM ${entityName}`;
       let queryParams: any[] = [];
       // const { conditionKey, conditionValue } = condition;
-      const cond = Object.values(condition);
+      console.log(operation, Object.values(operation));
+
+      const operationValue = operation ? Object.values(operation) : "=";
       if (filter && Object.keys(filter).length > 0) {
         query +=
           " WHERE " +
           Object.keys(filter)
-            .map((key) => `${key} ${cond} ?`)
+            .map((key) => `${key} ${operationValue} ?`)
             .join(" AND ");
         queryParams = Object.values(filter);
       }
@@ -106,6 +109,96 @@ export default class SqlOperation implements DatabaseOperation {
     }
   }
 
+  async selectAll(
+    entityName: string,
+    filter?: any,
+    orderBy?: any,
+    operations?: any
+  ): Promise<unknown[]> {
+    try {
+      await this.ensureInitialized();
+      let query = `SELECT * FROM ${entityName}`;
+      let queryParams: any[] = [];
+
+      if (filter && Object.keys(filter).length > 0) {
+        const filterConditions = Object.keys(filter).map((key) => {
+          const value = filter[key];
+          const operation =
+            operations && operations[key] ? operations[key] : "=";
+
+          if (Array.isArray(value)) {
+            queryParams.push(...value);
+            return `${key} ${operation} (${value.map(() => "?").join(", ")})`;
+          } else {
+            queryParams.push(value);
+            return `${key} ${operation} ?`;
+          }
+        });
+
+        query += " WHERE " + filterConditions.join(" AND ");
+      }
+
+      if (orderBy && Object.keys(orderBy).length > 0) {
+        query +=
+          " ORDER BY " +
+          Object.keys(orderBy)
+            .map((key) => `${key} ${orderBy[key] === "asc" ? "ASC" : "DESC"}`)
+            .join(", ");
+      }
+      console.log(query, queryParams);
+
+      const [rows]: any = await this.connection.query(query, queryParams);
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async selectAllTemp(
+    entityName: string,
+    filter?: { [key: string]: any },
+    orderBy?: { [key: string]: "asc" | "desc" },
+    operations?: { [key: string]: string }
+  ): Promise<unknown[]> {
+    try {
+      await this.ensureInitialized();
+      let query = `SELECT * FROM ${entityName}`;
+      let queryParams: any[] = [];
+
+      if (filter && Object.keys(filter).length > 0) {
+        const filterConditions = Object.keys(filter).map((key) => {
+          const value = filter[key];
+          const operation =
+            operations && operations[key] ? operations[key] : "=";
+
+          if (Array.isArray(value)) {
+            queryParams.push(...value);
+            return `${key} ${operation} (${value.map(() => "?").join(", ")})`;
+          } else {
+            queryParams.push(value);
+            return `${key} ${operation} ?`;
+          }
+        });
+
+        query += " WHERE " + filterConditions.join(" AND ");
+      }
+
+      if (orderBy && Object.keys(orderBy).length > 0) {
+        query +=
+          " ORDER BY " +
+          Object.keys(orderBy)
+            .map((key) => `${key} ${orderBy[key] === "asc" ? "ASC" : "DESC"}`)
+            .join(", ");
+      }
+      console.log(query, "---", queryParams);
+
+      const [rows]: any = await this.connection.query(query, queryParams);
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async selectOne(entityName: string, filter?: object): Promise<unknown> {
     try {
       await this.ensureInitialized();
@@ -127,6 +220,7 @@ export default class SqlOperation implements DatabaseOperation {
         `SELECT * FROM ${entityName} WHERE ${whereClause} LIMIT 1`,
         filterValues
       );
+      console.log("yy", rows.length > 0 ? rows[0] : null);
 
       return rows.length > 0 ? rows[0] : null;
     } catch (error) {
@@ -149,16 +243,16 @@ export default class SqlOperation implements DatabaseOperation {
     }
   }
 
-  async fetchDatawithCustomQuery(query: string, filter: object) {
+  async fetchDatawithCustomQuery(query: string) {
     try {
       await this.ensureInitialized();
 
-      const [rows]: any = await this.connection.query(query, [filter]);
-      // console.log("One row selected from", entityName, "successfully.");
-      return rows.length > 0 ? rows[0] : null;
+      const [rows]: any = await this.connection.query(query);
+      return rows.length > 0 ? rows : null;
     } catch (error) {
-      // console.error("Error selecting one row from", entityName, ":", error);
       throw error;
     }
   }
 }
+
+export const sqlDBOperations = new SqlOperation();

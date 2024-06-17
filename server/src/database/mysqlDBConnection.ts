@@ -22,12 +22,6 @@ export class MySqlConnection {
   };
   // Initialize the connection
   public static async initializeConnection(): Promise<void> {
-    console.log(process.env.HOST);
-    console.log(process.env.SQL_USER);
-    console.log(process.env.SQL_CONNECTION_LIMTS);
-    console.log(process.env.SQL_PASSWORD);
-    console.log(process.env.PORT);
-    console.log(process.env.SQL_DEFAULT_DATABASE);
     if (!MySqlConnection.connection) {
       try {
         console.log("initializeConnection");

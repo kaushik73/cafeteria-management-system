@@ -11,6 +11,8 @@ export default class SocketService {
         origin: "http://localhost:3000",
         credentials: true,
       },
+      //pingInterval: 25000, // Interval for sending pings, in milliseconds (default: 25000)
+      pingTimeout: 200000, //  20 sec
     });
   }
 

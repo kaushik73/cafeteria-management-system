@@ -6,7 +6,7 @@ import {
   validateItemName,
   validatePrice,
   validateAvailabilityStatus,
-  validateItemID,
+  validateMenuID,
   validateDescription,
   validateCategory,
   validateNotificationMessage,
@@ -15,8 +15,48 @@ import validateService from "../validations/ValidationService";
 
 import { MealTypes } from "../common/types";
 import OutputService from "./OutputService";
+import { Feedback } from "../models/Feedback";
+import { User } from "../models/Users";
 
 export default class AdminService {
+  static userDetail: User;
+
+  static showAdminMenu(userDetail: User): Promise<string> {
+    AdminService.userDetail = userDetail;
+
+    return new Promise((resolve, reject) => {
+      OutputService.printMessage(
+        `Admin Menu:\n` +
+          `1.W View Menu\n` +
+          `2.W Add Menu Item\n` +
+          `3.W Update Menu Item\n` +
+          `4. Delete Menu Item\n` +
+          `5. Update Item Availability\n` +
+          `6.W View Feedbacks of Item\n` +
+          `7.W inChef View Feedback Report\n` +
+          `0. Logout`
+      );
+      const choice = InputService.takeInputWithValidation(
+        "Choose an option: ",
+        validateService.validateOption
+      );
+      resolve(choice);
+    });
+  }
+
+  static async showMenuItems() {
+    return new Promise((resolve) => {
+      socketService.emitEvent(
+        "showMenuItems",
+        { meal_type: "desc" },
+        (response: any) => {
+          OutputService.printTable(response.message);
+          resolve(response.message);
+        }
+      );
+    });
+  }
+
   static async addMenuItem() {
     return new Promise((resolve, reject) => {
       const item_name: string = InputService.takeInputWithValidation(
@@ -53,26 +93,12 @@ export default class AdminService {
     });
   }
 
-  static async deleteMenuItem() {
-    return new Promise((resolve, reject) => {
-      const itemID: number = parseInt(
-        InputService.takeInputWithValidation(
-          "Enter menu item ID to delete: ",
-          validateItemID
-        )
-      );
-      socketService.emitEvent("deleteMenuItem", { itemID }, (response: any) => {
-        OutputService.printMessage(response.message);
-        resolve(response.message);
-      });
-    });
-  }
   static async updateMenuItem() {
     return new Promise((resolve, reject) => {
       const menu_id: number = parseInt(
         InputService.takeInputWithValidation(
           "Enter menu item ID to update: ",
-          validateItemID
+          validateMenuID
         )
       );
       const item_name: string = InputService.takeInputWithValidation(
@@ -109,39 +135,20 @@ export default class AdminService {
         resolve(response.message);
       });
     });
-    // OutputService.printMessage(`Emitted updateMenuItem event with item:${item}`);
   }
 
-  static async showMenuItems() {
-    return new Promise((resolve) => {
-      socketService.emitEvent(
-        "showMenuItems",
-        { meal_type: "desc" },
-        (response: any) => {
-          OutputService.printTable(response.message);
-          resolve(response.message);
-        }
-      );
-    });
-  }
-
-  static showAdminMenu(): Promise<string> {
+  static async deleteMenuItem() {
     return new Promise((resolve, reject) => {
-      OutputService.printMessage(
-        `Admin Menu:\n` +
-          `1. Add Menu Item\n` +
-          `2. Update Menu Item\n` +
-          `3. Delete Menu Item\n` +
-          `4. Update Item Availability\n` +
-          `5. Generate Sales Report\n` +
-          // `6. Send Notifications\n` +
-          `0. Logout`
+      const itemID: number = parseInt(
+        InputService.takeInputWithValidation(
+          "Enter menu item ID to delete: ",
+          validateMenuID
+        )
       );
-      const choice = InputService.takeInputWithValidation(
-        "Choose an option: ",
-        validateService.validateOption
-      );
-      resolve(choice);
+      socketService.emitEvent("deleteMenuItem", { itemID }, (response: any) => {
+        OutputService.printMessage(response.message);
+        resolve(response.message);
+      });
     });
   }
 
@@ -149,7 +156,7 @@ export default class AdminService {
     const itemID: number = parseInt(
       InputService.takeInputWithValidation(
         "Enter menu item ID to update availability: ",
-        validateItemID
+        validateMenuID
       )
     );
     const availability: boolean =
@@ -166,45 +173,37 @@ export default class AdminService {
       }
     );
   }
-  // static sendNotifications() {
-  //   socketService.emitEvent("sendNotifications", {}, (response : Notification[]) => {
-  //     OutputService.printTable(response);
-  //   });
-  // }
 
-  static generateSalesReport() {
-    socketService.emitEvent("generateSalesReport", {}, (response) => {
-      OutputService.printMessage(response);
+  static async viewFeedbacksofItem() {
+    return new Promise((resolve, reject) => {
+      const menu_id: number = parseInt(
+        InputService.takeInputWithValidation(
+          "Enter menu item ID to view feedbacks for: ",
+          validateMenuID
+        )
+      );
+      socketService.emitEvent(
+        "viewFeedbacks",
+        { menu_id },
+        (response: { message: any }) => {
+          console.log("viewFeedbacks socket called from client");
+          const filteredResponse = response.message.map((feedback: any) => {
+            const { rating, comment, menu_id, feedback_date } = feedback;
+            return { rating, comment, menu_id, feedback_date };
+          });
+          // todo : change date format from server/ client
+          console.log("filteredResponse", filteredResponse);
+
+          OutputService.printTable(filteredResponse);
+          resolve(response.message);
+        }
+      );
     });
   }
 
-  // static sendMenuUpdateNotification() {
-  //   const message: string = InputService.takeInputWithValidation(
-  //     "Enter notification message: ",
-  //     validateNotificationMessage
-  //   );
-
-  //   socketService.emitEvent(
-  //     "sendMenuUpdateNotification",
-  //     { message },
-  //     (response) => {
-  //       OutputService.printMessage(response);
-  //     }
-  //   );
-  // }
-
-  // static sendAvailabilityNotification() {
-  //   const message: string = InputService.takeInputWithValidation(
-  //     "Enter notification message: ",
-  //     validateNotificationMessage
-  //   );
-
-  //   socketService.emitEvent(
-  //     "sendAvailabilityNotification",
-  //     { message },
-  //     (response) => {
-  //       OutputService.printMessage(response);
-  //     }
-  //   );
-  // }
+  static viewFeedbackReport() {
+    socketService.emitEvent("viewFeedbackReport", {}, (response) => {
+      OutputService.printMessage(response);
+    });
+  }
 }

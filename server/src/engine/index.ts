@@ -1,15 +1,36 @@
+// import { Menu } from "../models/Menu";
+// import { Feedback } from "../models/Feedback";
+
+import { Socket } from "socket.io";
+import SocketService from "../services/SocketService";
 import { Menu } from "../models/Menu";
-import { Feedback } from "../models/Feedback";
+import { recommendationService } from "./services/RecommendationService";
 
-export class RecommendationAlgorithm {
-  static getTopRatedItems(
-    menuItems: Menu[],
-    mealType: "breakfast" | "lunch" | "dinner"
-  ): Menu[] {
-    const limit = mealType === "breakfast" ? 3 : mealType === "lunch" ? 4 : 5;
+class RecommendationEngine {
+  //   registerHandlers(socketService: SocketService, socket: Socket) {
+  //     console.log("in registerHandlers Chef");
 
-    // Placeholder logic for selecting top-rated items.
-    // Ideally, this should use real feedback data to compute ratings and select top items.
-    return menuItems.sort((a, b) => 0.5 - Math.random()).slice(0, limit);
+  //     socketService.registerEventHandler(
+  //       socket,
+  //       "generateDailyRecommendation",
+  //       this.generateDailyRecommendation
+  //     );
+  //   }
+
+  async generateNextDayRecommendation(callback: any) {
+    try {
+      const result =
+        await recommendationService.generateNextDayRecommendation();
+      //   const result = "test";
+      callback(result);
+      console.log("TEST - Daily recommendation generated successfully.");
+    } catch (error) {
+      callback({
+        status: "error",
+        message: "Error generating daily recommendation.",
+      });
+      console.error("TEST - Error generating daily recommendation:", error);
+    }
   }
 }
+export const recommendationEngine = new RecommendationEngine();

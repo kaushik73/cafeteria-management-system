@@ -12,18 +12,16 @@ export class MySqlConnection {
     password: process.env.SQL_PASSWORD as string,
     port: Number(process.env.PORT),
     database: process.env.SQL_DEFAULT_DATABASE as string,
-
-    // host: "localhost",
-    // user: "root",
-    // connectionLimit: 10,
-    // password: "Manan@123",
-    // port: 3306,
-    // database: "testDB",
   };
   // Initialize the connection
   public static async initializeConnection(): Promise<void> {
     if (!MySqlConnection.connection) {
       try {
+        console.log(
+          MySqlConnection.connectionObj.user,
+          MySqlConnection.connectionObj.port
+        );
+
         console.log("initializeConnection");
 
         MySqlConnection.connection = await mysql.createConnection(
@@ -35,7 +33,6 @@ export class MySqlConnection {
     }
   }
 
-  // Get the connection
   public static async getConnection(): Promise<Connection> {
     if (!MySqlConnection.connection) {
       console.log("trying to setup connection");
@@ -46,7 +43,6 @@ export class MySqlConnection {
     return MySqlConnection.connection;
   }
 
-  // Close the connection
   public static async closeConnection(): Promise<void> {
     if (MySqlConnection.connection) {
       try {
@@ -58,5 +54,3 @@ export class MySqlConnection {
     }
   }
 }
-
-const mySqlConnection = new MySqlConnection();

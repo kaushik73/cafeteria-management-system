@@ -3,4 +3,5 @@ add, update of admin done
 send, see notification done
 add feedback done
 
-TODO : send and recive notification using socket.
+DONE: send and recive notification using socket.
+

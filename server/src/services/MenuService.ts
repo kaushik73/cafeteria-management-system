@@ -5,9 +5,6 @@ import SocketService from "./SocketService";
 import DateService from "./DateService";
 
 class MenuService {
-  // constructor(){
-  // private static dbOperation = new sqlDBOperations();
-  // }
   static async addMenuItem(item: Menu) {
     try {
       const result: any = await sqlDBOperations.insert("Menu", item);
@@ -51,6 +48,15 @@ class MenuService {
     }
   }
 
+  static async deleteMenuItem(itemID: number) {
+    try {
+      const result = await sqlDBOperations.delete("Menu", { menu_id: itemID });
+      return result;
+    } catch (error: any) {
+      throw new Error("Error deleting data");
+    }
+  }
+
   static async getMenuIdFromName(item_name: string) {
     const itemID: any = await sqlDBOperations.selectOne("menu", {
       item_name,
@@ -76,6 +82,7 @@ class MenuService {
       throw new Error("Error adding notification: " + error.message);
     }
   }
+  // Notify all employees
   // static async sendMenuUpdateNotification(message: string) {
   //   try {
   //     console.log("Menu update notification sent:", message);
@@ -92,15 +99,6 @@ class MenuService {
       return result;
     } catch (error: any) {
       throw new Error("Error showing menu item: " + error.message);
-    }
-  }
-
-  static async deleteMenuItem(itemID: number) {
-    try {
-      const result = await sqlDBOperations.delete("Menu", { menu_id: itemID });
-      return result;
-    } catch (error: any) {
-      throw new Error("Error deleting data");
     }
   }
 

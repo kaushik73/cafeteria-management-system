@@ -3,8 +3,6 @@ import { sqlDBOperations } from "../database/operations/sqlDBOperations";
 import { FeedbackReport, FeedbackRow } from "../common/types";
 
 class FeedbackService {
-  // private static dbOperation = new SqlOperation();
-
   static async giveFeedback(feedback: Feedback) {
     console.log("giveFeedback");
 

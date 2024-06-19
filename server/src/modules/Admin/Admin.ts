@@ -3,6 +3,8 @@ import MenuService from "../../services/MenuService";
 import SocketService from "../../services/SocketService";
 import NotificationService from "../../services/NotificationService";
 import FeedbackService from "../../services/FeedbackService";
+import User from "../User/User";
+// import User from "../User/User";
 
 export default class Admin {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -47,19 +49,7 @@ export default class Admin {
     data: Object,
     callback: (response: any) => void
   ) {
-    try {
-      console.log(data, "from handleShowMenuItems");
-
-      const menuItems = await MenuService.showMenuItems(data);
-      console.log({ message: menuItems });
-
-      console.log("Before callback"); // Add this line
-      callback({ message: menuItems });
-      console.log("After callback"); // Add this line
-    } catch (error) {
-      callback({ message: "Error getting menu items" });
-      console.error("Error getting menu items:", error);
-    }
+    User.handleShowMenuItems(data, callback);
   }
 
   static async handleAddMenuItem(data: any, callback: (response: any) => void) {
@@ -106,19 +96,6 @@ export default class Admin {
       console.error("Error updating item availability:", error);
     }
   }
-
-  //   socketService.registerEventHandler(
-  //     "updateItemAvailability",
-  //     async (socket, data, callback) => {
-  //       try {
-  //         await MenuService.updateItemAvailability(data.itemID, data.availability);
-  //         callback({ message: "Item availability updated" });
-  //       } catch (error) {
-  //         callback({ message: "Error updating item availability" });
-  //         console.error("Error updating item availability:", error);
-  //       }
-  //     }
-  //   );
 
   static async handleDeleteMenuItem(
     data: any,

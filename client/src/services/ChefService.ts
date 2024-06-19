@@ -1,5 +1,5 @@
 import { User } from "../models/Users";
-import ValidationService from "../validations/ValidationService";
+import CommonValidations from "../validations/CommonValidation";
 import { SharedService } from "./SharedService";
 import InputService from "./InputService";
 import OutputService from "./OutputService";
@@ -8,7 +8,7 @@ import { socketService } from "./SocketService";
 export default class ChefService {
   static userDetail: User;
   private static sharedService: SharedService;
-  constructor() {
+  static {
     ChefService.sharedService = new SharedService();
   }
   static showChefMenu(userDetail: User): Promise<string> {
@@ -24,7 +24,7 @@ export default class ChefService {
       );
       const choice = InputService.takeInputWithValidation(
         "Choose an option: ",
-        ValidationService.validateOption
+        CommonValidations.validateOption
       );
       resolve(choice);
     });
@@ -38,11 +38,11 @@ export default class ChefService {
     return new Promise(async (resolve, reject) => {
       const fromInput = InputService.takeInputWithValidation(
         "Enter the start date (YYYY-MM-DD): ",
-        ValidationService.validateDate
+        CommonValidations.validateDate
       );
       const toInput = InputService.takeInputWithValidation(
         "Enter the end date (YYYY-MM-DD): ",
-        ValidationService.validateDate
+        CommonValidations.validateDate
       );
 
       const from = fromInput;
@@ -72,6 +72,7 @@ export default class ChefService {
       resolve("temp");
     });
   }
+
   static sendFoodRecommendationToEmployees() {
     return new Promise(async (resolve, reject) => {
       socketService.emitEvent(

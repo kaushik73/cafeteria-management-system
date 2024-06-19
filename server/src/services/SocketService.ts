@@ -4,6 +4,7 @@ import { Server as HttpServer } from "http";
 export default class SocketService {
   private static instance: SocketService;
   private io: Server;
+  static rooms: { [key: string]: Set<Socket> } = {};
 
   private constructor(httpServer: HttpServer) {
     this.io = new Server(httpServer, {
@@ -11,7 +12,6 @@ export default class SocketService {
         origin: "http://localhost:3000",
         credentials: true,
       },
-      //pingInterval: 25000, // Interval for sending pings, in milliseconds (default: 25000)
       pingTimeout: 200000, //  20 sec
     });
   }
@@ -33,7 +33,7 @@ export default class SocketService {
     this.io.on("connection", callback);
   }
 
-  registerEventHandler(
+  public registerEventHandler(
     socket: Socket,
     event: string,
     handler: (data: any, callback: any) => void
@@ -43,8 +43,6 @@ export default class SocketService {
       handler(data, callback);
     });
   }
-
-  static rooms: { [key: string]: Set<Socket> } = {};
 
   static joinRoom(socket: Socket, room: string) {
     if (!SocketService.rooms[room]) {
@@ -66,7 +64,4 @@ export default class SocketService {
       });
     }
   }
-  // static emitToRoom1(room: string, event: string, message: string) {
-  //   io.to(room).emit(event, message);
-  // }
 }

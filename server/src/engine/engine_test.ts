@@ -1,5 +1,5 @@
 import { recommendationEngine } from ".";
 
 recommendationEngine.generateNextDayRecommendation((data: any) => {
-  console.log(data);
+  console.log("data", data);
 });

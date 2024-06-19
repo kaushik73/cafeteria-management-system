@@ -45,21 +45,6 @@ export default function main() {
       }
     });
 
-    // socket.on(
-    //   "setUserDetail",
-    //   (userDetail, callback: (response: any) => void) => {
-    //     console.log(
-    //       `Client with id ${socket.id} set role to ${userDetail.role}`
-    //     );
-    //     navigateToClass(userDetail.role, socketService, socket);
-    //     // if ((role = Role.Employee)) {
-    //     //   SocketService.joinRoom(socket, "employees");
-    //     // }
-    //     callback(userDetail);
-    //     console.log(`Role set to ${userDetail.role}, handlers registered`);
-    //   }
-    // );
-
     socket.on("disconnect", (reason) => {
       console.log(
         `Client disconnected with id: ${socket.id}, reason: ${reason}`
@@ -74,9 +59,9 @@ function navigateToClass(
 ) {
   // recommendationEngine.registerHandlers(socketService, socket);
 
-  // recommendationEngine.generateDailyRecommendation((data: any) => {
-  //   console.log(data);
-  // });
+  recommendationEngine.generateNextDayRecommendation((data: any) => {
+    console.log("data", data);
+  });
   switch (role) {
     case Role.Admin:
       Admin.registerHandlers(socketService, socket);

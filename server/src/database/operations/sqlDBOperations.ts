@@ -43,29 +43,29 @@ class SqlOperation {
     }
   }
 
-  //  Todo : Delete this fnx.
+  // //  Todo : Delete this fnx.
 
-  async updateOLD(
-    entityName: string,
-    filter: object,
-    data: object
-  ): Promise<unknown> {
-    try {
-      await this.ensureInitialized();
-      // console.log(`Updating data in ${entityName}...`);
-      const result: any = await this.connection.query(
-        `UPDATE ${entityName} SET ? WHERE ?`,
-        [data, filter]
-      );
-      console.log(result);
+  // async updateOLD(
+  //   entityName: string,
+  //   filter: object,
+  //   data: object
+  // ): Promise<unknown> {
+  //   try {
+  //     await this.ensureInitialized();
+  //     // console.log(`Updating data in ${entityName}...`);
+  //     const result: any = await this.connection.query(
+  //       `UPDATE ${entityName} SET ? WHERE ?`,
+  //       [data, filter]
+  //     );
+  //     console.log(result);
 
-      return result.length > 0 ? [result] : null;
-      // console.log(`Data updated in ${entityName} successfully.`);
-    } catch (error) {
-      console.error(`Error updating data in ${entityName}:`, error);
-      throw error;
-    }
-  }
+  //     return result.length > 0 ? [result] : null;
+  //     // console.log(`Data updated in ${entityName} successfully.`);
+  //   } catch (error) {
+  //     console.error(`Error updating data in ${entityName}:`, error);
+  //     throw error;
+  //   }
+  // }
 
   async update(
     entityName: string,
@@ -99,51 +99,51 @@ class SqlOperation {
   }
 
   //  Todo : Delete this fnx.
-  async selectAllOLD(
-    entityName: string,
-    filter?: object,
-    orderBy?: any,
-    operation?: any
-  ): Promise<unknown[]> {
-    try {
-      await this.ensureInitialized();
-      // console.log("Selecting all data from", entityName);
+  // async selectAllOLD(
+  //   entityName: string,
+  //   filter?: object,
+  //   orderBy?: any,
+  //   operation?: any
+  // ): Promise<unknown[]> {
+  //   try {
+  //     await this.ensureInitialized();
+  //     // console.log("Selecting all data from", entityName);
 
-      let query = `SELECT * FROM ${entityName}`;
-      let queryParams: any[] = [];
-      // const { conditionKey, conditionValue } = condition;
-      console.log(operation, Object.values(operation));
+  //     let query = `SELECT * FROM ${entityName}`;
+  //     let queryParams: any[] = [];
+  //     // const { conditionKey, conditionValue } = condition;
+  //     console.log(operation, Object.values(operation));
 
-      const operationValue = operation ? Object.values(operation) : "=";
-      if (filter && Object.keys(filter).length > 0) {
-        query +=
-          " WHERE " +
-          Object.keys(filter)
-            .map((key) => `${key} ${operationValue} ?`)
-            .join(" AND ");
-        queryParams = Object.values(filter);
-      }
+  //     const operationValue = operation ? Object.values(operation) : "=";
+  //     if (filter && Object.keys(filter).length > 0) {
+  //       query +=
+  //         " WHERE " +
+  //         Object.keys(filter)
+  //           .map((key) => `${key} ${operationValue} ?`)
+  //           .join(" AND ");
+  //       queryParams = Object.values(filter);
+  //     }
 
-      console.log(orderBy);
-      console.log(filter);
+  //     console.log(orderBy);
+  //     console.log(filter);
 
-      if (orderBy && Object.keys(orderBy).length > 0) {
-        query +=
-          " ORDER BY " +
-          Object.keys(orderBy)
-            .map((key) => `${key} ${orderBy[key] === "asc" ? "ASC" : "DESC"}`)
-            .join(", ");
-      }
-      console.log(query);
+  //     if (orderBy && Object.keys(orderBy).length > 0) {
+  //       query +=
+  //         " ORDER BY " +
+  //         Object.keys(orderBy)
+  //           .map((key) => `${key} ${orderBy[key] === "asc" ? "ASC" : "DESC"}`)
+  //           .join(", ");
+  //     }
+  //     console.log(query);
 
-      const [rows]: any = await this.connection.query(query, queryParams);
-      // console.log("Data selected from", entityName, "successfully.");
-      return rows;
-    } catch (error) {
-      // console.error("Error selecting data from", entityName, ":", error);
-      throw error;
-    }
-  }
+  //     const [rows]: any = await this.connection.query(query, queryParams);
+  //     // console.log("Data selected from", entityName, "successfully.");
+  //     return rows;
+  //   } catch (error) {
+  //     // console.error("Error selecting data from", entityName, ":", error);
+  //     throw error;
+  //   }
+  // }
 
   async selectAll(
     entityName: string,

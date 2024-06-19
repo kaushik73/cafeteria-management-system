@@ -10,7 +10,6 @@ class EmployeeUI {
 
     while (continueLoop) {
       const choice: string = await EmployeeService.showEmployeeMenu(userDetail);
-      console.log(`User chose: ${choice}`);
 
       switch (choice) {
         case "1":

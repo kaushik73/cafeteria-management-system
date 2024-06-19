@@ -1,35 +1,36 @@
-// // User.ts
-// import MenuItem from '../Menu/MenuItem';
-// import { IDatabaseOperations } from './IDatabaseOperations';
+import { Menu } from "../../models/Menu";
+import MenuService from "../../services/MenuService";
 
-// export class User {
-//   userID: number;
-//   name: string;
-//   role: string;
-//   employeeID: string;
-//   protected db: IDatabaseOperations;
+export default class User {
+  static async handleShowMenuItems(
+    data: Object,
+    callback: (response: any) => void
+  ) {
+    try {
+      console.log(data, "from handleShowMenuItems");
 
-//   constructor(userID: number, name: string, role: string, employeeID: string, db: IDatabaseOperations) {
-//     this.userID = userID;
-//     this.name = name;
-//     this.role = role;
-//     this.employeeID = employeeID;
-//     this.db = db;
-//   }
+      const menuItems = await MenuService.showMenuItems(data);
+      console.log({ message: menuItems });
 
-//   async login(): Promise<void> {
-//     // Logic for login
-//   }
+      callback({ message: menuItems });
+    } catch (error) {
+      callback({ message: "Error getting menu items" });
+      console.error("Error getting menu items:", error);
+    }
+  }
 
-//   async logout(): Promise<void> {
-//     // Logic for logout
-//   }
+  static async getMenuIdFromName(
+    data: string,
+    callback: (response: any) => void
+  ) {
+    try {
+      const result: Menu = await MenuService.getMenuIdFromName(data);
+      console.log({ message: result.menu_id }, "itemID");
 
-//   async viewMenu(): Promise<MenuItem[]> {
-//     return await this.db.selectAll<MenuItem>('Menu');
-//   }
-
-//   async viewNotifications(): Promise<Notification[]> {
-//     return await this.db.selectAll<Notification>('Notification', { userID: this.userID });
-//   }
-// }
+      callback({ message: result.menu_id });
+    } catch (error) {
+      callback({ message: "Error fetching itemID" });
+      console.error("Error fetching itemID:", error);
+    }
+  }
+}

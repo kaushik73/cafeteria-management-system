@@ -3,6 +3,7 @@ import SocketService from "../../services/SocketService";
 import NotificationService from "../../services/NotificationService";
 import ReportService from "../../services/ReportService";
 import DateService from "../../services/DateService";
+import User from "../User/User";
 
 class Chef {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -13,6 +14,17 @@ class Chef {
       "viewFeedbackReport",
       Chef.viewFeedbackReport
     );
+    socketService.registerEventHandler(
+      socket,
+      "showMenuItems",
+      Chef.handleShowMenuItems
+    );
+  }
+  static async handleShowMenuItems(
+    data: Object,
+    callback: (response: any) => void
+  ) {
+    User.handleShowMenuItems(data, callback);
   }
   static async viewFeedbackReport(
     data: any,

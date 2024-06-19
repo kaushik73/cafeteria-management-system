@@ -11,7 +11,6 @@ class AdminUI {
 
     while (continueLoop) {
       const choice: string = await AdminService.showAdminMenu(userDetail);
-      console.log(`User chose: ${choice}`);
 
       switch (choice) {
         case "1":

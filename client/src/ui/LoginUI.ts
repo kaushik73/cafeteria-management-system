@@ -1,5 +1,5 @@
 import InputService from "../services/InputService";
-import ValidationService from "../validations/ValidationService";
+import CommonValidations from "../validations/CommonValidation";
 import AuthService from "../services/AuthService";
 import { adminUI } from "./AdminUI";
 import { employeeUI } from "./EmployeeUI";
@@ -9,32 +9,27 @@ import { User } from "../models/Users";
 import { chefUI } from "./ChefUI";
 
 class LoginUI {
-  private userID: string = "101";
-  private password: string = "pass";
   public role!: Role;
 
   async showLoginMenu() {
+    let userID: string = "101";
+    let password: string = "pass";
     OutputService.printMessage("Welcome to the system! Please log in.");
 
     let loggedIn = false;
 
     while (!loggedIn) {
-      // this.userID = InputService.takeInputWithValidation("Enter your userID: ");
-      // this.password = InputService.takeInputWithValidation(
-      //   "Enter your Password: "
-      // );
+      userID = InputService.takeInputWithValidation("Enter your userID: ");
+      password = InputService.takeInputWithValidation("Enter your Password: ");
 
       try {
-        if (ValidationService.validateUserID(this.userID)) {
-          const userDetail = await AuthService.getUserDetail(
-            this.userID,
-            this.password
-          );
+        if (CommonValidations.validateUserID(userID)) {
+          const userDetail = await AuthService.getUserDetail(userID, password);
           this.role = userDetail.role;
           OutputService.printMessage(`Role received: ${this.role}`);
           console.log("Role ", this.role, "set successfully on server");
           this.navigateToRoleMenu(userDetail);
-          loggedIn = true; // Set loggedIn to true to exit the loop upon successful login
+          loggedIn = true;
         } else {
           OutputService.printMessage("Invalid userID format.");
         }

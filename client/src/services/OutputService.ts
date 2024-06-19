@@ -5,11 +5,11 @@ export default class OutputService {
     console.log(`---------${message}---------\n`);
   }
 
-  static printArray(arr: any[]): void {
-    arr.forEach((item, index) => {
-      console.log(`[${index}]: ${item}`);
-    });
-  }
+  // static printArray(arr: any[]): void {
+  //   arr.forEach((item, index) => {
+  //     console.log(`[${index}]: ${item}`);
+  //   });
+  // }
 
   static printTable(data: any[]): void {
     if (data.length === 0) {

@@ -7,16 +7,6 @@ import { Menu } from "../models/Menu";
 import { recommendationService } from "./services/RecommendationService";
 
 class RecommendationEngine {
-  //   registerHandlers(socketService: SocketService, socket: Socket) {
-  //     console.log("in registerHandlers Chef");
-
-  //     socketService.registerEventHandler(
-  //       socket,
-  //       "generateDailyRecommendation",
-  //       this.generateDailyRecommendation
-  //     );
-  //   }
-
   async generateNextDayRecommendation(callback: any) {
     try {
       const result =

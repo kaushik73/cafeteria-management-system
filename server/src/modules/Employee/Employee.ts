@@ -5,6 +5,7 @@ import MenuService from "../../services/MenuService";
 import FeedbackService from "../../services/FeedbackService";
 import DateService from "../../services/DateService";
 import { Menu } from "../../models/Menu";
+import User from "../User/User";
 
 class Employee {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -15,11 +16,11 @@ class Employee {
       "seeNotifications",
       Employee.handleSeeNotifications
     );
-    // socketService.registerEventHandler(
-    //   socket,
-    //   "giveFeedback",
-    //   Employee.handleGiveFeedback
-    // );
+    socketService.registerEventHandler(
+      socket,
+      "showMenuItems",
+      Employee.handleShowMenuItems
+    );
     socketService.registerEventHandler(
       socket,
       "giveFeedback",
@@ -29,9 +30,9 @@ class Employee {
     socketService.registerEventHandler(
       socket,
       "getMenuIdFromName",
-      Employee.getMenuIdFromName
+      User.getMenuIdFromName
     );
-    // same in admin
+
     socketService.registerEventHandler(
       socket,
       "showMenuItems",
@@ -68,40 +69,11 @@ class Employee {
     }
   }
 
-  static async getMenuIdFromName(
-    data: string,
-    callback: (response: any) => void
-  ) {
-    try {
-      const result: Menu = await MenuService.getMenuIdFromName(data);
-      console.log({ message: result.menu_id }, "itemID");
-
-      callback({ message: result.menu_id });
-    } catch (error) {
-      callback({ message: "Error fetching itemID" });
-      console.error("Error fetching itemID:", error);
-    }
-  }
-
-  // same in admin
   static async handleShowMenuItems(
-    data: Object,
+    data: any,
     callback: (response: any) => void
   ) {
-    try {
-      console.log(data, "from handleShowMenuItems");
-
-      const menuItems = await MenuService.showMenuItems(data);
-      console.log({ message: menuItems });
-
-      console.log("Before callback"); // Add this line
-      // callback(menuItems);
-      console.log("After callback"); // Add this line
-      callback({ message: menuItems });
-    } catch (error) {
-      callback({ message: "Error getting menu items" });
-      console.error("Error getting menu items:", error);
-    }
+    User.handleShowMenuItems(data, callback);
   }
 }
 export default Employee;

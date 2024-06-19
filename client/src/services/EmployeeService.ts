@@ -1,7 +1,7 @@
 import InputService from "./InputService";
 import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
-import validateService from "../validations/ValidationService";
+import validateService from "../validations/CommonValidation";
 import { User } from "../models/Users";
 import { Menu } from "../models/Menu";
 import { SharedService } from "./SharedService";
@@ -9,7 +9,7 @@ import { SharedService } from "./SharedService";
 export default class EmployeeService {
   static userDetail: User;
   private static sharedService: SharedService;
-  constructor() {
+  static {
     EmployeeService.sharedService = new SharedService();
   }
   static showEmployeeMenu(userDetail: User): Promise<string> {
@@ -36,9 +36,9 @@ export default class EmployeeService {
 
   static giveFeedback() {
     return new Promise(async (resolve, reject) => {
-      const menu_name: string = InputService.takeInputWithValidation(
-        "Enter menu item name to give feedback:"
-        // validateItemI
+      const itemID: string = InputService.takeInputWithValidation(
+        "Enter menu item id to give feedback:"
+        // validateItemID
       );
       const comment: string = InputService.takeInputWithValidation(
         "Enter your comment:"
@@ -49,38 +49,17 @@ export default class EmployeeService {
         InputService.takeInputWithValidation("Enter your rating (1-5): ")
       );
 
-      const menu_id = await EmployeeService.getMenuIdFromName(menu_name);
-      console.log("from here code is not going");
       const feedback = {
-        menu_id,
+        menu_id: itemID,
         comment,
         rating,
         user_id: EmployeeService.userDetail.user_id,
       };
 
-      console.log(feedback, "feedvakc from client emp service");
-
       socketService.emitEvent("giveFeedback", feedback, (response: any) => {
         OutputService.printMessage(response.message);
         resolve(response.message);
       });
-    });
-  }
-
-  static getMenuIdFromName(menu_name: string): Promise<number> {
-    return new Promise((resolve, reject) => {
-      socketService.emitEvent(
-        "getMenuIdFromName",
-        menu_name, // Todo : LEARN WHAT THINGS CHANGES wHEn Passing the menu_name as an object
-        (response: { message: number }) => {
-          if (response && response.message) {
-            resolve(response.message);
-            console.log("response.message", response.message);
-          } else {
-            reject(new Error("Failed to get menu ID"));
-          }
-        }
-      );
     });
   }
 

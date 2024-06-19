@@ -28,14 +28,13 @@ class SocketService {
     });
   }
 
-  // // to catch  the event
   public onEvent(eventName: string, callback: (data: any) => void): void {
     this.socket.on(eventName, (data) => {
-      console.log(`Received event ${eventName} with data:`, data);
+      console.log(`TESTING : Received event ${eventName} with data:`, data);
       callback(data);
     });
   }
-  // to send the event
+
   public emitEvent<T>(
     eventName: string,
     data: any,

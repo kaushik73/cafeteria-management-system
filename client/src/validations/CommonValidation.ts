@@ -1,4 +1,4 @@
-export default class ValidationService {
+export default class CommonValidations {
   static validateMonth(input: any): boolean {
     const month = parseInt(input);
     return !isNaN(month) && month >= 1 && month <= 12;

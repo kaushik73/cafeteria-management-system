@@ -3,15 +3,12 @@ import InputService from "./InputService";
 import { socketService } from "./SocketService";
 import {
   validateMealType,
-  validateItemName,
   validatePrice,
   validateAvailabilityStatus,
   validateMenuID,
-  validateDescription,
-  validateCategory,
-  validateNotificationMessage,
+  validateInputLength,
 } from "../validations/MenuValidations";
-import validateService from "../validations/ValidationService";
+import validateService from "../validations/CommonValidation";
 
 import { MealTypes } from "../common/types";
 import OutputService from "./OutputService";
@@ -22,10 +19,8 @@ import { SharedService } from "./SharedService";
 export default class AdminService {
   static userDetail: User;
   private static sharedService: SharedService;
-  // Static block to initialize the static property
   static {
     AdminService.sharedService = new SharedService();
-    console.log("object of shared service created");
   }
   static showAdminMenu(userDetail: User): Promise<string> {
     AdminService.userDetail = userDetail;
@@ -51,18 +46,14 @@ export default class AdminService {
   }
 
   static async showMenuItems() {
-    console.log("temp2");
-
-    // await AdminService.sharedService.showMenuItems();
     await AdminService.sharedService.showMenuItems();
-    console.log("temp3");
   }
 
   static async addMenuItem() {
     return new Promise((resolve, reject) => {
       const item_name: string = InputService.takeInputWithValidation(
         "Enter menu item name: ",
-        validateItemName
+        validateInputLength
       );
 
       const price: number = parseFloat(
@@ -104,7 +95,7 @@ export default class AdminService {
       );
       const item_name: string = InputService.takeInputWithValidation(
         "Enter new menu item name: ",
-        validateItemName
+        validateInputLength
       );
 
       const price: number = parseFloat(
@@ -120,7 +111,7 @@ export default class AdminService {
         ) === "yes";
       const meal_type: string = InputService.takeInputWithValidation(
         "Enter new menu item category: ",
-        validateCategory
+        validateInputLength
       );
 
       const item = {
@@ -190,14 +181,11 @@ export default class AdminService {
         "viewFeedbacks",
         { menu_id },
         (response: { message: any }) => {
-          console.log("viewFeedbacks socket called from client");
           const filteredResponse = response.message.map((feedback: any) => {
             const { rating, comment, menu_id, feedback_date } = feedback;
             return { rating, comment, menu_id, feedback_date };
           });
           // todo : change date format from server/ client
-          console.log("filteredResponse", filteredResponse);
-
           OutputService.printTable(filteredResponse);
           resolve(response.message);
         }

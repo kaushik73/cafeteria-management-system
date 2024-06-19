@@ -10,7 +10,6 @@ export default class ChefUI {
 
     while (continueLoop) {
       const choice: string = await ChefService.showChefMenu(userDetail);
-      console.log(`User chose: ${choice}`);
 
       switch (choice) {
         case "1":

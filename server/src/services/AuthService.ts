@@ -1,12 +1,10 @@
 import { sqlDBOperations } from "../database/operations/sqlDBOperations";
 import { User } from "../models/Users";
+import userDetailStore from "../store/userDetailStore";
 import LogService from "./LogService";
 
 class AuthService {
-  static async setUserDetail(
-    employeeID: string,
-    password: string
-  ): Promise<User> {
+  static async login(employeeID: string, password: string): Promise<User> {
     try {
       const result: any = await sqlDBOperations.selectOne("users", {
         emp_id: employeeID,
@@ -14,7 +12,7 @@ class AuthService {
       });
       const action = `${result.name} logged in as ${result.role}`;
       const logOutput = await LogService.logAction(action, result.emp_id);
-
+      userDetailStore.setUserDetail(result);
       return result ? result : null;
     } catch (error) {
       console.error("Error retrieving user role:", error);
@@ -24,6 +22,7 @@ class AuthService {
 
   static async logOut(userDetail: any) {
     const action = `${userDetail.name} logged out as ${userDetail.role}`;
+    userDetailStore.clearUserDetail();
     const logOutput = await LogService.logAction(action, userDetail.emp_id);
   }
 }

@@ -1,10 +1,8 @@
 import { Socket } from "socket.io";
 import SocketService from "../../services/SocketService";
 import NotificationService from "../../services/NotificationService";
-import MenuService from "../../services/MenuService";
 import FeedbackService from "../../services/FeedbackService";
 import DateService from "../../services/DateService";
-import { Menu } from "../../models/Menu";
 import User from "../User/User";
 
 class Employee {
@@ -31,12 +29,6 @@ class Employee {
       socket,
       "getMenuIdFromName",
       User.getMenuIdFromName
-    );
-
-    socketService.registerEventHandler(
-      socket,
-      "showMenuItems",
-      Employee.handleShowMenuItems
     );
   }
   static async handleSeeNotifications(

@@ -8,49 +8,60 @@ import Employee from "./modules/Employee/Employee";
 import { recommendationService } from "./engine/services/RecommendationService";
 import Chef from "./modules/Chef/Chef";
 import { recommendationEngine } from "./engine";
+import User from "./modules/User/User";
 
 const server = createServer();
 export default function main() {
   const socketService = SocketService.getInstance(server);
   socketService.initialize();
 
+  // socketService.onConnection((socket) => {
+  //   socket.on("login", async (data, callback) => {
+  //     try {
+  //       const { employeeID, password } = data;
+  //       const userDetail: any = await AuthService.login(
+  //         employeeID,
+  //         password
+  //       );
+  //       console.log(userDetail);
+  //       if (userDetail) {
+  //         const role = userDetail.role;
+  //         navigateToClass(role as Role, socketService, socket);
+
+  //         if (role == Role.Employee) {
+  //           console.log("inside employees emit Room if");
+  //           SocketService.joinRoom(socket, "employees");
+  //         }
+
+  //         callback({ userDetail: userDetail, message: "valid user" });
+  //       } else if (userDetail == null) {
+  //         callback({ userDetail: null, message: "Invalid Credianlts" });
+  //       } else {
+  //         callback({ userDetail: null, message: "Error Validating User" });
+  //         console.log(userDetail);
+  //       }
+  //     } catch (error) {
+  //       callback({ userDetail: null, message: "Internal server error" });
+  //       console.error("Error retrieving user role:", error);
+  //     }
+  //   });
+
+  //   socket.on("logout", async (data, callback) => {
+  //     try {
+  //       await AuthService.logOut(data.userDetail);
+  //       callback({ message: "log out successfull" });
+  //     } catch (error) {}
+  //   });
+
+  //   socket.on("disconnect", (reason) => {
+  //     console.log(
+  //       `Client disconnected with id: ${socket.id}, reason: ${reason}`
+  //     );
+  //   });
+  // });
+
   socketService.onConnection((socket) => {
-    socket.on("getUserDetail", async (data, callback) => {
-      try {
-        const { employeeID, password } = data;
-        const userDetail: any = await AuthService.setUserDetail(
-          employeeID,
-          password
-        );
-        console.log(userDetail);
-        if (userDetail) {
-          const role = userDetail.role;
-          navigateToClass(role as Role, socketService, socket);
-
-          if (role == Role.Employee) {
-            console.log("inside employees emit Room if");
-            SocketService.joinRoom(socket, "employees");
-          }
-
-          callback({ userDetail: userDetail, message: "valid user" });
-        } else if (userDetail == null) {
-          callback({ userDetail: null, message: "Invalid Credianlts" });
-        } else {
-          callback({ userDetail: null, message: "Error Validating User" });
-          console.log(userDetail);
-        }
-      } catch (error) {
-        callback({ userDetail: null, message: "Internal server error" });
-        console.error("Error retrieving user role:", error);
-      }
-    });
-
-    socket.on("logout", async (data, callback) => {
-      try {
-        await AuthService.logOut(data.userDetail);
-        callback({ message: "log out successfull" });
-      } catch (error) {}
-    });
+    User.registerHandlers(socketService, socket);
 
     socket.on("disconnect", (reason) => {
       console.log(
@@ -59,30 +70,30 @@ export default function main() {
     });
   });
 }
-function navigateToClass(
-  role: Role,
-  socketService: SocketService,
-  socket: Socket
-) {
-  // recommendationEngine.registerHandlers(socketService, socket);
+// function navigateToClass(
+//   role: Role,
+//   socketService: SocketService,
+//   socket: Socket
+// ) {
+//   // recommendationEngine.registerHandlers(socketService, socket);
 
-  // recommendationEngine.getNextDayRecommendation((data: any) => {
-  //   console.log("data", data);
-  // });
-  switch (role) {
-    case Role.Admin:
-      Admin.registerHandlers(socketService, socket);
-      break;
-    case Role.Employee:
-      Employee.registerHandlers(socketService, socket);
-      break;
-    case Role.Chef:
-      Chef.registerHandlers(socketService, socket);
-      break;
-    default:
-      console.log(`Unknown role: ${role}`);
-  }
-}
+//   // recommendationEngine.getNextDayRecommendation((data: any) => {
+//   //   console.log("data", data);
+//   // });
+//   switch (role) {
+//     case Role.Admin:
+//       Admin.registerHandlers(socketService, socket);
+//       break;
+//     case Role.Employee:
+//       Employee.registerHandlers(socketService, socket);
+//       break;
+//     case Role.Chef:
+//       Chef.registerHandlers(socketService, socket);
+//       break;
+//     default:
+//       console.log(`Unknown role: ${role}`);
+//   }
+// }
 
 server.listen(3001, () => {
   console.log("Server is running on port 3001");

@@ -211,7 +211,6 @@ class SqlOperation {
         `SELECT * FROM ${entityName} WHERE ${whereClause} LIMIT 1`,
         filterValues
       );
-      console.log("yy", rows.length > 0 ? rows[0] : null);
 
       return rows.length > 0 ? rows[0] : null;
     } catch (error) {
@@ -235,7 +234,7 @@ class SqlOperation {
     }
   }
 
-  async fetchDatawithCustomQuery(query: string) {
+  async runCustomQuery(query: string) {
     try {
       await this.ensureInitialized();
 

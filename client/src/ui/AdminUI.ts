@@ -2,6 +2,7 @@ import { User } from "../models/Users";
 import AdminService from "../services/AdminService";
 import OutputService from "../services/OutputService";
 import { loginUI } from "./LoginUI";
+import AuthService from "../services/AuthService";
 
 class AdminUI {
   static userDetail: User;
@@ -40,7 +41,8 @@ class AdminUI {
           break;
         case "0":
           continueLoop = false;
-          loginUI.showLoginMenu();
+          await AuthService.logOut();
+          await loginUI.showLoginMenu();
           break;
         default:
           OutputService.printMessage(

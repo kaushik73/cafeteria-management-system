@@ -12,31 +12,39 @@ class LoginUI {
   public role!: Role;
 
   async showLoginMenu() {
-    let userID: string = "101";
-    let password: string = "pass";
-    OutputService.printMessage("Welcome to the system! Please log in.");
+    return new Promise(async (resolve, reject) => {
+      let userID: string = "101";
+      let password: string = "pass";
+      OutputService.printMessage("Welcome to the system! Please log in.");
 
-    let loggedIn = false;
+      let loggedIn = false;
 
-    while (!loggedIn) {
-      userID = InputService.takeInputWithValidation("Enter your userID: ");
-      password = InputService.takeInputWithValidation("Enter your Password: ");
+      while (!loggedIn) {
+        userID = InputService.takeInputWithValidation("Enter your userID: ");
+        password = InputService.takeInputWithValidation(
+          "Enter your Password: "
+        );
 
-      try {
-        if (CommonValidations.validateUserID(userID)) {
-          const userDetail = await AuthService.getUserDetail(userID, password);
-          this.role = userDetail.role;
-          OutputService.printMessage(`Role received: ${this.role}`);
-          console.log("Role ", this.role, "set successfully on server");
-          this.navigateToRoleMenu(userDetail);
-          loggedIn = true;
-        } else {
-          OutputService.printMessage("Invalid userID format.");
+        try {
+          if (CommonValidations.validateUserID(userID)) {
+            const userDetail = await AuthService.setUserDetail(
+              userID,
+              password
+            );
+            this.role = userDetail.role;
+            OutputService.printMessage(`Role received: ${this.role}`);
+            console.log("Role ", this.role, "set successfully on server");
+            this.navigateToRoleMenu(userDetail);
+            loggedIn = true;
+          } else {
+            OutputService.printMessage("Invalid userID format.");
+          }
+        } catch (error: any) {
+          OutputService.printMessage(error.message);
         }
-      } catch (error: any) {
-        OutputService.printMessage(error.message);
       }
-    }
+      resolve(this.role);
+    });
   }
 
   navigateToRoleMenu(userDetail: User) {

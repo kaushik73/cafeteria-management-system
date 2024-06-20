@@ -18,7 +18,7 @@ export default class ChefService {
         `Chef Menu:\n` +
           `1.W View Menu Items\n` +
           `2. View Food Recommendations\n` +
-          `3. Send Food Recommendation to Employees\n` +
+          `3. Send Food Notification to Employees\n` +
           `4.W View Feedback Report\n` +
           `0. Logout`
       );

@@ -1,7 +1,6 @@
 import { Socket } from "socket.io";
 import MenuService from "../../services/MenuService";
 import SocketService from "../../services/SocketService";
-import NotificationService from "../../services/NotificationService";
 import FeedbackService from "../../services/FeedbackService";
 import User from "../User/User";
 // import User from "../User/User";
@@ -114,8 +113,6 @@ export default class Admin {
 
   static async viewFeedbacks(data: any, callback: (response: any) => void) {
     try {
-      console.log("viewFeedbacks from server - Admnin.ts", data);
-
       const feedbacks = await FeedbackService.viewFeedbacks(data);
       callback({ message: feedbacks });
     } catch (error) {
@@ -123,43 +120,4 @@ export default class Admin {
       console.error("Error getting Feedbacks:", error);
     }
   }
-
-  // static async handleSeeNotifications(
-  //   data: any,
-  //   callback: (response: any) => void
-  // ) {
-  //   try {
-  //     const notifications = await NotificationService.seeNotifications();
-  //     callback(notifications);
-  //   } catch (error) {
-  //     callback({ message: "Error fetching notifications" });
-  //     console.error("Error fetching notifications:", error);
-  //   }
-  // }
-
-  //   socketService.registerEventHandler(
-  //     "updateItemAvailability",
-  //     async (socket, data, callback) => {
-  //       try {
-  //         await MenuService.updateItemAvailability(data.itemID, data.availability);
-  //         callback({ message: "Item availability updated" });
-  //       } catch (error) {
-  //         callback({ message: "Error updating item availability" });
-  //         console.error("Error updating item availability:", error);
-  //       }
-  //     }
-  //   );
-
-  //   socketService.registerEventHandler(
-  //     "generateSalesReport",
-  //     async (socket, data, callback) => {
-  //       try {
-  //         const report = await MenuService.generateSalesReport();
-  //         callback(report);
-  //       } catch (error) {
-  //         callback({ message: "Error generating sales report" });
-  //         console.error("Error generating sales report:", error);
-  //       }
-  //     }
-  //   );
 }

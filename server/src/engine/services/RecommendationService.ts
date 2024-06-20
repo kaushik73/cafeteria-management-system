@@ -1,23 +1,26 @@
-import { Menu } from "../../models/Menu";
+import { MealTypes, Menu } from "../../models/Menu";
 import { Feedback } from "../../models/Feedback";
 import { Recommendation } from "../../models/Recommendation";
 import { sqlDBOperations } from "../../database/operations/sqlDBOperations";
 import { sentimentAnalysisService } from "./SentimentAnalysisService";
 import DateService from "../../services/DateService";
+import { mealTypeLimit } from "../../common/contants";
 
 class RecommendationService {
   async generateNextDayRecommendation(): Promise<Object> {
     try {
       const nextDay = DateService.getNthPreviousDate(-1);
       const mealTypes: ("breakfast" | "lunch" | "dinner")[] = [
-        // "breakfast",
-        "lunch",
+        "breakfast",
+        // "lunch",
         // "dinner",
       ];
+      console.log("Next day:", nextDay);
       const allRecommendations = await this.generateRecommendationsForMealTypes(
         mealTypes,
         nextDay
       );
+      console.log("All Recommendations:", allRecommendations);
       return {
         status: "success",
         message: "Next day recommendations generated successfully.",
@@ -38,10 +41,12 @@ class RecommendationService {
   ) {
     const allRecommendations = [];
     for (const mealType of mealTypes) {
+      console.log("Generating recommendations for meal type:", mealType);
       const recommendations = await this.generateRecommendationsForMealType(
         mealType,
         nextDay
       );
+      console.log(`Recommendations for ${mealType}:`, recommendations);
       allRecommendations.push(...recommendations);
     }
     return allRecommendations;
@@ -52,17 +57,30 @@ class RecommendationService {
     nextDay: string
   ) {
     const numberOfRecommendations = this.getNumberOfRecommendations(mealType);
+    console.log(
+      `Number of recommendations for ${mealType}:`,
+      numberOfRecommendations
+    );
     const topRatedItems = await this.getTopRatedMenuItems(
       mealType,
       numberOfRecommendations
     );
+    console.log(`Top rated items for ${mealType}:`, topRatedItems);
     return this.createRecommendations(topRatedItems, mealType, nextDay);
   }
 
   private getNumberOfRecommendations(
     mealType: "breakfast" | "lunch" | "dinner"
   ): number {
-    return 2; // default to 2 recommendations for simplicity
+    if (mealType == "breakfast") {
+      return mealTypeLimit.breakfast_limit;
+    } else if (mealType == "lunch") {
+      return mealTypeLimit.lunch_limit;
+    } else if (mealType == "dinner") {
+      return mealTypeLimit.dinner_limit;
+    } else {
+      return 0;
+    }
   }
 
   private async getTopRatedMenuItems(
@@ -70,23 +88,27 @@ class RecommendationService {
     limit: number
   ): Promise<Menu[]> {
     const feedbacks = await this.getAllFeedbacks();
+    console.log("Feedbacks:", feedbacks);
     const sentimentResults =
       await sentimentAnalysisService.analyzeFeedbackSentiments(feedbacks);
+    console.log("Sentiment results:", sentimentResults);
     const menuFeedbackMap = this.mapFeedbacksToMenuItems(
       feedbacks,
       sentimentResults
     );
-    const sortedMenuIds = this.sortMenuItemsByRatingAndSentiment(
+    console.log("Menu feedback map:", menuFeedbackMap);
+    const sortedMenuIds = await this.sortMenuItemsByRatingAndSentiment(
       menuFeedbackMap,
-      limit
+      limit,
+      mealType
     );
+    console.log("top menu IDs: for ", mealType, "are", sortedMenuIds);
     return this.getMenuItems(mealType, sortedMenuIds);
   }
 
-  private async getAllFeedbacks(): Promise<Feedback[]> {
-    const Feedbacks = sqlDBOperations.selectAll("Feedback") as Promise<
-      Feedback[]
-    >;
+  private async getAllFeedbacks(): Promise<any[]> {
+    const Feedbacks = await sqlDBOperations.selectAll("Feedback");
+    console.log("All feedbacks fetched from database:", Feedbacks);
     return Feedbacks;
   }
 
@@ -130,7 +152,16 @@ class RecommendationService {
     return menuFeedbackMap;
   }
 
-  private sortMenuItemsByRatingAndSentiment(
+  async getMealType(menuId: number): Promise<unknown> {
+    const mealType: any = await sqlDBOperations.selectOne("Menu", {
+      menu_id: menuId,
+    });
+    console.log("mealType", mealType.meal_type);
+
+    return mealType.meal_type;
+  }
+
+  private async sortMenuItemsByRatingAndSentiment(
     menuFeedbackMap: {
       [key: number]: {
         totalRating: number;
@@ -138,8 +169,9 @@ class RecommendationService {
         totalSentiment: number;
       };
     },
-    limit: number
-  ): number[] {
+    limit: number,
+    mealType: string
+  ): Promise<number[]> {
     const menuEntries = Object.entries(menuFeedbackMap).map(
       ([menuId, stats]) => ({
         menuId: Number(menuId),
@@ -152,13 +184,35 @@ class RecommendationService {
       (a, b) => b.avgRating + b.avgSentiment - (a.avgRating + a.avgSentiment)
     );
 
-    return menuEntries.slice(0, limit).map((entry) => entry.menuId);
+    console.log("Menu entries sorted by rating and sentiment:", menuEntries);
+    // Fetch meal types asynchronously and filter by meal type
+    const filteredEntries = await Promise.all(
+      menuEntries.map(async (entry) => {
+        const type = await this.getMealType(entry.menuId);
+        return type === mealType ? entry : null;
+      })
+    );
+
+    // Filter out null values
+    const validEntries = filteredEntries.filter((entry) => entry !== null) as {
+      menuId: number;
+    }[];
+
+    // Limit the results
+    const limitedEntries = validEntries.slice(0, limit);
+
+    return limitedEntries.map((entry) => entry.menuId);
   }
 
   private async getMenuItems(
     mealType: string,
     menuIds: number[]
   ): Promise<Menu[]> {
+    console.log(
+      "Fetching menu items for meal type and IDs:",
+      mealType,
+      menuIds
+    );
     return sqlDBOperations.selectAll(
       "Menu",
       { meal_type: mealType, menu_id: menuIds },
@@ -172,6 +226,7 @@ class RecommendationService {
     mealType: string,
     recommendationDate: string
   ): Promise<Recommendation[]> {
+    console.log("Creating recommendations for menu items:", menuItems);
     return Promise.all(
       menuItems.map((item) =>
         this.createRecommendation(item, mealType, recommendationDate)
@@ -192,20 +247,33 @@ class RecommendationService {
       recommendationDate,
       averageRating
     );
+    console.log("Built recommendation:", recommendation);
     return this.saveRecommendation(recommendation);
   }
 
   private async getFeedbackForMenu(menuId: number): Promise<Feedback[]> {
+    console.log("Fetching feedback for menu ID:", menuId);
     return sqlDBOperations.selectAll("Feedback", {
       menu_id: menuId,
     }) as Promise<Feedback[]>;
   }
 
   private calculateAverageRating(feedbacks: Feedback[]): number {
-    return (
-      feedbacks.reduce((sum, feedback) => sum + feedback.rating, 0) /
-      feedbacks.length
-    );
+    const ratings = feedbacks.map((feedback) => {
+      console.log("feedback.rating", feedback.rating);
+      return feedback.rating;
+    });
+
+    let totalRating = 0;
+    for (let i = 0; i < ratings.length; i++) {
+      totalRating += ratings[i];
+    }
+    console.log("totalRating", totalRating);
+
+    const averageRating = totalRating / feedbacks.length;
+
+    console.log("Calculated average rating:", averageRating);
+    return averageRating;
   }
 
   private buildRecommendation(
@@ -226,14 +294,75 @@ class RecommendationService {
   private async saveRecommendation(
     recommendation: Recommendation
   ): Promise<Recommendation> {
-    console.log("recommendation", recommendation);
-
+    console.log("Saving recommendation:", recommendation);
     const result = await sqlDBOperations.insert(
       "Recommendation",
       recommendation
     );
     if (!result) throw new Error("Failed to insert recommendation");
     return result;
+  }
+
+  async getNextDayRecommendations1() {
+    const mealTypes: ("breakfast" | "lunch" | "dinner")[] = [
+      "breakfast",
+      "lunch",
+      "dinner",
+    ];
+    let allRecommendations!: any[];
+    mealTypes.forEach(async (mealType) => {
+      const recommendations = await this.getNextDayRecommendationForMealType(
+        mealType
+      );
+      allRecommendations.push(recommendations); // recommendations is array
+    });
+    return {
+      status: "success",
+      message: "Next day recommendations generated successfully.",
+      recommendations: allRecommendations,
+    };
+  }
+  private async getNextDayRecommendationForMealType1(mealType: string) {
+    const recommendation = sqlDBOperations.selectAll("recommendation", {
+      meal_type: mealType,
+    });
+    return recommendation;
+  }
+  async getNextDayRecommendations() {
+    const mealTypes: ("breakfast" | "lunch" | "dinner")[] = [
+      "breakfast",
+      // "lunch",
+      // "dinner",
+    ];
+
+    const recommendationsPromises = mealTypes.map(
+      async (mealType) =>
+        await this.getNextDayRecommendationForMealType(mealType)
+    );
+
+    const allRecommendations = (
+      await Promise.all(recommendationsPromises)
+    ).flat();
+    console.log("allRecommendations", allRecommendations);
+
+    return {
+      status: "success",
+      message: "Next day recommendations get successfully.",
+      recommendations: allRecommendations,
+    };
+  }
+
+  private async getNextDayRecommendationForMealType(mealType: string) {
+    const nextDay = DateService.getNthPreviousDate(-1);
+    const today = DateService.getNthPreviousDate(0);
+    console.log(nextDay, "nextDay");
+
+    const recommendation = await sqlDBOperations.runCustomQuery(
+      `select * from Recommendation where meal_type = '${mealType}' and recommendation_date between '${today}' and '${nextDay}'`
+    );
+    console.log("getNextDayRecommendationForMealType", recommendation);
+
+    return recommendation;
   }
 }
 

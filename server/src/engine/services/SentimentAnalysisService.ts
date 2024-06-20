@@ -15,8 +15,8 @@ class SentimentAnalysisService {
       const result = this.sentiment.analyze(feedback.comment);
       return {
         feedback_id: feedback.feedback_id,
-        // comment: feedback.comment,
         sentiment: result.score,
+        rating: feedback.rating,
       };
     });
 

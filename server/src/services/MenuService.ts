@@ -7,6 +7,8 @@ import DateService from "./DateService";
 class MenuService {
   static async addMenuItem(item: Menu) {
     try {
+      console.log("item", item);
+
       const result: any = await sqlDBOperations.insert("Menu", item);
       console.log("Menu Added : ", result);
 

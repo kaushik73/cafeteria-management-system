@@ -30,7 +30,7 @@ This project is a recommendation engine designed for a cafeteria to enhance food
 
 ## Technical Requirements
 
-### Database - **MySQL**:
+### Database - **MySQL**
 
 ### Recommendation Algorithm
 

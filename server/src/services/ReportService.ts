@@ -10,7 +10,7 @@ export default class ReportService {
     endDate: string
   ): Promise<FeedbackReport[]> {
     const query = `CALL FeedbackReport('${startDate}', '${endDate}')`;
-    const [rows] = await sqlDBOperations.fetchDatawithCustomQuery(query);
+    const [rows] = await sqlDBOperations.runCustomQuery(query);
     return rows;
   }
 }

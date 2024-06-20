@@ -1,5 +1,5 @@
 @startuml
-entity Users {
+entity User {
     * user_id : INT <<PK>>
     --
     role : ENUM('admin', 'chef', 'employee') <<NOT NULL>>
@@ -51,14 +51,14 @@ entity Recommendation {
 entity Report {
     * report_id : INT <<PK>>
     --
-    report_type : ENUM('monthlyFeedback', 'sales', 'inventory') <<NOT NULL>>
+    report_type : ENUM('monthlyFeedback') <<NOT NULL>>
     generated_date : DATE <<NOT NULL>>
     menu_id : INT <<FK>>
     recommendation_id : INT <<FK>>
 
 }
 
-Users ||--o{ Feedback : "user_id"
+User ||--o{ Feedback : "user_id"
 Menu ||--o{ Feedback : "menu_id"
 Menu ||--o{ Notification : "menu_id"
 Menu ||--o{ Recommendation : "menu_id"

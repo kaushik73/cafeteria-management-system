@@ -18,7 +18,7 @@ export default function main() {
     socket.on("getUserDetail", async (data, callback) => {
       try {
         const { employeeID, password } = data;
-        const userDetail: any = await AuthService.getUserDetail(
+        const userDetail: any = await AuthService.setUserDetail(
           employeeID,
           password
         );
@@ -45,6 +45,13 @@ export default function main() {
       }
     });
 
+    socket.on("logout", async (data, callback) => {
+      try {
+        await AuthService.logOut(data.userDetail);
+        callback({ message: "log out successfull" });
+      } catch (error) {}
+    });
+
     socket.on("disconnect", (reason) => {
       console.log(
         `Client disconnected with id: ${socket.id}, reason: ${reason}`
@@ -59,9 +66,9 @@ function navigateToClass(
 ) {
   // recommendationEngine.registerHandlers(socketService, socket);
 
-  recommendationEngine.generateNextDayRecommendation((data: any) => {
-    console.log("data", data);
-  });
+  // recommendationEngine.getNextDayRecommendation((data: any) => {
+  //   console.log("data", data);
+  // });
   switch (role) {
     case Role.Admin:
       Admin.registerHandlers(socketService, socket);

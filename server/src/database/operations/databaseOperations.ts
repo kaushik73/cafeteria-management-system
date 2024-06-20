@@ -4,5 +4,5 @@ export default interface DatabaseOperation {
   selectOne(entityName: string, filter: object): Promise<unknown | null>;
   selectAll(entityName: string, filter?: object): Promise<unknown[]>;
   delete(entityName: string, filter: object): Promise<unknown>;
-  fetchDatawithCustomQuery(query: string, filter: object): Promise<unknown>;
+  runCustomQuery(query: string, filter: object): Promise<unknown>;
 }

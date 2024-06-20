@@ -64,6 +64,14 @@ CREATE TABLE Report (
     FOREIGN KEY (recommendation_id) REFERENCES Recommendation(recommendation_id) ON DELETE CASCADE
 );
 
+CREATE TABLE log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    action VARCHAR(255) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(emp_id) ON DELETE CASCADE
+);
+
 -- from '2024-01-01' ;
 -- to '2024-07-01' ;
 DELIMITER / / CREATE PROCEDURE FeedbackReport(IN startDate DATE, IN endDate DATE) BEGIN

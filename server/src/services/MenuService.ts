@@ -3,6 +3,7 @@ import { sqlDBOperations } from "../database/operations/sqlDBOperations";
 import { Menu } from "../models/Menu";
 import SocketService from "./SocketService";
 import DateService from "./DateService";
+import NotificationService from "./NotificationService";
 
 class MenuService {
   static async addMenuItem(item: Menu) {
@@ -14,11 +15,10 @@ class MenuService {
 
       // Insert notification into the Notification table
       const notificationMessage = `added ${item.item_name} for ${item.meal_type}`;
-      await this.addNotification(
+      await NotificationService.addNotification(
         "menuUpdate",
         notificationMessage,
         result.insertId
-        //defaultNewItemID
       );
       // await this.sendMenuUpdateNotification(notificationMessage);
 
@@ -36,7 +36,7 @@ class MenuService {
       // Insert notification into the Notification table
       const notificationMessage = `Menu item updated: ${item.item_name}`;
 
-      await this.addNotification(
+      await NotificationService.addNotification(
         "menuUpdate",
         notificationMessage,
         result.insertId
@@ -50,40 +50,64 @@ class MenuService {
     }
   }
 
-  static async deleteMenuItem(itemID: number) {
+  static async deleteMenuItem(data: any) {
     try {
-      const result = await sqlDBOperations.delete("Menu", { menu_id: itemID });
+      const MenuDetail = await MenuService.getMenuDetailFromId(data.itemID);
+      const notificationMessage = `Deleted ${MenuDetail.item_name} from ${MenuDetail.meal_type}`;
+      // todo : make on delete set null
+      await NotificationService.addNotification(
+        "menuUpdate",
+        notificationMessage,
+        data.itemID
+      );
+      const result: any = await sqlDBOperations.delete("Menu", {
+        menu_id: data.itemID,
+      });
       return result;
     } catch (error: any) {
       throw new Error("Error deleting data");
     }
   }
 
-  static async getMenuIdFromName(item_name: string) {
-    const itemID: any = await sqlDBOperations.selectOne("menu", {
-      item_name,
-    });
-    return itemID;
-  }
+  // static async getMenuIdFromName(item_name: string) {
+  //   const itemID: any = await sqlDBOperations.selectOne("menu", {
+  //     item_name,
+  //   });
+  //   return itemID;
+  // }
 
-  static async addNotification(type: string, message: string, menuId: number) {
-    const currentDate = DateService.getCurrentDate();
-    console.log("addNotification", currentDate);
-
-    const notification = {
-      notification_type: type,
-      message: message,
-      notification_date: currentDate,
-      menu_id: menuId,
-    };
-
+  static async getMenuDetailFromId(MenuId: string) {
     try {
-      await sqlDBOperations.insert("Notification", notification);
-      console.log("Notification added successfully:", notification);
-    } catch (error: any) {
-      throw new Error("Error adding notification: " + error.message);
+      console.log(MenuId, "MenuId");
+
+      const Menu: any = await sqlDBOperations.selectOne("menu", {
+        menu_id: MenuId,
+      });
+      console.log({ message: Menu }, "MenuDetail");
+      return Menu;
+    } catch (error) {
+      console.error("Error fetching itemID:", error);
     }
   }
+
+  // static async addNotification(type: string, message: string, menuId: number) {
+  //   const currentDate = DateService.getCurrentDate();
+  //   console.log("addNotification", currentDate);
+
+  //   const notification = {
+  //     notification_type: type,
+  //     message: message,
+  //     notification_date: currentDate,
+  //     menu_id: menuId,
+  //   };
+
+  //   try {
+  //     await sqlDBOperations.insert("Notification", notification);
+  //     console.log("Notification added successfully:", notification);
+  //   } catch (error: any) {
+  //     throw new Error("Error adding notification: " + error.message);
+  //   }
+  // }
   // Notify all employees
   // static async sendMenuUpdateNotification(message: string) {
   //   try {

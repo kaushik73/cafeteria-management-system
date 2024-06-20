@@ -36,20 +36,20 @@ export default class User {
     }
   }
 
-  static async getMenuIdFromName(
-    data: string,
-    callback: (response: any) => void
-  ) {
-    try {
-      const result: Menu = await MenuService.getMenuIdFromName(data);
-      console.log({ message: result.menu_id }, "itemID");
+  // static async getMenuIdFromName(
+  //   data: string,
+  //   callback: (response: any) => void
+  // ) {
+  //   try {
+  //     const result: Menu = await MenuService.getMenuIdFromName(data);
+  //     console.log({ message: result.menu_id }, "itemID");
 
-      callback({ message: result.menu_id });
-    } catch (error) {
-      callback({ message: "Error fetching itemID" });
-      console.error("Error fetching itemID:", error);
-    }
-  }
+  //     callback({ message: result.menu_id });
+  //   } catch (error) {
+  //     callback({ message: "Error fetching itemID" });
+  //     console.error("Error fetching itemID:", error);
+  //   }
+  // }
 
   static async handleLogout(data: any, callback: any) {
     try {

@@ -101,7 +101,7 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
-      const result = await MenuService.deleteMenuItem(data.itemID);
+      const result = await MenuService.deleteMenuItem(data);
       console.log("result before callbaclk", result);
 
       callback({ message: "Menu item deleted" });

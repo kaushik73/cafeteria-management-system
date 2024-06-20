@@ -25,11 +25,11 @@ class Employee {
       Employee.handleGiveFeedback
     );
 
-    socketService.registerEventHandler(
-      socket,
-      "getMenuIdFromName",
-      User.getMenuIdFromName
-    );
+    // socketService.registerEventHandler(
+    //   socket,
+    //   "getMenuIdFromName",
+    //   User.getMenuIdFromName
+    // );
   }
   static async handleSeeNotifications(
     data: any,

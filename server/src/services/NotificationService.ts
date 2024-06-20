@@ -7,9 +7,29 @@ import DateService from "./DateService";
 import LogService from "./LogService";
 
 export default class NotificationService {
-  static async addNotification(notification: Notification): Promise<any> {
+  static async addNotificationOLD(notification: Notification): Promise<any> {
     await sqlDBOperations.insert("Notification", notification);
   }
+
+  static async addNotification(type: string, message: string, menuId: number) {
+    const currentDate = DateService.getCurrentDate();
+    console.log("addNotification", currentDate);
+
+    const notification = {
+      notification_type: type,
+      message: message,
+      notification_date: currentDate,
+      menu_id: menuId,
+    };
+
+    try {
+      await sqlDBOperations.insert("Notification", notification);
+      console.log("Notification added successfully:", notification);
+    } catch (error: any) {
+      throw new Error("Error adding notification: " + error.message);
+    }
+  }
+
   static async seeNotifications(): Promise<any[]> {
     const expiryDays = defaultItemValues.notification_expiry;
     const expiryDate = DateService.getNthPreviousDate(expiryDays);

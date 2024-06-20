@@ -69,18 +69,15 @@ class SqlOperation {
 
   async update(
     entityName: string,
-    data: object, // Simplified filter handling (explained below)
-    filter?: object // Optional filter for specific updates
+    data: object,
+    filter?: object
   ): Promise<number | null> {
     try {
       await this.ensureInitialized();
-      // console.log(`Updating data in ${entityName}...`);
 
-      // Construct the UPDATE query with parameterized values
       let updateQuery = `UPDATE ${entityName} SET ?`;
       const params = [data];
 
-      // Add WHERE clause with parameterized values if filter is provided
       if (filter) {
         updateQuery += " WHERE ?";
         params.push(filter);
@@ -88,10 +85,7 @@ class SqlOperation {
 
       const result: any = await this.connection.query(updateQuery, params);
 
-      // Return the number of affected rows for success or null for errors
       return result[0].affectedRows > 0 ? result[0].affectedRows : null;
-
-      // console.log(`Data updated in ${entityName} successfully.`);
     } catch (error) {
       console.error(`Error updating data in ${entityName}:`, error);
       throw error;
@@ -211,6 +205,10 @@ class SqlOperation {
         `SELECT * FROM ${entityName} WHERE ${whereClause} LIMIT 1`,
         filterValues
       );
+      console.log(
+        `SELECT * FROM ${entityName} WHERE ${whereClause} LIMIT 1`,
+        filterValues
+      );
 
       return rows.length > 0 ? rows[0] : null;
     } catch (error) {
@@ -219,15 +217,51 @@ class SqlOperation {
     }
   }
 
+  // async deleteOLD(entityName: string, filter: object): Promise<unknown> {
+  //   try {
+  //     await this.ensureInitialized();
+
+  //     let updateQuery = `DELETE FROM ${entityName} `;
+  //     const params = [filter];
+
+  //     if (filter) {
+  //       updateQuery += " WHERE ?";
+  //       params.push(filter);
+  //     }
+  //     console.log(updateQuery);
+
+  //     const result: any = await this.connection.query(updateQuery, params);
+
+  //     return result[0].affectedRows > 0 ? result[0].affectedRows : null;
+  //   } catch (error) {
+  //     console.error(`Error deleting data from ${entityName}:`, error);
+  //     throw new Error(`Error deleting data from ${entityName}`);
+  //   }
+  // }
+
   async delete(entityName: string, filter: object): Promise<unknown> {
     try {
       await this.ensureInitialized();
-      const row = await this.connection.query(
-        `DELETE FROM ${entityName} WHERE ?`,
-        [filter]
-      );
-      return row.length > 0 ? row[0] : null;
-      // console.log(`Data deleted from ${entityName} successfully.`);
+
+      let deleteQuery = `DELETE FROM ${entityName}`;
+      const filterKeys = Object.keys(filter);
+      const params: any[] = [];
+
+      if (filterKeys.length > 0) {
+        const whereClauses = filterKeys
+          .map((key) => `${key} = ?`)
+          .join(" AND ");
+        deleteQuery += ` WHERE ${whereClauses}`;
+        filterKeys.forEach((key) => {
+          params.push((filter as any)[key]);
+        });
+      }
+
+      console.log(deleteQuery, params);
+
+      const [result]: any = await this.connection.query(deleteQuery, params);
+
+      return result.affectedRows > 0 ? result.affectedRows : null;
     } catch (error) {
       console.error(`Error deleting data from ${entityName}:`, error);
       throw new Error(`Error deleting data from ${entityName}`);

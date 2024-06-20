@@ -12,8 +12,8 @@ class RecommendationService {
       const nextDay = DateService.getNthPreviousDate(-1);
       const mealTypes: ("breakfast" | "lunch" | "dinner")[] = [
         "breakfast",
-        // "lunch",
-        // "dinner",
+        "lunch",
+        "dinner",
       ];
       console.log("Next day:", nextDay);
       const allRecommendations = await this.generateRecommendationsForMealTypes(
@@ -185,7 +185,6 @@ class RecommendationService {
     );
 
     console.log("Menu entries sorted by rating and sentiment:", menuEntries);
-    // Fetch meal types asynchronously and filter by meal type
     const filteredEntries = await Promise.all(
       menuEntries.map(async (entry) => {
         const type = await this.getMealType(entry.menuId);
@@ -193,12 +192,10 @@ class RecommendationService {
       })
     );
 
-    // Filter out null values
     const validEntries = filteredEntries.filter((entry) => entry !== null) as {
       menuId: number;
     }[];
 
-    // Limit the results
     const limitedEntries = validEntries.slice(0, limit);
 
     return limitedEntries.map((entry) => entry.menuId);
@@ -303,55 +300,6 @@ class RecommendationService {
     return result;
   }
 
-  async getNextDayRecommendations1() {
-    const mealTypes: ("breakfast" | "lunch" | "dinner")[] = [
-      "breakfast",
-      "lunch",
-      "dinner",
-    ];
-    let allRecommendations!: any[];
-    mealTypes.forEach(async (mealType) => {
-      const recommendations = await this.getNextDayRecommendationForMealType(
-        mealType
-      );
-      allRecommendations.push(recommendations); // recommendations is array
-    });
-    return {
-      status: "success",
-      message: "Next day recommendations generated successfully.",
-      recommendations: allRecommendations,
-    };
-  }
-  private async getNextDayRecommendationForMealType1(mealType: string) {
-    const recommendation = sqlDBOperations.selectAll("recommendation", {
-      meal_type: mealType,
-    });
-    return recommendation;
-  }
-  async getNextDayRecommendations() {
-    const mealTypes: ("breakfast" | "lunch" | "dinner")[] = [
-      "breakfast",
-      // "lunch",
-      // "dinner",
-    ];
-
-    const recommendationsPromises = mealTypes.map(
-      async (mealType) =>
-        await this.getNextDayRecommendationForMealType(mealType)
-    );
-
-    const allRecommendations = (
-      await Promise.all(recommendationsPromises)
-    ).flat();
-    console.log("allRecommendations", allRecommendations);
-
-    return {
-      status: "success",
-      message: "Next day recommendations get successfully.",
-      recommendations: allRecommendations,
-    };
-  }
-
   private async getNextDayRecommendationForMealType(mealType: string) {
     const nextDay = DateService.getNthPreviousDate(-1);
     const today = DateService.getNthPreviousDate(0);
@@ -363,6 +311,38 @@ class RecommendationService {
     console.log("getNextDayRecommendationForMealType", recommendation);
 
     return recommendation;
+  }
+
+  async getNextDayRecommendations() {
+    const mealTypes: ("breakfast" | "lunch" | "dinner")[] = [
+      "breakfast",
+      "lunch",
+      "dinner",
+    ];
+
+    const recommendationsPromises = mealTypes.map(async (mealType) => {
+      const recommendations = await this.getNextDayRecommendationForMealType(
+        mealType
+      );
+      return { mealType, recommendations };
+    });
+
+    const recommendationsArray = await Promise.all(recommendationsPromises);
+    const allRecommendations = recommendationsArray.reduce(
+      (acc, { mealType, recommendations }) => {
+        acc[mealType] = recommendations;
+        return acc;
+      },
+      {} as Record<string, any[]>
+    );
+
+    console.log("allRecommendations", allRecommendations);
+
+    return {
+      status: "success",
+      message: "Next day recommendations generated successfully.",
+      recommendations: allRecommendations,
+    };
   }
 }
 

@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import SocketService from "../../services/SocketService";
 import ReportService from "../../services/ReportService";
 import User from "../User/User";
+import { recommendationEngine } from "../../engine";
 
 class Chef {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -17,6 +18,12 @@ class Chef {
       "showMenuItems",
       Chef.handleShowMenuItems
     );
+    socketService.registerEventHandler(
+      socket,
+      "rolloutFoodToEmployees",
+      Chef.rolloutFoodToEmployees
+    );
+    socketService.registerEventHandler(socket, "chefRollout", Chef.chefRollout);
   }
   static async handleShowMenuItems(
     data: Object,
@@ -47,6 +54,27 @@ class Chef {
       callback({ message: "Error fetching report" });
       console.error("Error fetching report:", error);
     }
+  }
+
+  static async rolloutFoodToEmployees(
+    data: Object,
+    callback: (response: any) => void
+  ) {
+    User.handleShowMenuItems(data, callback);
+    // todo : uncomment this
+    await recommendationEngine.generateNextDayRecommendation((data: any) => {
+      console.log("generateNextDayRecommendation", data);
+    });
+    await recommendationEngine.getNextDayRecommendation((data: any) => {
+      console.log("data-getNextDayRecommendation", data.recommendations);
+      callback(data.recommendations);
+    });
+  }
+
+  static async chefRollout(data: Object, callback: (response: any) => void) {
+    await recommendationEngine.getNextDayRecommendation((data: any) => {
+      callback("Chef Rolledout Success");
+    });
   }
 }
 export default Chef;

@@ -26,8 +26,12 @@ CREATE TABLE Feedback (
     feedback_date DATETIME NOT NULL,
     user_id INT,
     menu_id INT,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE
+    SET
+        NULL,
+        FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE
+    SET
+        NULL
 );
 
 CREATE TABLE Notification (
@@ -40,7 +44,9 @@ CREATE TABLE Notification (
     message TEXT NOT NULL,
     notification_date DATETIME NOT NULL,
     menu_id INT,
-    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE CASCADE
+    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE
+    SET
+        NULL
 );
 
 CREATE TABLE Recommendation (
@@ -48,10 +54,11 @@ CREATE TABLE Recommendation (
     meal_type ENUM('lunch', 'dinner', 'breakfast') NOT NULL,
     recommendation_date DATETIME NOT NULL,
     average_rating INT NOT NULL,
-    is_prepared BOOLEAN NULL,
-    -- can be null
+    rollout_to_employee BOOLEAN NULL,
     menu_id INT,
-    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE CASCADE
+    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE
+    SET
+        NULL
 );
 
 CREATE TABLE Report (
@@ -60,8 +67,12 @@ CREATE TABLE Report (
     generated_date DATETIME NOT NULL,
     menu_id INT,
     recommendation_id INT,
-    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE CASCADE,
-    FOREIGN KEY (recommendation_id) REFERENCES Recommendation(recommendation_id) ON DELETE CASCADE
+    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE
+    SET
+        NULL,
+        FOREIGN KEY (recommendation_id) REFERENCES Recommendation(recommendation_id) ON DELETE
+    SET
+        NULL
 );
 
 CREATE TABLE log (
@@ -69,7 +80,9 @@ CREATE TABLE log (
     user_id INT,
     action VARCHAR(255) NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(emp_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(emp_id) ON DELETE
+    SET
+        NULL
 );
 
 -- from '2024-01-01' ;
@@ -94,4 +107,12 @@ GROUP BY
 ORDER BY
     averageRating DESC;
 
-END
+END;
+
+CREATE TABLE votedItem (
+    voted_item_id INT PRIMARY KEY,
+    menu_id INT NOT NULL,
+    vote_count INT NOT NULL,
+    voted_item_date DATETIME NOT NULL,
+    is_prepared BOOLEAN NOT NULL
+);

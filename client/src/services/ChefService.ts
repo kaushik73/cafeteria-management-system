@@ -4,7 +4,6 @@ import { SharedService } from "./SharedService";
 import InputService from "./InputService";
 import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
-
 export default class ChefService {
   static userDetail: User;
   private static sharedService: SharedService;
@@ -17,8 +16,8 @@ export default class ChefService {
       OutputService.printMessage(
         `Chef Menu:\n` +
           `1.W View Menu Items\n` +
-          `2. View Food Recommendations\n` +
-          `3. Send Food Notification to Employees\n` +
+          // `2. View Food Recommendations\n` +
+          `3. Rollout Food to Employees\n` +
           `4.W View Feedback Report\n` +
           `0. Logout`
       );
@@ -63,27 +62,47 @@ export default class ChefService {
     });
   }
 
-  static viewFoodRecommendation() {
+  static rolloutFoodToEmployees() {
     return new Promise(async (resolve, reject) => {
-      socketService.emitEvent("viewFoodRecommendation", {}, (response) => {
-        console.log(response);
+      socketService.emitEvent("rolloutFoodToEmployees", {}, (response: any) => {
+        OutputService.printTable(response.message);
+        const recommendationIdForBreakfast: string =
+          InputService.takeInputWithValidation(
+            "Enter comma (,) separated recommendation_id for breakfast: "
+          );
+        const recommendationIdForLunch: string =
+          InputService.takeInputWithValidation(
+            "Enter comma (,) separated recommendation_id for lunch: "
+          );
+        const recommendationIdForDinner: string =
+          InputService.takeInputWithValidation(
+            "Enter comma (,) separated recommendation_id for dinner: "
+          );
+
+        const rolloutData = {
+          breakfast: recommendationIdForBreakfast
+            .split(",")
+            .map((id) => Number(id.trim())),
+          lunch: recommendationIdForLunch
+            .split(",")
+            .map((id) => Number(id.trim())),
+          dinner: recommendationIdForDinner
+            .split(",")
+            .map((id) => Number(id.trim())),
+        };
+
+        console.log(rolloutData, "rolloutData");
+
+        socketService.emitEvent(
+          "chefRollout",
+          rolloutData,
+          (chefResponse: any) => {
+            OutputService.printMessage(chefResponse);
+            resolve(chefResponse);
+          }
+        );
+        resolve(response);
       });
-
-      resolve("temp");
-    });
-  }
-
-  static sendFoodRecommendationToEmployees() {
-    return new Promise(async (resolve, reject) => {
-      socketService.emitEvent(
-        "sendFoodRecommendationToEmployees",
-        {},
-        (response) => {
-          console.log(response);
-        }
-      );
-
-      resolve("temp");
     });
   }
 }

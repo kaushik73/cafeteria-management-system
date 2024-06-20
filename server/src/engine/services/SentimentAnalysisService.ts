@@ -22,6 +22,24 @@ class SentimentAnalysisService {
 
     return sentimentResults;
   }
+
+  async calculateAverageSentiment(feedbacks: Feedback[]): Promise<number> {
+    const sentimentResults =
+      await sentimentAnalysisService.analyzeFeedbackSentiments(feedbacks);
+
+    let totalSentiment = 0;
+    for (const feedback of feedbacks) {
+      const sentiment =
+        sentimentResults.find(
+          (result) => result.feedback_id === feedback.feedback_id
+        )?.sentiment || 0;
+      totalSentiment += sentiment;
+    }
+
+    const averageSentiment = totalSentiment / feedbacks.length;
+    console.log("Calculated average sentiment:", averageSentiment);
+    return averageSentiment;
+  }
 }
 
 export const sentimentAnalysisService = new SentimentAnalysisService();

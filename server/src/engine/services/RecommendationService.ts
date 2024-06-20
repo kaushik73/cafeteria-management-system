@@ -238,11 +238,14 @@ class RecommendationService {
   ): Promise<Recommendation> {
     const feedbacks = await this.getFeedbackForMenu(item.menu_id);
     const averageRating = this.calculateAverageRating(feedbacks);
+    const averageSentiment =
+      await sentimentAnalysisService.calculateAverageSentiment(feedbacks);
     const recommendation = this.buildRecommendation(
       item.menu_id,
       mealType,
       recommendationDate,
-      averageRating
+      averageRating,
+      averageSentiment
     );
     console.log("Built recommendation:", recommendation);
     return this.saveRecommendation(recommendation);
@@ -277,13 +280,15 @@ class RecommendationService {
     menuId: number,
     mealType: any,
     recommendationDate: string,
-    averageRating: number
+    averageRating: number,
+    averageSentiment: number
   ): Recommendation {
     return {
       meal_type: mealType,
       recommendation_date: recommendationDate as unknown as Date,
       average_rating: averageRating,
-      is_prepared: null, // to be set by chef later
+      rollout_to_employee: null, // to be set by chef later
+      average_sentiment: averageSentiment,
       menu_id: menuId,
     };
   }

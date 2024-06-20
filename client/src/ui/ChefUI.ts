@@ -15,11 +15,11 @@ export default class ChefUI {
         case "1":
           await ChefService.showMenuItems();
           break;
-        case "2":
-          await ChefService.viewFoodRecommendation();
-          break;
+        // case "2":
+        //   await ChefService.viewFoodRecommendation();
+        //   break;
         case "3":
-          await ChefService.sendFoodRecommendationToEmployees();
+          await ChefService.rolloutFoodToEmployees();
           break;
         case "4":
           await ChefService.viewFeedbackReport();

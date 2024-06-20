@@ -13,17 +13,17 @@ class LoginUI {
 
   async showLoginMenu() {
     return new Promise(async (resolve, reject) => {
-      let userID: string = "101";
+      let userID: string = "102";
       let password: string = "pass";
       OutputService.printMessage("Welcome to the system! Please log in.");
 
       let loggedIn = false;
 
       while (!loggedIn) {
-        userID = InputService.takeInputWithValidation("Enter your userID: ");
-        password = InputService.takeInputWithValidation(
-          "Enter your Password: "
-        );
+        // userID = InputService.takeInputWithValidation("Enter your userID: ");
+        // password = InputService.takeInputWithValidation(
+        //   "Enter your Password: "
+        // );
 
         try {
           if (CommonValidations.validateUserID(userID)) {

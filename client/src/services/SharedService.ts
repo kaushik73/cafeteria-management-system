@@ -8,6 +8,8 @@ export class SharedService {
         "showMenuItems",
         { meal_type: "desc" },
         (response: any) => {
+          // console.log(response.message);
+
           OutputService.printTable(response.message);
           resolve(response.message);
         }

@@ -6,9 +6,11 @@ export default class AuthService {
   static setUserDetail(employeeID: string, password: string): Promise<any> {
     return new Promise((resolve, reject) => {
       socketService.emitEvent(
-        "getUserDetail",
+        "login",
         { employeeID, password },
         (response: { userDetail: User; message: string }) => {
+          console.log("inside client login");
+
           if (response.userDetail) {
             AuthService.userDetail = response.userDetail;
             resolve(response.userDetail);

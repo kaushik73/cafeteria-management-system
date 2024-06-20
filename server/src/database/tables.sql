@@ -54,6 +54,7 @@ CREATE TABLE Recommendation (
     meal_type ENUM('lunch', 'dinner', 'breakfast') NOT NULL,
     recommendation_date DATETIME NOT NULL,
     average_rating INT NOT NULL,
+    average_sentiment INT NOT NULL,
     rollout_to_employee BOOLEAN NULL,
     menu_id INT,
     FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE

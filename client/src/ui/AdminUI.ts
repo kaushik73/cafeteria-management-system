@@ -18,7 +18,7 @@ class AdminUI {
           await AdminService.showMenuItems();
           break;
         case "2":
-          await AdminService.showMenuItems();
+          // await AdminService.showMenuItems();
           await AdminService.addMenuItem();
           break;
         case "3":

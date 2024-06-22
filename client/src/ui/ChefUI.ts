@@ -15,9 +15,9 @@ export default class ChefUI {
         case "1":
           await ChefService.showMenuItems();
           break;
-        // case "2":
-        //   await ChefService.viewFoodRecommendation();
-        //   break;
+        case "2":
+          await ChefService.seeRecommendedFood();
+          break;
         case "3":
           await ChefService.rolloutFoodToEmployees();
           break;

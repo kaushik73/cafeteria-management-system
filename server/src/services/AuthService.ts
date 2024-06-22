@@ -4,26 +4,37 @@ import userDetailStore from "../store/userDetailStore";
 import LogService from "./LogService";
 
 class AuthService {
-  static async login(employeeID: string, password: string): Promise<User> {
+  static async login(
+    employeeID: string,
+    password: string
+  ): Promise<User | null> {
     try {
-      const result: any = await sqlDBOperations.selectOne("users", {
+      const userDetail: User = (await sqlDBOperations.selectOne("users", {
         emp_id: employeeID,
         password: password,
-      });
-      const action = `${result.name} logged in as ${result.role}`;
-      const logOutput = await LogService.logAction(action, result.emp_id);
-      userDetailStore.setUserDetail(result);
-      return result ? result : null;
+      })) as User;
+      const action = `${userDetail.name} logged in as ${userDetail.role}`;
+      const logOutput = await LogService.logAction(
+        action,
+        userDetail.emp_id as number
+      );
+      userDetailStore.setUserDetail(userDetail);
+      return userDetail ? userDetail : null;
     } catch (error) {
-      console.error("Error retrieving user role:", error);
-      throw error;
+      console.error("Error logging in:", error);
+      throw new Error("Error logging in");
     }
   }
 
   static async logOut(userDetail: any) {
-    const action = `${userDetail.name} logged out as ${userDetail.role}`;
-    userDetailStore.clearUserDetail();
-    const logOutput = await LogService.logAction(action, userDetail.emp_id);
+    try {
+      const action = `${userDetail.name} logged out as ${userDetail.role}`;
+      userDetailStore.clearUserDetail();
+      const logOutput = await LogService.logAction(action, userDetail.emp_id);
+    } catch (error) {
+      console.error("Error logging out:", error);
+      throw error;
+    }
   }
 }
 

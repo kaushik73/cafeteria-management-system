@@ -17,13 +17,7 @@ export class MySqlConnection {
   public static async initializeConnection(): Promise<void> {
     if (!MySqlConnection.connection) {
       try {
-        console.log(
-          MySqlConnection.connectionObj.user,
-          MySqlConnection.connectionObj.port
-        );
-
-        console.log("initializeConnection");
-
+        // console.log("initializeConnection");
         MySqlConnection.connection = await mysql.createConnection(
           MySqlConnection.connectionObj
         );
@@ -38,7 +32,7 @@ export class MySqlConnection {
       console.log("trying to setup connection");
       await MySqlConnection.initializeConnection();
     }
-    console.log("from getConnection");
+    // console.log("from getConnection");
 
     return MySqlConnection.connection;
   }

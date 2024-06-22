@@ -1,20 +1,20 @@
 import { User } from "../models/Users";
 import { socketService } from "./SocketService";
+import { Response } from "../common/types";
 
 export default class AuthService {
   static userDetail: User;
-  static setUserDetail(employeeID: string, password: string): Promise<any> {
+  static login(employeeID: string, password: string): Promise<any> {
     return new Promise((resolve, reject) => {
       socketService.emitEvent(
         "login",
         { employeeID, password },
-        (response: { userDetail: User; message: string }) => {
-          console.log("inside client login");
-
-          if (response.userDetail) {
-            AuthService.userDetail = response.userDetail;
-            resolve(response.userDetail);
-          } else if (response.userDetail === null) {
+        (response: Response<{ userDetail: User | null }>) => {
+          const userDetail = response.data.userDetail;
+          if (userDetail) {
+            AuthService.userDetail = userDetail;
+            resolve(userDetail);
+          } else if (userDetail === null) {
             reject(new Error(response.message));
           } else {
             reject(new Error(response.message));

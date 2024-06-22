@@ -15,10 +15,10 @@ export default class ChefService {
     return new Promise((resolve, reject) => {
       OutputService.printMessage(
         `Chef Menu:\n` +
-          `1.W View Menu Items\n` +
-          // `2. View Food Recommendations\n` +
+          `1. View Menu Items\n` +
+          `2. View Recommended Food\n` +
           `3. Rollout Food to Employees\n` +
-          `4.W View Feedback Report\n` +
+          `4. View Feedback Report\n` +
           `0. Logout`
       );
       const choice = InputService.takeInputWithValidation(
@@ -62,18 +62,23 @@ export default class ChefService {
     });
   }
 
+  static seeRecommendedFood() {}
+
   static rolloutFoodToEmployees() {
     return new Promise(async (resolve, reject) => {
       socketService.emitEvent("rolloutFoodToEmployees", {}, (response: any) => {
-        OutputService.printTable(response.message);
+        OutputService.printTable(response.breakfast);
         const recommendationIdForBreakfast: string =
           InputService.takeInputWithValidation(
             "Enter comma (,) separated recommendation_id for breakfast: "
           );
+        OutputService.printTable(response.lunch);
+
         const recommendationIdForLunch: string =
           InputService.takeInputWithValidation(
             "Enter comma (,) separated recommendation_id for lunch: "
           );
+        OutputService.printTable(response.dinner);
         const recommendationIdForDinner: string =
           InputService.takeInputWithValidation(
             "Enter comma (,) separated recommendation_id for dinner: "

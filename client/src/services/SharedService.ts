@@ -8,8 +8,6 @@ export class SharedService {
         "showMenuItems",
         { meal_type: "desc" },
         (response: any) => {
-          // console.log(response.message);
-
           OutputService.printTable(response.message);
           resolve(response.message);
         }
@@ -21,7 +19,7 @@ export class SharedService {
     return new Promise((resolve, reject) => {
       socketService.emitEvent(
         "getMenuIdFromName",
-        menu_name, // Todo : LEARN WHAT THINGS CHANGES wHEn Passing the menu_name as an object
+        menu_name,
         (response: { message: number }) => {
           if (response && response.message) {
             resolve(response.message);

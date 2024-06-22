@@ -4,7 +4,6 @@ import { FeedbackReport, FeedbackRow } from "../common/types";
 import LogService from "./LogService";
 import userDetailStore from "../store/userDetailStore";
 import { User } from "../models/Users";
-// import User from "../modules/User/User";
 
 class FeedbackService {
   static async giveFeedback(feedback: Feedback) {
@@ -34,6 +33,52 @@ class FeedbackService {
     console.log("feedback res", feedbacks);
 
     return feedbacks;
+  }
+
+  //  new
+  static async getAllFeedbacks(): Promise<Feedback[]> {
+    const feedbacks = await sqlDBOperations.selectAll("Feedback");
+    return feedbacks as Feedback[];
+  }
+
+  static async getFeedbackForMenu(menuId: number): Promise<Feedback[]> {
+    return sqlDBOperations.selectAll("Feedback", {
+      menu_id: menuId,
+    }) as Promise<Feedback[]>;
+  }
+
+  static mapFeedbacksToMenuItems(
+    feedbacks: Feedback[],
+    sentimentResults: { feedback_id: number; sentiment: number }[]
+  ) {
+    const menuFeedbackMap: {
+      [key: number]: {
+        totalRating: number;
+        count: number;
+        totalSentiment: number;
+      };
+    } = {};
+
+    feedbacks.forEach((feedback) => {
+      const sentiment =
+        sentimentResults.find(
+          (result) => result.feedback_id === feedback.feedback_id
+        )?.sentiment || 0;
+
+      if (!menuFeedbackMap[feedback.menu_id]) {
+        menuFeedbackMap[feedback.menu_id] = {
+          totalRating: 0,
+          count: 0,
+          totalSentiment: 0,
+        };
+      }
+
+      menuFeedbackMap[feedback.menu_id].totalRating += feedback.rating;
+      menuFeedbackMap[feedback.menu_id].count += 1;
+      menuFeedbackMap[feedback.menu_id].totalSentiment += sentiment;
+    });
+
+    return menuFeedbackMap;
   }
 }
 

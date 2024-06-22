@@ -8,7 +8,6 @@ export const allowedMealTypes: MealTypes[keyof MealTypes][] = [
 
 export function validateMealType(input: string): boolean {
   return allowedMealTypes.includes(input as MealTypes[keyof MealTypes]);
-  // Alternatively, using the enum  return Object.values(MealTypeEnum).includes(input as MealTypeEnum);
 }
 
 export function validateInputLength(input: string): boolean {
@@ -27,15 +26,3 @@ export function validateMenuID(input: string): boolean {
   const id = parseInt(input);
   return !isNaN(id) && id > 0;
 }
-
-// export function validateDescription(input: string): boolean {
-//   return input.trim().length > 0;
-// }
-
-// export function validateCategory(input: string): boolean {
-//   return input.trim().length > 0;
-// }
-
-// export function validateNotificationMessage(input: string): boolean {
-//   return input.trim().length > 0;
-// }

@@ -1,8 +1,12 @@
 import { recommendationEngine } from ".";
 
-recommendationEngine.generateNextDayRecommendation((data: any) => {
-  // console.log("data", data);
-});
-recommendationEngine.getNextDayRecommendation((data: any) => {
-  console.log("data-getNextDayRecommendation", data);
-});
+async function run() {
+  await recommendationEngine.generateNextDayRecommendation((data: any) => {
+    console.log("data-getNextDayRecommendation", data);
+  });
+  await recommendationEngine.getNextDayRecommendations((data: any) => {
+    console.log("data-getNextDayRecommendation", data);
+  });
+}
+
+run();

@@ -22,6 +22,12 @@ class EmployeeUI {
         case "3":
           await EmployeeService.showMenuItems();
           break;
+        case "4":
+          await EmployeeService.voteForRecommendedFood();
+          break;
+        case "5":
+          await EmployeeService.viewRecommendedFood();
+          break;
         case "0":
           loginUI.showLoginMenu();
           break;

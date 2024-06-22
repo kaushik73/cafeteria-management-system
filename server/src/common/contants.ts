@@ -5,8 +5,5 @@ export const mealTypeLimit = {
 };
 
 export const defaultItemValues = {
-  // rating: 5,
-  // feedback_date: new Date(),
-  // comment: "",
   notification_expiry: 3, // 3 is days
 };

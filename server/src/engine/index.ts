@@ -15,12 +15,14 @@ class RecommendationEngine {
       console.error("TEST - Error generating daily recommendation:", error);
     }
   }
-  async getNextDayRecommendation(callback: any) {
+  async getNextDayRecommendations(callback: any) {
     try {
       const getAll = await recommendationService.getNextDayRecommendations();
-      //   const result = "test";
-      callback(getAll);
-      console.log("TEST - Daily recommendation get successfully.");
+      console.log(
+        "TEST - Daily recommendation get successfully. - index",
+        getAll.recommendations
+      );
+      callback(getAll.recommendations);
     } catch (error) {
       callback({
         status: "error",

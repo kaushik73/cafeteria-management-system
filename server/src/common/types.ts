@@ -6,7 +6,7 @@ export interface FeedbackReport {
 
 export interface FeedbackRow {
   item_name: string;
-  average_rating: string; // AVG returns a DECIMAL, which is returned as a string in MySQL
+  average_rating: string;
   total_feedbacks: number;
 }
 
@@ -16,3 +16,8 @@ export enum Role {
   Employee = "employee",
 }
 
+export interface Response<T> {
+  status: "success" | "error" | "NAN";
+  message: string;
+  data: T;
+}

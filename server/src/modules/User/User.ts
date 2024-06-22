@@ -7,16 +7,16 @@ import { Role } from "../../common/types";
 import Admin from "../Admin/Admin";
 import Employee from "../Employee/Employee";
 import Chef from "../Chef/Chef";
+import { Response } from "../../common/types";
 
 export default class User {
   static socketService: SocketService;
   static socket: Socket;
   static registerHandlers(socketService: SocketService, socket: Socket) {
-    console.log("in registerHandlers user");
     User.socket = socket;
     User.socketService = socketService;
     socketService.registerEventHandler(socket, "logout", User.handleLogout);
-    socketService.registerEventHandler(socket, "login", User.login);
+    socketService.registerEventHandler(socket, "login", User.handleLogin);
   }
 
   static async handleShowMenuItems(
@@ -36,21 +36,6 @@ export default class User {
     }
   }
 
-  // static async getMenuIdFromName(
-  //   data: string,
-  //   callback: (response: any) => void
-  // ) {
-  //   try {
-  //     const result: Menu = await MenuService.getMenuIdFromName(data);
-  //     console.log({ message: result.menu_id }, "itemID");
-
-  //     callback({ message: result.menu_id });
-  //   } catch (error) {
-  //     callback({ message: "Error fetching itemID" });
-  //     console.error("Error fetching itemID:", error);
-  //   }
-  // }
-
   static async handleLogout(data: any, callback: any) {
     try {
       console.log("handleLogout- server", data);
@@ -60,30 +45,36 @@ export default class User {
     } catch (error) {}
   }
 
-  static async login(data: any, callback: any) {
+  static async handleLogin(
+    data: any,
+    callback: (response: Response<{ userDetail: User | null }>) => void
+  ) {
     try {
       const { employeeID, password } = data;
       const userDetail: any = await AuthService.login(employeeID, password);
-      console.log(userDetail);
       if (userDetail) {
         const role = userDetail.role;
         User.navigateToClass(role as Role, User.socketService, User.socket);
 
-        // if (role == Role.Employee) {
-        //   console.log("inside employees emit Room if");
-        //   SocketService.joinRoom(user.socket, "employees");
-        // }
-
-        callback({ userDetail: userDetail, message: "valid user" });
-      } else if (userDetail == null) {
-        callback({ userDetail: null, message: "Invalid Credianlts" });
+        callback({
+          status: "success",
+          data: { userDetail: userDetail },
+          message: "Valid user",
+        });
       } else {
-        callback({ userDetail: null, message: "Error Validating User" });
-        console.log(userDetail);
+        callback({
+          status: "error",
+          data: { userDetail: null },
+          message: "Invalid Credentials",
+        });
       }
     } catch (error) {
-      callback({ userDetail: null, message: "Internal server error" });
-      console.error("Error retrieving user role:", error);
+      console.error("Error during login process:", error);
+      callback({
+        status: "error",
+        data: { userDetail: null },
+        message: "An error occurred during login",
+      });
     }
   }
 
@@ -92,11 +83,6 @@ export default class User {
     socketService: SocketService,
     socket: Socket
   ) {
-    // recommendationEngine.registerHandlers(socketService, socket);
-
-    // recommendationEngine.getNextDayRecommendation((data: any) => {
-    //   console.log("data", data);
-    // });
     switch (role) {
       case Role.Admin:
         Admin.registerHandlers(socketService, socket);

@@ -1,11 +1,3 @@
-// import connection from "./";
-// log (
-//     log_id INT AUTO_INCREMENT PRIMARY KEY,
-//     user_id INT,
-//     action VARCHAR(255) NOT NULL,
-//     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     FOREIGN KEY (user_id) REFERENCES Users(emp_id) ON DELETE CASCADE
-// );
 import { sqlDBOperations } from "../database/operations/sqlDBOperations";
 
 class LogService {

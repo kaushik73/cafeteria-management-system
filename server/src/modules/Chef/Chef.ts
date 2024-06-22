@@ -5,6 +5,9 @@ import User from "../User/User";
 import { recommendationEngine } from "../../engine";
 import { sqlDBOperations } from "../../database/operations/sqlDBOperations";
 import { Recommendation } from "../../models/Recommendation";
+import NotificationService from "../../services/NotificationService";
+import MenuService from "../../services/MenuService";
+import RecommendationService from "../../services/RecommendationService";
 
 class Chef {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -19,6 +22,11 @@ class Chef {
       socket,
       "showMenuItems",
       Chef.handleShowMenuItems
+    );
+    socketService.registerEventHandler(
+      socket,
+      "seeRecommendedFood",
+      Chef.seeRecommendedFood
     );
     socketService.registerEventHandler(
       socket,
@@ -58,51 +66,26 @@ class Chef {
     }
   }
 
+  static async seeRecommendedFood(data: any, callback: any) {
+    await recommendationEngine.getNextDayRecommendations((data: any) => {
+      console.log("data-getNextDayRecommendation", data);
+      callback(data);
+    });
+  }
   static async rolloutFoodToEmployees(
     data: Object,
     callback: (response: any) => void
   ) {
-    User.handleShowMenuItems(data, callback);
-    // todo : uncomment this
     await recommendationEngine.generateNextDayRecommendation((data: any) => {
       console.log("generateNextDayRecommendation", data);
     });
-    await recommendationEngine.getNextDayRecommendation((data: any) => {
-      console.log("data-getNextDayRecommendation", data.recommendations);
-      callback(data.recommendations);
-    });
   }
 
-  // not working
   static async chefRollout(
     data: { [key: string]: number[] },
     callback: (response: any) => void
   ) {
-    console.log(data);
-    try {
-      const updatedRecommendations: Recommendation[] = [];
-
-      for (const mealType of Object.keys(data)) {
-        const recommendationIds = data[mealType];
-
-        for (const recommendationId of recommendationIds) {
-          const updatedRecommendation: any = await sqlDBOperations.update(
-            "Recommendation",
-            { rollout_to_employee: true },
-            { recommendation_id: recommendationId }
-          );
-          if (updatedRecommendation) {
-            updatedRecommendations.push(updatedRecommendation);
-          }
-        }
-      }
-
-      console.log("Updated recommendations:", updatedRecommendations);
-      callback("Chef Rolledout Success");
-    } catch (error) {
-      console.error("Error in chefRollout:", error);
-      callback("Chef Rolledout Failed");
-    }
+    await RecommendationService.chefRollout(data, callback);
   }
 }
 export default Chef;

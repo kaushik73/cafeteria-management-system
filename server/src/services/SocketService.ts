@@ -12,7 +12,7 @@ export default class SocketService {
         origin: "http://localhost:3000",
         credentials: true,
       },
-      pingTimeout: 200000, //  20 sec
+      pingTimeout: 300000, //  20 sec
     });
   }
 
@@ -57,11 +57,11 @@ export default class SocketService {
     });
   }
 
-  static emitToRoom(room: string, event: string, message: any) {
-    if (SocketService.rooms[room]) {
-      SocketService.rooms[room].forEach((socket) => {
-        socket.emit(event, message);
-      });
-    }
-  }
+  // static emitToRoom(room: string, event: string, message: any) {
+  //   if (SocketService.rooms[room]) {
+  //     SocketService.rooms[room].forEach((socket) => {
+  //       socket.emit(event, message);
+  //     });
+  //   }
+  // }
 }

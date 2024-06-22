@@ -13,26 +13,24 @@ class LoginUI {
 
   async showLoginMenu() {
     return new Promise(async (resolve, reject) => {
-      let userID: string = "102";
+      let userID: string = "103";
       let password: string = "pass";
       OutputService.printMessage("Welcome to the system! Please log in.");
 
       let loggedIn = false;
 
       while (!loggedIn) {
-        // userID = InputService.takeInputWithValidation("Enter your userID: ");
-        // password = InputService.takeInputWithValidation(
-        //   "Enter your Password: "
-        // );
+        // take id and password as default
+        userID = InputService.takeInputWithValidation("Enter your userID: ");
+        password = InputService.takeInputWithValidation(
+          "Enter your Password: "
+        );
 
         try {
           if (CommonValidations.validateUserID(userID)) {
-            const userDetail = await AuthService.setUserDetail(
-              userID,
-              password
-            );
+            const userDetail = await AuthService.login(userID, password);
             this.role = userDetail.role;
-            OutputService.printMessage(`Role received: ${this.role}`);
+            // OutputService.printMessage(`Role received: ${this.role}`);
             console.log("Role ", this.role, "set successfully on server");
             this.navigateToRoleMenu(userDetail);
             loggedIn = true;

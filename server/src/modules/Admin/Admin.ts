@@ -3,7 +3,6 @@ import MenuService from "../../services/MenuService";
 import SocketService from "../../services/SocketService";
 import FeedbackService from "../../services/FeedbackService";
 import User from "../User/User";
-// import User from "../User/User";
 
 export default class Admin {
   static registerHandlers(socketService: SocketService, socket: Socket) {

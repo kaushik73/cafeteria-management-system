@@ -8,3 +8,9 @@ export interface MealTypes {
   Dinner: "dinner";
   Breakfast: "breakfast";
 }
+
+export interface Response<T> {
+  status: "success" | "error" | "NAN";
+  message: string;
+  data: T;
+}

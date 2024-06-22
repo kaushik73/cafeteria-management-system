@@ -4,6 +4,7 @@ import NotificationService from "../../services/NotificationService";
 import FeedbackService from "../../services/FeedbackService";
 import DateService from "../../services/DateService";
 import User from "../User/User";
+import RecommendationService from "../../services/RecommendationService";
 
 class Employee {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -24,12 +25,16 @@ class Employee {
       "giveFeedback",
       Employee.handleGiveFeedback
     );
-
-    // socketService.registerEventHandler(
-    //   socket,
-    //   "getMenuIdFromName",
-    //   User.getMenuIdFromName
-    // );
+    socketService.registerEventHandler(
+      socket,
+      "voteForRecommendedFood",
+      Employee.voteForRecommendedFood
+    );
+    socketService.registerEventHandler(
+      socket,
+      "viewRecommendedFood",
+      Employee.viewRecommendedFood
+    );
   }
   static async handleSeeNotifications(
     data: any,
@@ -66,6 +71,19 @@ class Employee {
     callback: (response: any) => void
   ) {
     User.handleShowMenuItems(data, callback);
+  }
+
+  static async voteForRecommendedFood(
+    data: any,
+    callback: (response: any) => void
+  ) {
+    await RecommendationService.voteForRecommendedFood(data, callback);
+  }
+  static async viewRecommendedFood(
+    data: any,
+    callback: (response: any) => void
+  ) {
+    await RecommendationService.viewRecommendedFood(data, callback);
   }
 }
 export default Employee;

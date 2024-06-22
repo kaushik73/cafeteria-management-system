@@ -2,7 +2,7 @@ import Table from "cli-table3";
 
 export default class OutputService {
   static printMessage(message: any): void {
-    console.log(`---------${message}---------\n`);
+    console.log(`${message}\n`);
   }
 
   static printArray(arr: any[]): void {
@@ -12,7 +12,11 @@ export default class OutputService {
   }
 
   static printTable(data: any[]): void {
-    if (data.length === 0) {
+    if (!data) {
+      OutputService.printMessage("No data available to print.");
+      return;
+    }
+    if (data && data.length === 0) {
       OutputService.printMessage("No data available to print.");
       return;
     }

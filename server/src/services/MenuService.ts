@@ -27,15 +27,12 @@ class MenuService {
 
   static async updateMenuItem(item: Menu) {
     try {
-      const result: any = await sqlDBOperations.update("Menu", item, {
-        menu_id: item.menu_id,
-      });
-      const notificationMessage = `Menu item updated: ${item.item_name}`;
-
-      await NotificationService.addNotification(
-        "menuUpdate",
-        notificationMessage,
-        result.insertId
+      const result: ResultSetHeader = await sqlDBOperations.update(
+        "Menu",
+        item,
+        {
+          menu_id: item.menu_id,
+        }
       );
       return result;
     } catch (error: any) {

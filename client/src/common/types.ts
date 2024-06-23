@@ -14,3 +14,15 @@ export interface Response<T> {
   message: string;
   data: T;
 }
+
+export interface Response<T> {
+  status: "success" | "error" | "NAN";
+  message: string;
+  data: T;
+}
+
+export interface Response<T> {
+  status: "success" | "error" | "NAN";
+  message: string;
+  data: T;
+}

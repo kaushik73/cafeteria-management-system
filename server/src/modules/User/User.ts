@@ -17,6 +17,53 @@ export default class User {
     User.socketService = socketService;
     socketService.registerEventHandler(socket, "logout", User.handleLogout);
     socketService.registerEventHandler(socket, "login", User.handleLogin);
+    socketService.registerEventHandler(
+      socket,
+      "getMenuDetailFromId",
+      User.getMenuDetailFromId
+    );
+  }
+
+  static async handleLogin(
+    data: any,
+    callback: (response: Response<{ userDetail: User | null }>) => void
+  ) {
+    try {
+      const { employeeID, password } = data;
+      const userDetail: any = await AuthService.login(employeeID, password);
+      if (userDetail) {
+        const role = userDetail.role;
+        User.navigateToClass(role as Role, User.socketService, User.socket);
+
+        callback({
+          status: "success",
+          data: { userDetail: userDetail },
+          message: "Valid user",
+        });
+      } else {
+        callback({
+          status: "error",
+          data: { userDetail: null },
+          message: "Invalid Credentials",
+        });
+      }
+    } catch (error) {
+      console.error("Error during login process:", error);
+      callback({
+        status: "error",
+        data: { userDetail: null },
+        message: "An error occurred during login",
+      });
+    }
+  }
+
+  static async handleLogout(data: any, callback: any) {
+    try {
+      console.log("handleLogout- server", data);
+
+      await AuthService.logOut(data.userDetail);
+      callback({ message: "log out successfull" });
+    } catch (error) {}
   }
 
   static async handleShowMenuItems(

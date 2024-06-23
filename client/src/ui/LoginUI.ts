@@ -1,11 +1,10 @@
-import InputService from "../services/InputService";
 import CommonValidations from "../validations/CommonValidation";
 import AuthService from "../services/AuthService";
 import { adminUI } from "./AdminUI";
 import { employeeUI } from "./EmployeeUI";
 import { Role } from "../common/types";
 import OutputService from "../services/OutputService";
-import { User } from "../models/Users";
+import { IUser } from "../models/User";
 import { chefUI } from "./ChefUI";
 
 class LoginUI {
@@ -20,6 +19,7 @@ class LoginUI {
       let loggedIn = false;
 
       while (!loggedIn) {
+        // take id and password as default
         // userID = InputService.takeInputWithValidation("Enter your userID: ");
         // password = InputService.takeInputWithValidation(
         //   "Enter your Password: "
@@ -32,8 +32,6 @@ class LoginUI {
               password
             );
             this.role = userDetail.role;
-            OutputService.printMessage(`Role received: ${this.role}`);
-            console.log("Role ", this.role, "set successfully on server");
             this.navigateToRoleMenu(userDetail);
             loggedIn = true;
           } else {
@@ -47,7 +45,7 @@ class LoginUI {
     });
   }
 
-  navigateToRoleMenu(userDetail: User) {
+  navigateToRoleMenu(userDetail: IUser) {
     switch (userDetail.role) {
       case Role.Admin:
         adminUI.showAdminMenu(userDetail);

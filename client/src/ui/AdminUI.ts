@@ -1,13 +1,13 @@
-import { User } from "../models/Users";
+import { IUser } from "../models/User";
 import AdminService from "../services/AdminService";
 import OutputService from "../services/OutputService";
 import { loginUI } from "./LoginUI";
 import AuthService from "../services/AuthService";
 
 class AdminUI {
-  static userDetail: User;
+  static userDetail: IUser;
 
-  async showAdminMenu(userDetail: User) {
+  async showAdminMenu(userDetail: IUser) {
     let continueLoop = true;
 
     while (continueLoop) {
@@ -18,26 +18,30 @@ class AdminUI {
           await AdminService.showMenuItems();
           break;
         case "2":
-          // await AdminService.showMenuItems();
           await AdminService.addMenuItem();
           break;
         case "3":
-          await AdminService.showMenuItems();
           await AdminService.updateMenuItem();
           break;
         case "4":
-          await AdminService.showMenuItems();
           await AdminService.deleteMenuItem();
           break;
         case "5":
-          await AdminService.showMenuItems();
           await AdminService.updateItemAvailability();
           break;
         case "6":
-          await AdminService.showMenuItems();
           await AdminService.viewFeedbacksofItem();
         case "7":
-          AdminService.viewFeedbackReport();
+          await AdminService.viewFeedbackReport();
+          break;
+        case "8":
+          await AdminService.showDiscardItems();
+          break;
+        case "9":
+          await AdminService.showDiscardItemsOperations();
+          break;
+        case "10":
+          await AdminService.viewLogs();
           break;
         case "0":
           continueLoop = false;

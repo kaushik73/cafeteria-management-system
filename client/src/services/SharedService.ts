@@ -1,3 +1,4 @@
+import { Menu } from "../models/Menu";
 import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
 
@@ -17,19 +18,31 @@ export class SharedService {
     });
   }
 
-  static getMenuIdFromName(menu_name: string): Promise<number> {
-    return new Promise((resolve, reject) => {
-      socketService.emitEvent(
-        "getMenuIdFromName",
-        menu_name, // Todo : LEARN WHAT THINGS CHANGES wHEn Passing the menu_name as an object
-        (response: { message: number }) => {
-          if (response && response.message) {
-            resolve(response.message);
-          } else {
-            reject(new Error("Failed to get menu ID"));
-          }
-        }
-      );
-    });
-  }
+  // static getMenuIdFromName(menu_name: string): Promise<number> {
+  //   return new Promise((resolve, reject) => {
+  //     socketService.emitEvent(
+  //       "getMenuIdFromName",
+  //       menu_name,
+  //       (response: { message: number }) => {
+  //         if (response && response.message) {
+  //           resolve(response.message);
+  //         } else {
+  //           reject(new Error("Failed to get menu ID"));
+  //         }
+  //       }
+  //     );
+  //   });
+  // }
+
+  // static getMenuDetailFromId(menu_id: number): Promise<Menu> {
+  //   return new Promise((resolve, reject) => {
+  //     socketService.emitEvent(
+  //       "getMenuDetailFromId",
+  //       { menu_id },
+  //       (response: { message: Menu }) => {
+  //         resolve(response.message);
+  //       }
+  //     );
+  //   });
+  // }
 }

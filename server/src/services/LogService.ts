@@ -1,22 +1,29 @@
-// import connection from "./";
-// log (
-//     log_id INT AUTO_INCREMENT PRIMARY KEY,
-//     user_id INT,
-//     action VARCHAR(255) NOT NULL,
-//     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     FOREIGN KEY (user_id) REFERENCES Users(emp_id) ON DELETE CASCADE
-// );
+import { ResultSetHeader } from "mysql2";
 import { sqlDBOperations } from "../database/operations/sqlDBOperations";
+import { Log } from "../models/Log";
 
 class LogService {
-  static async logAction(action: string, emp_id: number): Promise<void> {
+  static async insertIntoLog(
+    action: string,
+    emp_id: number
+  ): Promise<ResultSetHeader> {
     const logData = {
       user_id: emp_id,
       action: action,
     };
-    console.log(logData, "logData");
 
-    sqlDBOperations.insert("log", logData);
+    const result = sqlDBOperations.insert("log", logData);
+    return result;
+  }
+
+  static async getLog(): Promise<Log[]> {
+    const result: Log[] = (await sqlDBOperations.selectAll(
+      "log",
+      {},
+      { timestamp: "desc" }
+    )) as Log[];
+
+    return result;
   }
 }
 

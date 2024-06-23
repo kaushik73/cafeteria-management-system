@@ -6,3 +6,15 @@ export interface Feedback {
   user_id: number;
   menu_id: number;
 }
+
+export interface FeedbackReport {
+  item_name: string;
+  average_rating: number;
+  total_feedbacks: number;
+}
+
+export interface FeedbackRow {
+  item_name: string;
+  average_rating: string;
+  total_feedbacks: number;
+}

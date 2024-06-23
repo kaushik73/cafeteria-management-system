@@ -1,14 +1,26 @@
-import { MealTypes } from "../../../server/src/models/Menu";
-
-export const allowedMealTypes: MealTypes[keyof MealTypes][] = [
-  "lunch",
-  "dinner",
-  "breakfast",
-];
+// import { MealTypes } from "../../../server/src/models/Menu";
+import {
+  CuisineType,
+  DietaryType,
+  MealType,
+  SpiceType,
+  allowedCuisineTypes,
+  allowedDietaryTypes,
+  allowedMealTypes,
+  allowedSpicyTypes,
+} from "../models/Menu";
 
 export function validateMealType(input: string): boolean {
-  return allowedMealTypes.includes(input as MealTypes[keyof MealTypes]);
-  // Alternatively, using the enum  return Object.values(MealTypeEnum).includes(input as MealTypeEnum);
+  return allowedMealTypes.includes(input as MealType);
+}
+export function validateDietaryType(input: string): boolean {
+  return allowedDietaryTypes.includes(input as DietaryType);
+}
+export function validateSpiceType(input: string): boolean {
+  return allowedSpicyTypes.includes(input as SpiceType);
+}
+export function validateCuisineType(input: string): boolean {
+  return allowedCuisineTypes.includes(input as CuisineType);
 }
 
 export function validateInputLength(input: string): boolean {
@@ -19,7 +31,7 @@ export function validatePrice(input: string): boolean {
   return !isNaN(price) && price > 0;
 }
 
-export function validateAvailabilityStatus(input: string): boolean {
+export function validateBoolean(input: string): boolean {
   return input.toLowerCase() === "yes" || input.toLowerCase() === "no";
 }
 

@@ -1,16 +1,16 @@
-import { User } from "../models/Users";
+import { IUser } from "../models/User";
 import CommonValidations from "../validations/CommonValidation";
 import { SharedService } from "./SharedService";
 import InputService from "./InputService";
 import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
 export default class ChefService {
-  static userDetail: User;
+  static userDetail: IUser;
   private static sharedService: SharedService;
   static {
     ChefService.sharedService = new SharedService();
   }
-  static showChefMenu(userDetail: User): Promise<string> {
+  static showChefMenu(userDetail: IUser): Promise<string> {
     ChefService.userDetail = userDetail;
     return new Promise((resolve, reject) => {
       OutputService.printMessage(
@@ -18,7 +18,8 @@ export default class ChefService {
           `1.W View Menu Items\n` +
           // `2. View Food Recommendations\n` +
           `3. Rollout Food to Employees\n` +
-          `4.W View Feedback Report\n` +
+          `4. View Feedback Report\n` +
+          `5. See Discard Items\n` +
           `0. Logout`
       );
       const choice = InputService.takeInputWithValidation(
@@ -103,6 +104,12 @@ export default class ChefService {
         );
         resolve(response);
       });
+    });
+  }
+
+  static showDiscardItems() {
+    socketService.emitEvent("showDiscardItems", {}, (response) => {
+      OutputService.printMessage(response);
     });
   }
 }

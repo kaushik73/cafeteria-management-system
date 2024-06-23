@@ -1,8 +1,20 @@
 import { recommendationEngine } from ".";
 
-recommendationEngine.generateNextDayRecommendation((data: any) => {
-  // console.log("data", data);
-});
-recommendationEngine.getNextDayRecommendation((data: any) => {
-  console.log("data-getNextDayRecommendation", data);
-});
+async function run() {
+  // await recommendationEngine.generateNextDayRecommendations(
+  //   "dinner",
+  //   (data: any) => {
+  //     console.log("data-getNextDayRecommendation", data);
+  //   }
+  // );
+  // await recommendationEngine.getNextDayRecommendations(
+  //   "dinner",
+  //   (data: any) => {
+  //     console.log("data-getNextDayRecommendation", data);
+  //   }
+  // );
+  // const ItemsToDiscard = await recommendationEngine.getItemsToDiscard();
+  // console.log(ItemsToDiscard, "ItemsToDiscard");
+}
+
+run();

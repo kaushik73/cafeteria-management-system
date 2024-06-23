@@ -1,11 +1,11 @@
 import * as readlineSync from "readline-sync";
 import ChefService from "../services/ChefService";
 import { loginUI } from "./LoginUI";
-import { User } from "../models/Users";
+import { IUser } from "../models/User";
 import OutputService from "../services/OutputService";
 
 export default class ChefUI {
-  async showChefMenu(userDetail: User) {
+  async showChefMenu(userDetail: IUser) {
     let continueLoop = true;
 
     while (continueLoop) {
@@ -23,6 +23,9 @@ export default class ChefUI {
           break;
         case "4":
           await ChefService.viewFeedbackReport();
+          break;
+        case "5":
+          await ChefService.showDiscardItems();
           break;
         case "0":
           continueLoop = false;

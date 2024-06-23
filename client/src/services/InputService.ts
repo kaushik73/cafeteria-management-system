@@ -13,4 +13,17 @@ export default class InputService {
 
     return userInput.toLowerCase();
   }
+
+  static takeOptionalInputWithValidation(
+    question: string,
+    validate: (input: string) => boolean
+  ): string {
+    let userInput: string;
+
+    do {
+      userInput = readlineSync.question(question);
+      if (userInput === "") return userInput; // Allow empty input
+    } while (!validate(userInput));
+    return userInput;
+  }
 }

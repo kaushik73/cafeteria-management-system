@@ -1,6 +1,6 @@
-import DatabaseOperation from "./databaseOperations";
+// import DatabaseOperation from "./databaseOperations";
 import { MySqlConnection } from "../mysqlDBConnection";
-import { Connection, Query } from "mysql2/promise";
+import { Connection, Query, ResultSetHeader } from "mysql2/promise";
 
 class SqlOperation {
   //implements DatabaseOperation     ---TODO: make it work
@@ -14,7 +14,7 @@ class SqlOperation {
     try {
       // console.log("Initializing connection...");
       this.connection = await MySqlConnection.getConnection();
-      // console.log("Connection initialized successfully.");
+      console.log("init called");
     } catch (error) {
       // console.error("Error initializing connection:", error);
       throw error; // Re-throw the error to be handled by the caller
@@ -71,7 +71,7 @@ class SqlOperation {
     entityName: string,
     data: object,
     filter?: object
-  ): Promise<number | null> {
+  ): Promise<ResultSetHeader> {
     try {
       await this.ensureInitialized();
 
@@ -83,9 +83,9 @@ class SqlOperation {
         params.push(filter);
       }
 
-      const result: any = await this.connection.query(updateQuery, params);
+      const [result]: any = await this.connection.query(updateQuery, params);
 
-      return result[0].affectedRows > 0 ? result[0].affectedRows : null;
+      return result;
     } catch (error) {
       console.error(`Error updating data in ${entityName}:`, error);
       throw error;
@@ -217,29 +217,7 @@ class SqlOperation {
     }
   }
 
-  // async deleteOLD(entityName: string, filter: object): Promise<unknown> {
-  //   try {
-  //     await this.ensureInitialized();
-
-  //     let updateQuery = `DELETE FROM ${entityName} `;
-  //     const params = [filter];
-
-  //     if (filter) {
-  //       updateQuery += " WHERE ?";
-  //       params.push(filter);
-  //     }
-  //     console.log(updateQuery);
-
-  //     const result: any = await this.connection.query(updateQuery, params);
-
-  //     return result[0].affectedRows > 0 ? result[0].affectedRows : null;
-  //   } catch (error) {
-  //     console.error(`Error deleting data from ${entityName}:`, error);
-  //     throw new Error(`Error deleting data from ${entityName}`);
-  //   }
-  // }
-
-  async delete(entityName: string, filter: object): Promise<unknown> {
+  async delete(entityName: string, filter: object): Promise<ResultSetHeader> {
     try {
       await this.ensureInitialized();
 
@@ -261,7 +239,7 @@ class SqlOperation {
 
       const [result]: any = await this.connection.query(deleteQuery, params);
 
-      return result.affectedRows > 0 ? result.affectedRows : null;
+      return result;
     } catch (error) {
       console.error(`Error deleting data from ${entityName}:`, error);
       throw new Error(`Error deleting data from ${entityName}`);

@@ -2,24 +2,26 @@ import InputService from "./InputService";
 import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
 import validateService from "../validations/CommonValidation";
-import { User } from "../models/Users";
+import { IUser } from "../models/User";
 import { Menu } from "../models/Menu";
 import { SharedService } from "./SharedService";
 
 export default class EmployeeService {
-  static userDetail: User;
+  static userDetail: IUser;
   private static sharedService: SharedService;
   static {
     EmployeeService.sharedService = new SharedService();
   }
-  static showEmployeeMenu(userDetail: User): Promise<string> {
+  static showEmployeeMenu(userDetail: IUser): Promise<string> {
     EmployeeService.userDetail = userDetail;
     return new Promise((resolve, reject) => {
       OutputService.printMessage(
         `Employee Menu:\n` +
-          `1.W Give Feedback\n` +
-          `2.W See Notifications\n` +
-          `3.W See Menu\n` +
+          `1. See Menu\n` +
+          `2. See Notifications\n` +
+          `3. View Recommended Food\n` +
+          `4. Vote for Recommended Food\n` +
+          `5. Give Feedback\n` +
           `0. Logout`
       );
       const choice = InputService.takeInputWithValidation(
@@ -74,6 +76,70 @@ export default class EmployeeService {
         OutputService.printTable(filteredResponse);
         resolve(filteredResponse);
       });
+    });
+  }
+  static async viewRecommendedFood() {
+    return new Promise((resolve, reject) => {
+      socketService.emitEvent(
+        "viewRecommendedFood",
+        {},
+        (response: Response<{ userDetail: IUser | null }>) => {
+          const recommendedFood = response.data;
+          if (!recommendedFood) {
+            reject("No Food is available");
+          } else {
+            console.log(response, "asdgfhjmhng");
+
+            OutputService.printTable(recommendedFood as unknown as any[]);
+            resolve("viewRecommendedFood");
+          }
+        }
+      );
+    });
+  }
+  static async voteForRecommendedFood() {
+    return new Promise((resolve, reject) => {
+      socketService.emitEvent("voteForRecommendedFood", {}, (response: any) => {
+        OutputService.printTable(response.message);
+        //
+        const voteIdForBreakfast: string = InputService.takeInputWithValidation(
+          "Enter comma (,) separated recommendation_id for breakfast: "
+        );
+
+        const voteIdForLunch: string = InputService.takeInputWithValidation(
+          "Enter comma (,) separated recommendation_id for lunch: "
+        );
+        const voteForDinner: string = InputService.takeInputWithValidation(
+          "Enter comma (,) separated recommendation_id for dinner: "
+        );
+
+        const votesByEmployeeForNextDayFood = {
+          breakfast: voteIdForBreakfast
+            .split(",")
+            .map((id) => Number(id.trim())),
+          lunch: voteIdForLunch.split(",").map((id) => Number(id.trim())),
+          dinner: voteForDinner.split(",").map((id) => Number(id.trim())),
+        };
+        //
+        EmployeeService.sendVotesofEmployeeForNextDayFood(
+          votesByEmployeeForNextDayFood
+        );
+        resolve(response.message);
+      });
+    });
+  }
+
+  // not implemented
+  static sendVotesofEmployeeForNextDayFood(votesByEmployeeForNextDayFood: any) {
+    return new Promise((resolve, reject) => {
+      socketService.emitEvent(
+        "sendVotesofEmployeeForNextDayFood",
+        { votesByEmployeeForNextDayFood },
+        (response: any) => {
+          OutputService.printTable(response.message);
+          //
+        }
+      );
     });
   }
 }

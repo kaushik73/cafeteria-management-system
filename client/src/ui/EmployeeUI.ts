@@ -1,11 +1,11 @@
 import * as readlineSync from "readline-sync";
 import EmployeeService from "../services/EmployeeService";
 import { loginUI } from "./LoginUI";
-import { User } from "../models/Users";
+import { IUser } from "../models/User";
 import OutputService from "../services/OutputService";
 
 class EmployeeUI {
-  async showEmployeeMenu(userDetail: User) {
+  async showEmployeeMenu(userDetail: IUser) {
     let continueLoop = true;
 
     while (continueLoop) {
@@ -14,13 +14,18 @@ class EmployeeUI {
       switch (choice) {
         case "1":
           await EmployeeService.showMenuItems();
-          await EmployeeService.giveFeedback();
           break;
         case "2":
           await EmployeeService.seeNotifications();
           break;
         case "3":
-          await EmployeeService.showMenuItems();
+          await EmployeeService.viewRecommendedFood();
+          break;
+        case "4":
+          await EmployeeService.voteForRecommendedFood();
+          break;
+        case "5":
+          await EmployeeService.giveFeedback();
           break;
         case "0":
           loginUI.showLoginMenu();

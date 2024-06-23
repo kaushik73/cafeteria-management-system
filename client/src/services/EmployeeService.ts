@@ -3,8 +3,8 @@ import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
 import validateService from "../validations/CommonValidation";
 import { IUser } from "../models/User";
-import { Menu } from "../models/Menu";
 import { SharedService } from "./SharedService";
+import { Response } from "../common/types";
 
 export default class EmployeeService {
   static userDetail: IUser;

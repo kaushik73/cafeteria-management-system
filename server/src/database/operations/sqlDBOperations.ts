@@ -12,12 +12,10 @@ class SqlOperation {
 
   async init() {
     try {
-      // console.log("Initializing connection...");
       this.connection = await MySqlConnection.getConnection();
       console.log("init called");
     } catch (error) {
-      // console.error("Error initializing connection:", error);
-      throw error; // Re-throw the error to be handled by the caller
+      throw error;
     }
   }
 
@@ -43,30 +41,6 @@ class SqlOperation {
     }
   }
 
-  // //  Todo : Delete this fnx.
-
-  // async updateOLD(
-  //   entityName: string,
-  //   filter: object,
-  //   data: object
-  // ): Promise<unknown> {
-  //   try {
-  //     await this.ensureInitialized();
-  //     // console.log(`Updating data in ${entityName}...`);
-  //     const result: any = await this.connection.query(
-  //       `UPDATE ${entityName} SET ? WHERE ?`,
-  //       [data, filter]
-  //     );
-  //     console.log(result);
-
-  //     return result.length > 0 ? [result] : null;
-  //     // console.log(`Data updated in ${entityName} successfully.`);
-  //   } catch (error) {
-  //     console.error(`Error updating data in ${entityName}:`, error);
-  //     throw error;
-  //   }
-  // }
-
   async update(
     entityName: string,
     data: object,
@@ -91,53 +65,6 @@ class SqlOperation {
       throw error;
     }
   }
-
-  //  Todo : Delete this fnx.
-  // async selectAllOLD(
-  //   entityName: string,
-  //   filter?: object,
-  //   orderBy?: any,
-  //   operation?: any
-  // ): Promise<unknown[]> {
-  //   try {
-  //     await this.ensureInitialized();
-  //     // console.log("Selecting all data from", entityName);
-
-  //     let query = `SELECT * FROM ${entityName}`;
-  //     let queryParams: any[] = [];
-  //     // const { conditionKey, conditionValue } = condition;
-  //     console.log(operation, Object.values(operation));
-
-  //     const operationValue = operation ? Object.values(operation) : "=";
-  //     if (filter && Object.keys(filter).length > 0) {
-  //       query +=
-  //         " WHERE " +
-  //         Object.keys(filter)
-  //           .map((key) => `${key} ${operationValue} ?`)
-  //           .join(" AND ");
-  //       queryParams = Object.values(filter);
-  //     }
-
-  //     console.log(orderBy);
-  //     console.log(filter);
-
-  //     if (orderBy && Object.keys(orderBy).length > 0) {
-  //       query +=
-  //         " ORDER BY " +
-  //         Object.keys(orderBy)
-  //           .map((key) => `${key} ${orderBy[key] === "asc" ? "ASC" : "DESC"}`)
-  //           .join(", ");
-  //     }
-  //     console.log(query);
-
-  //     const [rows]: any = await this.connection.query(query, queryParams);
-  //     // console.log("Data selected from", entityName, "successfully.");
-  //     return rows;
-  //   } catch (error) {
-  //     // console.error("Error selecting data from", entityName, ":", error);
-  //     throw error;
-  //   }
-  // }
 
   async selectAll(
     entityName: string,
@@ -201,7 +128,7 @@ class SqlOperation {
 
       const whereClause = filterKeys.map((key) => `${key} = ?`).join(" AND ");
 
-      const [rows]: any = await this.connection.query(
+      const [row]: any = await this.connection.query(
         `SELECT * FROM ${entityName} WHERE ${whereClause} LIMIT 1`,
         filterValues
       );
@@ -210,7 +137,9 @@ class SqlOperation {
         filterValues
       );
 
-      return rows.length > 0 ? rows[0] : null;
+      console.log("row", row, "row[0]", row[0]);
+
+      return row[0];
     } catch (error) {
       console.error(`Error selecting one row from ${entityName}:`, error);
       throw error;

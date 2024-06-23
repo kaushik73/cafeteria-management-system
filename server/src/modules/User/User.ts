@@ -7,6 +7,7 @@ import { Role } from "../../common/types";
 import Admin from "../Admin/Admin";
 import Employee from "../Employee/Employee";
 import Chef from "../Chef/Chef";
+import { IUser } from "../../models/User";
 
 export default class User {
   static socketService: SocketService;
@@ -15,8 +16,8 @@ export default class User {
     console.log("in registerHandlers user");
     User.socket = socket;
     User.socketService = socketService;
-    socketService.registerEventHandler(socket, "logout", User.handleLogout);
     socketService.registerEventHandler(socket, "login", User.handleLogin);
+    socketService.registerEventHandler(socket, "logout", User.handleLogout);
     socketService.registerEventHandler(
       socket,
       "getMenuDetailFromId",
@@ -24,19 +25,18 @@ export default class User {
     );
   }
 
-  static async login(data: any, callback: any) {
+  static async handleLogin(data: any, callback: any) {
     try {
       const { employeeID, password } = data;
-      const userDetail: any = await AuthService.login(employeeID, password);
-      console.log(userDetail);
+      const userDetail: IUser = (await AuthService.login(
+        employeeID,
+        password
+      )) as IUser;
+      console.log(userDetail, "fdsfsfsdfs");
       if (userDetail) {
-        const role = userDetail.role;
-        User.navigateToClass(role as Role, User.socketService, User.socket);
-
-        // if (role == Role.Employee) {
-        //   console.log("inside employees emit Room if");
-        //   SocketService.joinRoom(user.socket, "employees");
-        // }
+        const role: Role = userDetail.role as Role;
+        User.navigateToClass(role, User.socketService, User.socket);
+        console.log({ userDetail: userDetail, message: "valid user" });
 
         callback({ userDetail: userDetail, message: "valid user" });
       } else if (userDetail == null) {
@@ -86,21 +86,18 @@ export default class User {
     socketService: SocketService,
     socket: Socket
   ) {
-    // recommendationEngine.registerHandlers(socketService, socket);
+    console.log("dsdsf", { role });
 
-    // recommendationEngine.getNextDayRecommendation((data: any) => {
-    //   console.log("data", data);
-    // });
     switch (role) {
       case Role.Admin:
         Admin.registerHandlers(socketService, socket);
         break;
-      // case Role.Employee:
-      //   Employee.registerHandlers(socketService, socket);
-      //   break;
-      // case Role.Chef:
-      //   Chef.registerHandlers(socketService, socket);
-      //   break;
+      case Role.Employee:
+        Employee.registerHandlers(socketService, socket);
+        break;
+      case Role.Chef:
+        Chef.registerHandlers(socketService, socket);
+        break;
       default:
         console.log(`Unknown role: ${role}`);
     }

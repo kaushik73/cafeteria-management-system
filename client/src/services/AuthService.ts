@@ -1,6 +1,6 @@
 import { IUser } from "../models/User";
 import { socketService } from "./SocketService";
-
+import { Response } from "../common/types";
 export default class AuthService {
   static userDetail: IUser;
   static login(employeeID: string, password: string): Promise<any> {
@@ -8,8 +8,10 @@ export default class AuthService {
       socketService.emitEvent(
         "login",
         { employeeID, password },
-        (response: Response<{ userDetail: IUser | null }>) => {
-          const userDetail = response.data.userDetail;
+        (response: { userDetail: IUser; message: string }) => {
+          const userDetail = response.userDetail;
+          console.log(userDetail, "userDetail");
+
           if (userDetail) {
             AuthService.userDetail = userDetail;
             resolve(userDetail);

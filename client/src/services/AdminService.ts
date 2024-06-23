@@ -20,7 +20,6 @@ import {
 import validateService from "../validations/CommonValidation";
 
 import OutputService from "./OutputService";
-import { Feedback } from "../models/Feedback";
 import { IUser } from "../models/User";
 import { SharedService } from "./SharedService";
 import { Log } from "../models/Log";

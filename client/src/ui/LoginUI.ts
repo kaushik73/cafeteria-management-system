@@ -12,7 +12,7 @@ class LoginUI {
 
   async showLoginMenu() {
     return new Promise(async (resolve, reject) => {
-      let userID: string = "102";
+      let userID: string = "101";
       let password: string = "pass";
       OutputService.printMessage("Welcome to the system! Please log in.");
 
@@ -27,10 +27,7 @@ class LoginUI {
 
         try {
           if (CommonValidations.validateUserID(userID)) {
-            const userDetail = await AuthService.setUserDetail(
-              userID,
-              password
-            );
+            const userDetail = await AuthService.login(userID, password);
             this.role = userDetail.role;
             this.navigateToRoleMenu(userDetail);
             loggedIn = true;

@@ -9,16 +9,30 @@ class AuthService {
     password: string
   ): Promise<IUser | null> {
     try {
-      const userDetail: IUser = (await sqlDBOperations.selectOne("user", {
+      const userDetail: any = (await sqlDBOperations.selectOne("user", {
         user_id: employeeID,
         password: password,
       })) as IUser;
+
+      // test
+
+      const x = await sqlDBOperations.selectOne("Preference", {
+        user_id: 101,
+      });
+      console.log("x = ", x);
+
+      // test
+
+      // userDetail = userDetail[0];
       const action = `${userDetail.name} logged in as ${userDetail.role}`;
       const logOutput = await LogService.insertIntoLog(
         action,
         userDetail.user_id as number
       );
       userDetailStore.setUserDetail(userDetail);
+
+      console.log("auth servoce", userDetail);
+
       return userDetail ? userDetail : null;
     } catch (error) {
       console.error("Error retrieving user role:", error);

@@ -4,6 +4,7 @@ import { SharedService } from "./SharedService";
 import InputService from "./InputService";
 import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
+import { rejects } from "assert";
 export default class ChefService {
   static userDetail: IUser;
   private static sharedService: SharedService;
@@ -16,7 +17,7 @@ export default class ChefService {
       OutputService.printMessage(
         `Chef Menu:\n` +
           `1.W View Menu Items\n` +
-          // `2. View Food Recommendations\n` +
+          `2. View Food Recommendations\n` +
           `3. Rollout Food to Employees\n` +
           `4. View Feedback Report\n` +
           `5. See Discard Items\n` +
@@ -34,33 +35,8 @@ export default class ChefService {
     await ChefService.sharedService.showMenuItems();
   }
 
-  static viewFeedbackReport() {
-    return new Promise(async (resolve, reject) => {
-      const fromInput = InputService.takeInputWithValidation(
-        "Enter the start date (YYYY-MM-DD): ",
-        CommonValidations.validateDate
-      );
-      const toInput = InputService.takeInputWithValidation(
-        "Enter the end date (YYYY-MM-DD): ",
-        CommonValidations.validateDate
-      );
-
-      const from = fromInput;
-      const to = toInput;
-
-      // const formattedFrom = Vali.formatDate(from);
-      // const formattedTo = DateService.formatDate(to);
-
-      socketService.emitEvent(
-        "viewFeedbackReport",
-        { from, to },
-        // { from: formattedFrom, to: formattedTo },
-        (response: any) => {
-          OutputService.printTable(response.message);
-          resolve(response.message);
-        }
-      );
-    });
+  static async viewFoodRecommendation() {
+    return new Promise((resolve, reject) => {});
   }
 
   static rolloutFoodToEmployees() {
@@ -107,6 +83,34 @@ export default class ChefService {
     });
   }
 
+  static viewFeedbackReport() {
+    return new Promise(async (resolve, reject) => {
+      const fromInput = InputService.takeInputWithValidation(
+        "Enter the start date (YYYY-MM-DD): ",
+        CommonValidations.validateDate
+      );
+      const toInput = InputService.takeInputWithValidation(
+        "Enter the end date (YYYY-MM-DD): ",
+        CommonValidations.validateDate
+      );
+
+      const from = fromInput;
+      const to = toInput;
+
+      // const formattedFrom = Vali.formatDate(from);
+      // const formattedTo = DateService.formatDate(to);
+
+      socketService.emitEvent(
+        "viewFeedbackReport",
+        { from, to },
+        // { from: formattedFrom, to: formattedTo },
+        (response: any) => {
+          OutputService.printTable(response.message);
+          resolve(response.message);
+        }
+      );
+    });
+  }
   static showDiscardItems() {
     socketService.emitEvent("showDiscardItems", {}, (response) => {
       OutputService.printMessage(response);

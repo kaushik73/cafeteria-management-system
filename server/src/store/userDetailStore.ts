@@ -1,15 +1,15 @@
-import { User } from "../models/Users";
+import { IUser } from "../models/User";
 
 export default class UserDetailStore {
-  static userDetail: User | null;
+  static userDetail: IUser | null;
 
-  static setUserDetail(userDetail: User) {
+  static setUserDetail(userDetail: IUser) {
     console.log("userDetail", userDetail);
 
     UserDetailStore.userDetail = userDetail;
   }
 
-  static async getUserDetail(): Promise<User | null> {
+  static async getUserDetail(): Promise<IUser | null> {
     return UserDetailStore.userDetail;
   }
 

@@ -34,6 +34,11 @@ class Chef {
       Chef.rolloutFoodToEmployees
     );
     socketService.registerEventHandler(socket, "chefRollout", Chef.chefRollout);
+    socketService.registerEventHandler(
+      socket,
+      "showDiscardItems",
+      Chef.showDiscardItems
+    );
   }
   static async handleShowMenuItems(
     data: Object,
@@ -67,19 +72,38 @@ class Chef {
   }
 
   static async seeRecommendedFood(data: any, callback: any) {
+<<<<<<< HEAD
+    // await recommendationEngine.getNextDayRecommendations((data: any) => {
+    //   console.log("data-getNextDayRecommendation", data);
+    //   callback(data);
+    // });
+  }
+
+=======
     await recommendationEngine.getNextDayRecommendations((data: any) => {
       console.log("data-getNextDayRecommendation", data);
       callback(data);
     });
   }
+>>>>>>> e10dfd21a8b093fc80a8046e1f240ed46a74aa27
   static async rolloutFoodToEmployees(
     data: Object,
     callback: (response: any) => void
   ) {
+<<<<<<< HEAD
+    // await recommendationEngine.generateNextDayRecommendations((data: any) => {
+    //   console.log("generateNextDayRecommendation", data);
+    // });
+=======
     await recommendationEngine.generateNextDayRecommendation((data: any) => {
       console.log("generateNextDayRecommendation", data);
     });
+>>>>>>> e10dfd21a8b093fc80a8046e1f240ed46a74aa27
   }
+  static async showDiscardItems(
+    data: Object,
+    callback: (response: any) => void
+  ) {}
 
   static async chefRollout(
     data: { [key: string]: number[] },

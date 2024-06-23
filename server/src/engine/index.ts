@@ -1,9 +1,16 @@
-import { recommendationService } from "./services/RecommendationService";
+import { sqlDBOperations } from "../database/operations/sqlDBOperations";
+import { Menu } from "../models/Menu";
+import { engineRecommendationService } from "./services/EngineRecommendationService";
 class RecommendationEngine {
-  async generateNextDayRecommendation(callback: any) {
+  async generateNextDayRecommendations(
+    mealType: "breakfast" | "lunch" | "dinner",
+    callback: any
+  ) {
     try {
       const result =
-        await recommendationService.generateNextDayRecommendation();
+        await engineRecommendationService.generateNextDayRecommendations(
+          mealType
+        );
 
       callback(result);
       console.log("TEST - Daily recommendation generated successfully.");
@@ -15,9 +22,19 @@ class RecommendationEngine {
       console.error("TEST - Error generating daily recommendation:", error);
     }
   }
+<<<<<<< HEAD
+  async getNextDayRecommendations(
+    mealType: "breakfast" | "lunch" | "dinner",
+    callback: any
+  ) {
+    try {
+      const getAll =
+        await engineRecommendationService.getNextDayRecommendations(mealType);
+=======
   async getNextDayRecommendations(callback: any) {
     try {
       const getAll = await recommendationService.getNextDayRecommendations();
+>>>>>>> e10dfd21a8b093fc80a8046e1f240ed46a74aa27
       console.log(
         "TEST - Daily recommendation get successfully. - index",
         getAll.recommendations
@@ -29,6 +46,21 @@ class RecommendationEngine {
         message: "Error getting daily recommendation.",
       });
       console.error("TEST - Error getting daily recommendation:", error);
+    }
+  }
+
+  async setDiscardStatus() {
+    try {
+      const menuItems: Menu[] = (await sqlDBOperations.selectAll(
+        "menu"
+      )) as Menu[];
+      const discardItems = await engineRecommendationService.setDiscardStatus(
+        menuItems
+      );
+      return discardItems;
+    } catch (error) {
+      console.error("TEST - Error setting discard Items", error);
+      throw new Error("Error setting discard Items");
     }
   }
 }

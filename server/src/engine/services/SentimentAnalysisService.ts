@@ -37,7 +37,7 @@ class SentimentAnalysisService {
     }
 
     const averageSentiment = totalSentiment / feedbacks.length;
-    console.log("Calculated average sentiment:", averageSentiment);
+    // console.log("Calculated average sentiment:", averageSentiment);
     return averageSentiment;
   }
 }

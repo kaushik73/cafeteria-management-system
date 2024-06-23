@@ -1,6 +1,6 @@
-import DatabaseOperation from "./databaseOperations";
+// import DatabaseOperation from "./databaseOperations";
 import { MySqlConnection } from "../mysqlDBConnection";
-import { Connection, Query } from "mysql2/promise";
+import { Connection, Query, ResultSetHeader } from "mysql2/promise";
 
 class SqlOperation {
   //implements DatabaseOperation     ---TODO: make it work
@@ -13,6 +13,7 @@ class SqlOperation {
   async init() {
     try {
       this.connection = await MySqlConnection.getConnection();
+      console.log("init called");
     } catch (error) {
       throw error;
     }
@@ -43,7 +44,7 @@ class SqlOperation {
     entityName: string,
     data: object,
     filter?: object
-  ): Promise<number | null> {
+  ): Promise<ResultSetHeader> {
     try {
       await this.ensureInitialized();
 
@@ -55,9 +56,9 @@ class SqlOperation {
         params.push(filter);
       }
 
-      const result: any = await this.connection.query(updateQuery, params);
+      const [result]: any = await this.connection.query(updateQuery, params);
 
-      return result[0].insertedId > 0 ? result[0].affectedRows : null;
+      return result;
     } catch (error) {
       console.error(`Error updating data in ${entityName}:`, error);
       throw error;
@@ -126,7 +127,7 @@ class SqlOperation {
 
       const whereClause = filterKeys.map((key) => `${key} = ?`).join(" AND ");
 
-      const [rows]: any = await this.connection.query(
+      const [row]: any = await this.connection.query(
         `SELECT * FROM ${entityName} WHERE ${whereClause} LIMIT 1`,
         filterValues
       );
@@ -135,14 +136,14 @@ class SqlOperation {
         filterValues
       );
 
-      return rows.length > 0 ? rows[0] : null;
+      return row;
     } catch (error) {
       console.error(`Error selecting one row from ${entityName}:`, error);
       throw error;
     }
   }
 
-  async delete(entityName: string, filter: object): Promise<unknown> {
+  async delete(entityName: string, filter: object): Promise<ResultSetHeader> {
     try {
       await this.ensureInitialized();
 
@@ -164,7 +165,7 @@ class SqlOperation {
 
       const [result]: any = await this.connection.query(deleteQuery, params);
 
-      return result.affectedRows > 0 ? result.affectedRows : null;
+      return result;
     } catch (error) {
       console.error(`Error deleting data from ${entityName}:`, error);
       throw new Error(`Error deleting data from ${entityName}`);

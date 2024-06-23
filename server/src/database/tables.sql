@@ -18,12 +18,7 @@ CREATE TABLE Menu (
     item_name VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     availability_status BOOLEAN NOT NULL,
-    meal_type ENUM('lunch', 'dinner', 'breakfast') NOT NULL,
-    dietary_type ENUM('Vegetarian', 'Non Vegetarian', 'Eggetarian') NOT NULL,
-    spice_type ENUM('high', 'medium', 'low') NOT NULL,
-    cuisine_type ENUM('north-indian', 'south-indian', 'other') NOT NULL,
-    sweet_tooth_type BOOLEAN NOT NULL,
-    is_discard BOOLEAN NOT NULL
+    meal_type ENUM('lunch', 'dinner', 'breakfast') NOT NULL
 );
 
 CREATE TABLE Feedback (
@@ -37,6 +32,19 @@ CREATE TABLE Feedback (
     SET
         NULL,
         FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE
+    SET
+        NULL
+);
+
+CREATE TABLE VotedItem (
+    voteItem_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    is_voted BOOLEAN NULL,
+    menu_id INT,
+    FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE
+    SET
+        NULL,
+        FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE
     SET
         NULL
 );
@@ -108,6 +116,7 @@ CREATE TABLE Report (
         NULL
 );
 
+-- change log to Log
 CREATE TABLE log (
     log_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
@@ -118,13 +127,9 @@ CREATE TABLE log (
         NULL
 );
 
-- -
-from
-    '2024-01-01';
-
-- - to '2024-07-01';
-
-DELIMITER / / - - CREATE PROCEDURE FeedbackReport(IN startDate DATE, IN endDate DATE) BEGIN
+-- from '2024-01-01' ;
+-- to '2024-07-01' ;
+DELIMITER / / CREATE PROCEDURE FeedbackReport(IN startDate DATE, IN endDate DATE) BEGIN
 SELECT
     m.item_name AS itemName,
     COALESCE(AVG(f.rating), 0) AS averageRating,

@@ -83,48 +83,6 @@ export default class User {
     }
   }
 
-  static async handleLogout(data: any, callback: any) {
-    try {
-      console.log("handleLogout- server", data);
-
-      await AuthService.logOut(data.userDetail);
-      callback({ message: "log out successfull" });
-    } catch (error) {}
-  }
-
-  static async handleLogin(
-    data: any,
-    callback: (response: Response<{ userDetail: User | null }>) => void
-  ) {
-    try {
-      const { employeeID, password } = data;
-      const userDetail: any = await AuthService.login(employeeID, password);
-      if (userDetail) {
-        const role = userDetail.role;
-        User.navigateToClass(role as Role, User.socketService, User.socket);
-
-        callback({
-          status: "success",
-          data: { userDetail: userDetail },
-          message: "Valid user",
-        });
-      } else {
-        callback({
-          status: "error",
-          data: { userDetail: null },
-          message: "Invalid Credentials",
-        });
-      }
-    } catch (error) {
-      console.error("Error during login process:", error);
-      callback({
-        status: "error",
-        data: { userDetail: null },
-        message: "An error occurred during login",
-      });
-    }
-  }
-
   static navigateToClass(
     role: Role,
     socketService: SocketService,
@@ -143,5 +101,14 @@ export default class User {
       default:
         console.log(`Unknown role: ${role}`);
     }
+  }
+  static async getMenuDetailFromId(
+    data: { menu_id: number },
+    callback: (response: { message: Menu }) => void
+  ) {
+    const menuDetail = (await MenuService.getMenuDetailFromId(
+      data.menu_id
+    )) as Menu;
+    callback({ message: menuDetail });
   }
 }

@@ -4,7 +4,6 @@ import { SharedService } from "./SharedService";
 import InputService from "./InputService";
 import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
-import { rejects } from "assert";
 export default class ChefService {
   static userDetail: IUser;
   private static sharedService: SharedService;

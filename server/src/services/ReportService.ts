@@ -1,6 +1,5 @@
 import { sqlDBOperations } from "../database/operations/sqlDBOperations";
 import { FeedbackReport } from "../models/Feedback";
-// import { FeedbackReport, FeedbackRow } from "../";
 
 export default class ReportService {
   //  need to work on this or storedProcedure

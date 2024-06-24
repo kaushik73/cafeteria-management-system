@@ -26,19 +26,6 @@ export default class RecommendationService {
     }
   }
 
-  // static async viewRecommendedFoodOLD(data: any | void, callback: any) {
-  //   const nextDay = DateService.getNthPreviousDate(-1);
-  //   const today = DateService.getNthPreviousDate(0);
-  //   const query = `select * from Recommendation where rollout_to_employee = true and recommendation_date between '${today}' and '${nextDay}'`;
-  //   console.log(query);
-
-  //   const recommendedFood: Recommendation[] =
-  //     await sqlDBOperations.runCustomQuery(query);
-  //   console.log({ viewRecommendedFood: recommendedFood });
-
-  //   callback({ message: recommendedFood });
-  // }
-
   static async viewRecommendedFood(data: any, callback: any) {
     try {
       const userId = data.userId; // Assuming userId is passed in data
@@ -134,23 +121,10 @@ export default class RecommendationService {
             { rollout_to_employee: true },
             { recommendation_id: recommendationId }
           );
-
-          // const allRecommendations: Recommendation[] =
-          // await sqlDBOperations.selectAll("recommendation");
-          // const MenuDetail = await MenuService.getMenuDetailFromId(
-          //   allRecommendations.menu_id
-          // );
-          // const notificationMessage = `Chef Recommneded${MenuDetail.name} for ${allRecommendations.meal_type}`;
-          // await NotificationService.addNotification(
-          //   "recommendation",
-          //   notificationMessage,
-          //   1 // for now
-          // );
         }
       }
 
-      // console.log("Updated recommendations:", updatedRecommendations);
-      callback("Chef Rolledout Success");
+      callback("Chef roll out Success");
     } catch (error) {
       console.error("Error in chefRollout:", error);
       callback("Chef Rolledout Failed");

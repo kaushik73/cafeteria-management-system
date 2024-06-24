@@ -5,6 +5,7 @@ import validateService from "../validations/CommonValidation";
 import { IUser } from "../models/User";
 import { SharedService } from "./SharedService";
 import { Response } from "../common/types";
+import { Recommendation } from "../models/Recommendation";
 
 export default class EmployeeService {
   static userDetail: IUser;
@@ -83,14 +84,14 @@ export default class EmployeeService {
       socketService.emitEvent(
         "viewRecommendedFood",
         {},
-        (response: Response<{ userDetail: IUser | null }>) => {
-          const recommendedFood = response.data;
+        (response: { recommendedFood: Recommendation[] }) => {
+          const recommendedFood = response.recommendedFood;
           if (!recommendedFood) {
             reject("No Food is available");
           } else {
             console.log(response, "asdgfhjmhng");
 
-            OutputService.printTable(recommendedFood as unknown as any[]);
+            OutputService.printTable(recommendedFood);
             resolve("viewRecommendedFood");
           }
         }
@@ -99,45 +100,33 @@ export default class EmployeeService {
   }
   static async voteForRecommendedFood() {
     return new Promise((resolve, reject) => {
-      socketService.emitEvent("voteForRecommendedFood", {}, (response: any) => {
-        OutputService.printTable(response.message);
-        //
-        const voteIdForBreakfast: string = InputService.takeInputWithValidation(
-          "Enter comma (,) separated recommendation_id for breakfast: "
-        );
+      // OutputService.printTable(response.message);
+      //
+      const voteIdForBreakfast: string = InputService.takeInputWithValidation(
+        "Enter comma (,) separated recommendation_id for breakfast: "
+      );
 
-        const voteIdForLunch: string = InputService.takeInputWithValidation(
-          "Enter comma (,) separated recommendation_id for lunch: "
-        );
-        const voteForDinner: string = InputService.takeInputWithValidation(
-          "Enter comma (,) separated recommendation_id for dinner: "
-        );
+      const voteIdForLunch: string = InputService.takeInputWithValidation(
+        "Enter comma (,) separated recommendation_id for lunch: "
+      );
+      const voteForDinner: string = InputService.takeInputWithValidation(
+        "Enter comma (,) separated recommendation_id for dinner: "
+      );
 
-        const votesByEmployeeForNextDayFood = {
-          breakfast: voteIdForBreakfast
-            .split(",")
-            .map((id) => Number(id.trim())),
-          lunch: voteIdForLunch.split(",").map((id) => Number(id.trim())),
-          dinner: voteForDinner.split(",").map((id) => Number(id.trim())),
-        };
-        //
-        EmployeeService.sendVotesofEmployeeForNextDayFood(
-          votesByEmployeeForNextDayFood
-        );
-        resolve(response.message);
-      });
-    });
-  }
-
-  // not implemented
-  static sendVotesofEmployeeForNextDayFood(votesByEmployeeForNextDayFood: any) {
-    return new Promise((resolve, reject) => {
+      const votesByEmployeeForNextDayFood = {
+        breakfast: voteIdForBreakfast.split(",").map((id) => Number(id.trim())),
+        lunch: voteIdForLunch.split(",").map((id) => Number(id.trim())),
+        dinner: voteForDinner.split(",").map((id) => Number(id.trim())),
+      };
       socketService.emitEvent(
-        "sendVotesofEmployeeForNextDayFood",
-        { votesByEmployeeForNextDayFood },
-        (response: any) => {
-          OutputService.printTable(response.message);
-          //
+        "voteForRecommendedFood",
+        {
+          voteForRecommendedFood: votesByEmployeeForNextDayFood,
+          userDetail: EmployeeService.userDetail,
+        },
+        (response: { message: string }) => {
+          OutputService.printMessage(response.message);
+          resolve(response.message);
         }
       );
     });

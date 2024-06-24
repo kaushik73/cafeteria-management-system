@@ -6,6 +6,7 @@ import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
 import { Menu, allowedMealTypes, MealType } from "../models/Menu";
 import { Recommendation } from "../models/Recommendation";
+import { VotedItem } from "../models/VotedItem";
 export default class ChefService {
   static userDetail: IUser;
   private static sharedService: SharedService;
@@ -22,6 +23,7 @@ export default class ChefService {
           `3. Rollout Food to Employees\n` +
           `4. See Discard Items\n` +
           `5. View Feedback Report\n` +
+          `6. View Employee Votes\n` +
           `0. Logout`
       );
       const choice = InputService.takeInputWithValidation(
@@ -105,10 +107,7 @@ export default class ChefService {
         }
       );
     });
-    // });
   }
-
-  // work end :
 
   static viewFeedbackReport() {
     return new Promise(async (resolve, reject) => {
@@ -148,6 +147,19 @@ export default class ChefService {
 
           OutputService.printTable(response.message);
           resolve("showDiscardItems");
+        }
+      );
+    });
+  }
+
+  static viewEmployeeVotes() {
+    return new Promise((resolve, reject) => {
+      socketService.emitEvent(
+        "viewEmployeeVotes",
+        {},
+        (response: { employeeVotes: VotedItem[] }) => {
+          OutputService.printTable(response.employeeVotes);
+          resolve(response.employeeVotes);
         }
       );
     });

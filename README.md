@@ -16,15 +16,15 @@ This project is a recommendation engine designed for a cafeteria to enhance food
 
 ### User Authentication & Authorization
 
-### Menu Management (Admin)
+1. **Menu Management (Admin)**
 
-### Food Recommendation (Chef)
+2. **Food Recommendation (Chef)**
 
-### Employee Feedback
+3. **Employee Feedback**
 
-### Monthly Feedback Reporting
+4. **Monthly Feedback Reporting**
 
-### Notifications
+5. **Notifications**
 
 ## Console Application
 
@@ -41,3 +41,17 @@ This project is a recommendation engine designed for a cafeteria to enhance food
 - **Languages**: TypeScript
 - **Database**: MySQL
 - **Socket Programming**: For real-time notifications
+
+## UML Diagrams :
+
+### ER Diagram
+
+![plot](./diagrams/Er_Diagram.png)
+
+### Class Diagram
+
+![plot](./diagrams/Class_Diagram.png)
+
+### Use Case Diagram
+
+![plot](./diagrams/Use_Case_Diagram.png)

@@ -10,6 +10,8 @@ import MenuService from "../../services/MenuService";
 import RecommendationService from "../../services/RecommendationService";
 import DateService from "../../services/DateService";
 import { engineRecommendationService } from "../../engine/services/EngineRecommendationService";
+import { VotedItem } from "../../models/VotedItem";
+import VoteService from "../../services/VoteService";
 
 class Chef {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -21,7 +23,6 @@ class Chef {
       Chef.handleShowMenuItems
     );
 
-    // new to work start
     socketService.registerEventHandler(
       socket,
       "viewFoodRecommendation",
@@ -33,7 +34,6 @@ class Chef {
       Chef.rolloutFoodToEmployees
     );
 
-    // new to work end
     socketService.registerEventHandler(
       socket,
       "showDiscardItems",
@@ -44,13 +44,20 @@ class Chef {
       "viewFeedbackReport",
       Chef.viewFeedbackReport
     );
+    socketService.registerEventHandler(
+      socket,
+      "viewEmployeeVotes",
+      Chef.viewEmployeeVotes
+    );
   }
+
   static async handleShowMenuItems(
     data: Object,
     callback: (response: any) => void
   ) {
     User.handleShowMenuItems(data, callback);
   }
+
   static async viewFeedbackReport(
     data: any,
     callback: (response: any) => void
@@ -130,7 +137,6 @@ class Chef {
     }
   }
 
-  //
   static async rolloutFoodToEmployees(
     data: { [key: string]: number[] },
     callback: (response: any) => void
@@ -171,6 +177,17 @@ class Chef {
     }
   }
 
-  // work end :
+  static async viewEmployeeVotes(
+    data: {},
+    callback: (response: { employeeVotes: VotedItem[] }) => void
+  ) {
+    try {
+      const employeeVotes: any[] = await VoteService.getEmployeeVotes();
+      callback({ employeeVotes });
+      console.log("success rolloutFoodToEmployees:");
+    } catch (error) {
+      console.error("Error in rolloutFoodToEmployees:", error);
+    }
+  }
 }
 export default Chef;

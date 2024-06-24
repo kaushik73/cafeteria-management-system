@@ -1,4 +1,3 @@
-import * as readlineSync from "readline-sync";
 import ChefService from "../services/ChefService";
 import { loginUI } from "./LoginUI";
 import { IUser } from "../models/User";
@@ -26,6 +25,9 @@ export default class ChefUI {
           break;
         case "5":
           await ChefService.viewFeedbackReport();
+          break;
+        case "6":
+          await ChefService.viewEmployeeVotes();
           break;
         case "0":
           continueLoop = false;

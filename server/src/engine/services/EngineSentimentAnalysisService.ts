@@ -1,7 +1,7 @@
 import Sentiment from "sentiment";
 import { Feedback } from "../../models/Feedback";
 
-class SentimentAnalysisService {
+class EngineSentimentAnalysisService {
   private sentiment: Sentiment;
 
   constructor() {
@@ -25,7 +25,7 @@ class SentimentAnalysisService {
 
   async calculateAverageSentiment(feedbacks: Feedback[]): Promise<number> {
     const sentimentResults =
-      await sentimentAnalysisService.analyzeFeedbackSentiments(feedbacks);
+      await engineSentimentAnalysisService.analyzeFeedbackSentiments(feedbacks);
 
     let totalSentiment = 0;
     for (const feedback of feedbacks) {
@@ -42,4 +42,5 @@ class SentimentAnalysisService {
   }
 }
 
-export const sentimentAnalysisService = new SentimentAnalysisService();
+export const engineSentimentAnalysisService =
+  new EngineSentimentAnalysisService();

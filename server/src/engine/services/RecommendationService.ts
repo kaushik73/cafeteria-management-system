@@ -2,7 +2,7 @@
 // import { Feedback } from "../../models/Feedback";
 // import { Recommendation } from "../../models/Recommendation";
 // import { sqlDBOperations } from "../../database/operations/sqlDBOperations";
-// import { sentimentAnalysisService } from "./SentimentAnalysisService";
+// import { EngineSentimentAnalysisService } from "./EngineSentimentAnalysisService";
 // import DateService from "../../services/DateService";
 // import { mealTypeLimit } from "../../common/contants";
 
@@ -90,7 +90,7 @@
 //     const feedbacks = await this.getAllFeedbacks();
 //     console.log("Feedbacks:", feedbacks);
 //     const sentimentResults =
-//       await sentimentAnalysisService.analyzeFeedbackSentiments(feedbacks);
+//       await EngineSentimentAnalysisService.analyzeFeedbackSentiments(feedbacks);
 //     console.log("Sentiment results:", sentimentResults);
 //     const menuFeedbackMap = this.mapFeedbacksToMenuItems(
 //       feedbacks,
@@ -239,7 +239,7 @@
 //     const feedbacks = await this.getFeedbackForMenu(item.menu_id);
 //     const averageRating = this.calculateAverageRating(feedbacks);
 //     const averageSentiment =
-//       await sentimentAnalysisService.calculateAverageSentiment(feedbacks);
+//       await EngineSentimentAnalysisService.calculateAverageSentiment(feedbacks);
 //     const recommendation = this.buildRecommendation(
 //       item.menu_id,
 //       mealType,

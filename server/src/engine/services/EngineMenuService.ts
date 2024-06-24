@@ -1,14 +1,14 @@
 import { sqlDBOperations } from "../../database/operations/sqlDBOperations";
 import { Menu } from "../../models/Menu";
 import { engineFeedbackService } from "./EngineFeedbackService";
-import { sentimentAnalysisService } from "./SentimentAnalysisService";
+import { engineSentimentAnalysisService } from "./EngineSentimentAnalysisService";
 
 class EngineMenuService {
   //  engine code start
   async getTopRatedMenuItems(mealType: string, limit: number): Promise<Menu[]> {
     const feedbacks = await engineFeedbackService.getAllFeedbacks();
     const sentimentResults =
-      await sentimentAnalysisService.analyzeFeedbackSentiments(feedbacks);
+      await engineSentimentAnalysisService.analyzeFeedbackSentiments(feedbacks);
     const menuFeedbackMap = engineFeedbackService.mapFeedbacksToMenuItems(
       feedbacks,
       sentimentResults

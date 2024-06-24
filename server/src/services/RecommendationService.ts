@@ -1,5 +1,6 @@
 import { sqlDBOperations } from "../database/operations/sqlDBOperations";
-import { Menu } from "../models/Menu";
+import { recommendationEngine } from "../engine";
+import { MealType, Menu } from "../models/Menu";
 import { Preference } from "../models/Preference";
 import { Recommendation } from "../models/Recommendation";
 import DateService from "./DateService";
@@ -26,7 +27,48 @@ export default class RecommendationService {
     }
   }
 
-  static async viewRecommendedFood(data: any, callback: any) {
+  static async checkRecommendationsExist(
+    mealType: MealType,
+    recommendationDate: string
+  ): Promise<boolean> {
+    const recommendations = await sqlDBOperations.selectAll(
+      "Recommendation",
+      {
+        meal_type: mealType,
+        recommendation_date: recommendationDate,
+      },
+      {},
+      { meal_type: "=", recommendation_date: ">" }
+    );
+    return recommendations.length > 0;
+  }
+
+  async generateNextDayRecommendations(
+    mealType: "breakfast" | "lunch" | "dinner"
+  ) {
+    await recommendationEngine.generateNextDayRecommendations(mealType);
+  }
+
+  static async viewRecommendedFood(mealType: MealType) {
+    try {
+      const nextDay = DateService.getNthPreviousDate(-1);
+      const today = DateService.getNthPreviousDate(0);
+      const query = `select * from Recommendation where meal_type = '${mealType}' and recommendation_date between '${today}' and '${nextDay}'`;
+
+      console.log(query, "query");
+      const recommendedFood: Recommendation[] =
+        await sqlDBOperations.runCustomQuery(query);
+      console.log({ viewRecommendedFood: recommendedFood });
+      return recommendedFood;
+    } catch (error) {
+      console.error("Error retrieving recommended food:", error);
+      throw new Error("Error in viewRecommendedFood");
+      // callback({ message: "Error retrieving recommended food." });
+    }
+  }
+
+  //  ordered preference food for employee
+  static async viewPreferenceRecommendedFood(data: any) {
     try {
       const userId = data.userId; // Assuming userId is passed in data
       const preferences = await this.getUserPreferences(userId);
@@ -44,11 +86,11 @@ export default class RecommendationService {
         recommendedFood,
         preferences
       );
-
-      callback({ message: sortedRecommendedFood });
+      return sortedRecommendedFood;
     } catch (error) {
       console.error("Error retrieving recommended food:", error);
-      callback({ message: "Error retrieving recommended food." });
+      // return "Error retrieving recommended food.";
+      throw new Error("Error");
     }
   }
 

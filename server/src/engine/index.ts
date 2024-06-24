@@ -3,8 +3,8 @@ import { Menu } from "../models/Menu";
 import { engineRecommendationService } from "./services/EngineRecommendationService";
 class RecommendationEngine {
   async generateNextDayRecommendations(
-    mealType: "breakfast" | "lunch" | "dinner",
-    callback: any
+    mealType: "breakfast" | "lunch" | "dinner"
+    // callback: any
   ) {
     try {
       const result =
@@ -12,36 +12,31 @@ class RecommendationEngine {
           mealType
         );
 
-      callback(result);
-      console.log("TEST - Daily recommendation generated successfully.");
+      console.log("TEST - generate", result);
+
+      return result;
     } catch (error) {
-      callback({
-        status: "error",
-        message: "Error generating daily recommendation.",
-      });
-      console.error("TEST - Error generating daily recommendation:", error);
+      return "Error generating daily recommendation.";
     }
   }
-  async getNextDayRecommendations(
-    mealType: "breakfast" | "lunch" | "dinner",
-    callback: any
-  ) {
-    try {
-      const getAll =
-        await engineRecommendationService.getNextDayRecommendations(mealType);
-      console.log(
-        "TEST - Daily recommendation get successfully. - index",
-        getAll.recommendations
-      );
-      callback(getAll.recommendations);
-    } catch (error) {
-      callback({
-        status: "error",
-        message: "Error getting daily recommendation.",
-      });
-      console.error("TEST - Error getting daily recommendation:", error);
-    }
-  }
+
+  // async getNextDayRecommendations(
+  //   mealType: "breakfast" | "lunch" | "dinner",
+  //   callback: any
+  // ) {
+  //   try {
+  //     const getAll =
+  //       await engineRecommendationService.getNextDayRecommendations(mealType);
+  //     console.log("TEST - get ", getAll.recommendations);
+  //     callback(getAll.recommendations);
+  //   } catch (error) {
+  //     callback({
+  //       status: "error",
+  //       message: "Error getting daily recommendation.",
+  //     });
+  //     console.error("TEST - Error getting daily recommendation:", error);
+  //   }
+  // }
 
   async setDiscardStatus() {
     try {

@@ -22,10 +22,10 @@ export default class ChefUI {
           await ChefService.rolloutFoodToEmployees();
           break;
         case "4":
-          await ChefService.viewFeedbackReport();
+          await ChefService.showDiscardItems();
           break;
         case "5":
-          await ChefService.showDiscardItems();
+          await ChefService.viewFeedbackReport();
           break;
         case "0":
           continueLoop = false;

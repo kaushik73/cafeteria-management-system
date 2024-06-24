@@ -4,6 +4,8 @@ import { SharedService } from "./SharedService";
 import InputService from "./InputService";
 import OutputService from "./OutputService";
 import { socketService } from "./SocketService";
+import { Menu, allowedMealTypes, MealType } from "../models/Menu";
+import { Recommendation } from "../models/Recommendation";
 export default class ChefService {
   static userDetail: IUser;
   private static sharedService: SharedService;
@@ -18,8 +20,8 @@ export default class ChefService {
           `1.W View Menu Items\n` +
           `2. View Food Recommendations\n` +
           `3. Rollout Food to Employees\n` +
-          `4. View Feedback Report\n` +
-          `5. See Discard Items\n` +
+          `4. See Discard Items\n` +
+          `5. View Feedback Report\n` +
           `0. Logout`
       );
       const choice = InputService.takeInputWithValidation(
@@ -34,53 +36,79 @@ export default class ChefService {
     await ChefService.sharedService.showMenuItems();
   }
 
+  // work start :
   static async viewFoodRecommendation() {
-    return new Promise((resolve, reject) => {});
+    try {
+      await this.viewFoodRecommendationForMeal("breakfast");
+      await this.viewFoodRecommendationForMeal("lunch");
+      await this.viewFoodRecommendationForMeal("dinner");
+    } catch (error) {
+      console.error("Error viewing food recommendations:", error);
+    }
+  }
+
+  static async viewFoodRecommendationForMeal(mealType: MealType) {
+    return new Promise((resolve, reject) => {
+      socketService.emitEvent(
+        "viewFoodRecommendation",
+        { mealType },
+        (chefResponse: {
+          status: string;
+          message: string;
+          recommendations: Recommendation[];
+        }) => {
+          OutputService.printMessage(`Recommendations for ${mealType}:`);
+          OutputService.printTable(chefResponse.recommendations);
+          resolve(chefResponse);
+        }
+      );
+    });
   }
 
   static rolloutFoodToEmployees() {
     return new Promise(async (resolve, reject) => {
-      socketService.emitEvent("rolloutFoodToEmployees", {}, (response: any) => {
-        OutputService.printTable(response.message);
-        const recommendationIdForBreakfast: string =
-          InputService.takeInputWithValidation(
-            "Enter comma (,) separated recommendation_id for breakfast: "
-          );
-        const recommendationIdForLunch: string =
-          InputService.takeInputWithValidation(
-            "Enter comma (,) separated recommendation_id for lunch: "
-          );
-        const recommendationIdForDinner: string =
-          InputService.takeInputWithValidation(
-            "Enter comma (,) separated recommendation_id for dinner: "
-          );
-
-        const rolloutData = {
-          breakfast: recommendationIdForBreakfast
-            .split(",")
-            .map((id) => Number(id.trim())),
-          lunch: recommendationIdForLunch
-            .split(",")
-            .map((id) => Number(id.trim())),
-          dinner: recommendationIdForDinner
-            .split(",")
-            .map((id) => Number(id.trim())),
-        };
-
-        console.log(rolloutData, "rolloutData");
-
-        socketService.emitEvent(
-          "chefRollout",
-          rolloutData,
-          (chefResponse: any) => {
-            OutputService.printMessage(chefResponse);
-            resolve(chefResponse);
-          }
+      // socketService.emitEvent("rolloutFoodToEmployees", {}, (response: any) => {
+      // OutputService.printTable(response.message);
+      const recommendationIdForBreakfast: string =
+        InputService.takeInputWithValidation(
+          "Enter comma (,) separated recommendation_id for breakfast: "
         );
-        resolve(response);
-      });
+      const recommendationIdForLunch: string =
+        InputService.takeInputWithValidation(
+          "Enter comma (,) separated recommendation_id for lunch: "
+        );
+      const recommendationIdForDinner: string =
+        InputService.takeInputWithValidation(
+          "Enter comma (,) separated recommendation_id for dinner: "
+        );
+
+      const rolloutData = {
+        breakfast: recommendationIdForBreakfast
+          .split(",")
+          .map((id) => Number(id.trim())),
+        lunch: recommendationIdForLunch
+          .split(",")
+          .map((id) => Number(id.trim())),
+        dinner: recommendationIdForDinner
+          .split(",")
+          .map((id) => Number(id.trim())),
+      };
+
+      console.log(rolloutData, "rolloutData");
+
+      socketService.emitEvent(
+        "rolloutFoodToEmployees",
+        rolloutData,
+        (chefResponse: any) => {
+          OutputService.printMessage(chefResponse);
+          resolve(chefResponse);
+        }
+      );
     });
+    // });
   }
+
+  // work end :
 
   static viewFeedbackReport() {
     return new Promise(async (resolve, reject) => {
@@ -111,8 +139,17 @@ export default class ChefService {
     });
   }
   static showDiscardItems() {
-    socketService.emitEvent("showDiscardItems", {}, (response) => {
-      OutputService.printMessage(response);
+    return new Promise((resolve, reject) => {
+      socketService.emitEvent(
+        "showDiscardItems",
+        {},
+        (response: { message: Menu[] }) => {
+          console.log("response - showDiscardItems", response);
+
+          OutputService.printTable(response.message);
+          resolve("showDiscardItems");
+        }
+      );
     });
   }
 }

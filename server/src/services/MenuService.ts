@@ -1,6 +1,8 @@
 import { ResultSetHeader } from "mysql2";
 import { sqlDBOperations } from "../database/operations/sqlDBOperations";
 import { Menu } from "../models/Menu";
+import DateService from "./DateService";
+import { Recommendation } from "../models/Recommendation";
 
 class MenuService {
   static async addMenuItem(item: Menu) {
@@ -99,11 +101,6 @@ class MenuService {
       throw new Error("Error updating item availability: " + error.message);
     }
   }
-
-  // static removeDiscardItem() {
-  //   // recommendationEngine.setDiscardStatus();
-  //   await sqlDBOperations.delete('menu')
-  // }
 
   static async getItemsToDiscard(): Promise<Menu[]> {
     try {

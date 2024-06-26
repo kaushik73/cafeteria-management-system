@@ -7,8 +7,6 @@ import DateService from "../../services/DateService";
 import { defaultItemValues, mealTypeLimit } from "../../common/contants";
 import { engineFeedbackService } from "./EngineFeedbackService";
 import { engineMenuService } from "./EngineMenuService";
-// import FeedbackService from "../../services/FeedbackService";
-// import MenuService from "../../services/MenuService";
 
 class EngineRecommendationService {
   async generateNextDayRecommendations(
@@ -123,22 +121,6 @@ class EngineRecommendationService {
     return result;
   }
 
-  // async getNextDayRecommendations(mealType: "breakfast" | "lunch" | "dinner") {
-  //   const nextDay = DateService.getNthPreviousDate(-1);
-  //   const today = DateService.getNthPreviousDate(0);
-
-  //   const recommendations = await sqlDBOperations.runCustomQuery(
-  //     `select * from Recommendation where meal_type = '${mealType}' and recommendation_date between '${today}' and '${nextDay}'`
-  //   );
-  //   console.log("recommendations", recommendations);
-
-  //   return {
-  //     status: "success",
-  //     message: `Next day recommendations for ${mealType} retrieved successfully.`,
-  //     recommendations: recommendations,
-  //   };
-  // }
-
   async setDiscardStatus(menuItems: Menu[]): Promise<void> {
     try {
       for (const menuItem of menuItems) {
@@ -161,7 +143,6 @@ class EngineRecommendationService {
           averageRating < defaultItemValues.discard_item_rating_limit ||
           averageSentiment < defaultItemValues.discard_item_feedback_limit
         ) {
-          // itemsToDiscard.push(menuItem);
           await sqlDBOperations.update(
             "Menu",
             { is_discard: true },

@@ -4,7 +4,6 @@ import { engineFeedbackService } from "./EngineFeedbackService";
 import { engineSentimentAnalysisService } from "./EngineSentimentAnalysisService";
 
 class EngineMenuService {
-  //  engine code start
   async getTopRatedMenuItems(mealType: string, limit: number): Promise<Menu[]> {
     const feedbacks = await engineFeedbackService.getAllFeedbacks();
     const sentimentResults =
@@ -77,7 +76,6 @@ class EngineMenuService {
       { meal_type: "=", menu_id: "IN" }
     ) as Promise<Menu[]>;
   }
-  //  engine code end
 }
 
 export const engineMenuService = new EngineMenuService();

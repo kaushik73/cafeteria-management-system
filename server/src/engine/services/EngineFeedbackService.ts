@@ -2,7 +2,6 @@ import { sqlDBOperations } from "../../database/operations/sqlDBOperations";
 import { Feedback } from "../../models/Feedback";
 
 class EngineFeedbackService {
-  //  new
   async getAllFeedbacks(): Promise<Feedback[]> {
     const feedbacks = await sqlDBOperations.selectAll("Feedback");
     return feedbacks as Feedback[];

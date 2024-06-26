@@ -6,6 +6,7 @@ import { Role } from "../common/types";
 import OutputService from "../services/OutputService";
 import { IUser } from "../models/User";
 import { chefUI } from "./ChefUI";
+import InputService from "../services/InputService";
 
 class LoginUI {
   public role!: Role;
@@ -20,10 +21,10 @@ class LoginUI {
 
       while (!loggedIn) {
         // take id and password as default
-        // userID = InputService.takeInputWithValidation("Enter your userID: ");
-        // password = InputService.takeInputWithValidation(
-        //   "Enter your Password: "
-        // );
+        userID = InputService.takeInputWithValidation("Enter your userID: ");
+        password = InputService.takeInputWithValidation(
+          "Enter your Password: "
+        );
 
         try {
           if (CommonValidations.validateUserID(userID)) {

@@ -30,7 +30,7 @@ class SocketService {
 
   public onEvent(eventName: string, callback: (data: any) => void): void {
     this.socket.on(eventName, (data) => {
-      console.log(`TESTING : Received event ${eventName} with data:`, data);
+      // console.log(`TESTING : Received event ${eventName} with data:`, data);
       callback(data);
     });
   }
@@ -41,7 +41,7 @@ class SocketService {
     callback: (response: T) => void
   ): void {
     this.socket.emit(eventName, data, (response: T) => {
-      console.log(`TESTING - Emitted event ${eventName} with data:`, data);
+      // console.log(`TESTING - Emitted event ${eventName} with data:`, data);
       callback(response);
     });
   }

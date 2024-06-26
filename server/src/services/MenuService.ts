@@ -30,7 +30,7 @@ class MenuService {
         }
       );
 
-      // Notify all employees
+      // todo : Notify all employees
       // await this.sendMenuUpdateNotification(notificationMessage);
       return result;
     } catch (error: any) {

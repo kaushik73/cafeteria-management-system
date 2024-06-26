@@ -87,38 +87,6 @@ class Employee {
     callback({ recommendedFood: recommendedFood });
   }
 
-  // static async voteForRecommendedFoodMine(
-  //   data: {
-  //     voteForRecommendedFood: { [key: string]: number[] };
-  //     userDetail: IUser;
-  //   },
-  //   callback: (response: { message: string }) => void
-  // ) {
-  //   console.log(data.voteForRecommendedFood, "data.voteForRecommendedFood");
-  //   let votedItemObj: VotedItem = {
-  //     user_id: 0,
-  //     is_voted: false,
-  //     menu_id: 0,
-  //   };
-  //   for (const mealType of Object.keys(data.voteForRecommendedFood)) {
-  //     const votedIds = data.voteForRecommendedFood[mealType];
-  //     console.log("mealType", mealType, "votedIds", votedIds);
-
-  //     for (const votedId of votedIds) {
-  //       votedItemObj = {
-  //         user_id: data.userDetail.user_id as number,
-  //         is_voted: true,
-  //         menu_id: votedId,
-  //       };
-  //     }
-  //   }
-  //   const voteForRecommendedFood: VotedItem[] = await sqlDBOperations.insert(
-  //     "votedItem",
-  //     votedItemObj
-  //   );
-  //   callback({ message: "success" });
-  // }
-
   static async voteForRecommendedFood(
     data: {
       voteForRecommendedFood: { [key: string]: number[] };
@@ -128,8 +96,6 @@ class Employee {
   ) {
     try {
       console.log(data.voteForRecommendedFood, "data.voteForRecommendedFood");
-
-      // const votedItems: VotedItem[] = [];
 
       for (const mealType of Object.keys(data.voteForRecommendedFood)) {
         const votedIds = data.voteForRecommendedFood[mealType];

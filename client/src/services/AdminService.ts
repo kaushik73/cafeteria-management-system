@@ -37,16 +37,16 @@ export default class AdminService {
     return new Promise((resolve, reject) => {
       OutputService.printMessage(
         `Admin Menu:\n` +
-          `1.W View Menu\n` +
-          `2.W Add Menu Item\n` +
-          `3.W Update Menu Item\n` +
-          `4.W Delete Menu Item\n` +
-          `5.W Update Item Availability\n` +
-          `6.W View Feedbacks of Item\n` +
-          `7.W View Feedback Report\n` +
-          `8.W  See Discard Items\n` +
+          `1. View Menu\n` +
+          `2. Add Menu Item\n` +
+          `3. Update Menu Item\n` +
+          `4. Delete Menu Item\n` +
+          `5. Update Item Availability\n` +
+          `6. View Feedbacks of Item\n` +
+          `7. View Feedback Report\n` +
+          `8. See Discard Items\n` +
           `9. See Discard Items Operations(Should be done once a month)\n` +
-          `10.W See Log\n` +
+          `10. See Log\n` +
           `0. Logout`
       );
       const choice = InputService.takeInputWithValidation(
@@ -299,7 +299,7 @@ export default class AdminService {
   static async showDiscardItemsOperations() {
     return new Promise(async (resolve, reject) => {
       OutputService.printMessage(
-        `1.W Remove the Food Item\n` +
+        `1. Remove the Food Item\n` +
           `2. Roll out Detailed Feedback Questions\n` +
           `0. Go to Admin Menu`
       );

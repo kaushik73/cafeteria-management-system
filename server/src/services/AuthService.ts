@@ -14,16 +14,11 @@ class AuthService {
         password: password,
       })) as IUser;
 
-      // test
-
       const x = await sqlDBOperations.selectOne("Preference", {
+        // todo : make it dynamic
         user_id: 101,
       });
       console.log("x = ", x);
-
-      // test
-
-      // userDetail = userDetail[0];
       const action = `${userDetail.name} logged in as ${userDetail.role}`;
       const logOutput = await LogService.insertIntoLog(
         action,

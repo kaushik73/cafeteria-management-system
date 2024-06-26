@@ -4,7 +4,6 @@ import { MealType, Menu } from "../models/Menu";
 import { Preference } from "../models/Preference";
 import { Recommendation } from "../models/Recommendation";
 import DateService from "./DateService";
-import FeedbackService from "./FeedbackService";
 
 export default class RecommendationService {
   static async voteForRecommendedFood(
@@ -63,7 +62,6 @@ export default class RecommendationService {
     } catch (error) {
       console.error("Error retrieving recommended food:", error);
       throw new Error("Error in viewRecommendedFood");
-      // callback({ message: "Error retrieving recommended food." });
     }
   }
 
@@ -89,7 +87,6 @@ export default class RecommendationService {
       return sortedRecommendedFood;
     } catch (error) {
       console.error("Error retrieving recommended food:", error);
-      // return "Error retrieving recommended food.";
       throw new Error("Error");
     }
   }

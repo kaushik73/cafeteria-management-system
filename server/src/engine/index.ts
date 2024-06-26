@@ -20,24 +20,6 @@ class RecommendationEngine {
     }
   }
 
-  // async getNextDayRecommendations(
-  //   mealType: "breakfast" | "lunch" | "dinner",
-  //   callback: any
-  // ) {
-  //   try {
-  //     const getAll =
-  //       await engineRecommendationService.getNextDayRecommendations(mealType);
-  //     console.log("TEST - get ", getAll.recommendations);
-  //     callback(getAll.recommendations);
-  //   } catch (error) {
-  //     callback({
-  //       status: "error",
-  //       message: "Error getting daily recommendation.",
-  //     });
-  //     console.error("TEST - Error getting daily recommendation:", error);
-  //   }
-  // }
-
   async setDiscardStatus() {
     try {
       const menuItems: Menu[] = (await sqlDBOperations.selectAll(

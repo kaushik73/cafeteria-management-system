@@ -13,7 +13,7 @@ export class MySqlConnection {
     port: Number(process.env.PORT),
     database: process.env.SQL_DEFAULT_DATABASE as string,
   };
-  // Initialize the connection
+
   public static async initializeConnection(): Promise<void> {
     if (!MySqlConnection.connection) {
       try {

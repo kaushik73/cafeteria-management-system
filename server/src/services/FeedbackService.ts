@@ -1,9 +1,6 @@
 import { Feedback } from "../models/Feedback";
 import { sqlDBOperations } from "../database/operations/sqlDBOperations";
-// import LogService from "./LogService";
-import userDetailStore from "../store/userDetailStore";
 import { DiscardMenuFeedback } from "../models/DiscardMenuFeedback";
-// import { IUser  } from "../models/User";
 
 export default class FeedbackService {
   static async giveFeedback(feedback: Feedback) {
@@ -38,5 +35,3 @@ export default class FeedbackService {
     return result;
   }
 }
-
-// export const feedbackService = new FeedbackService();

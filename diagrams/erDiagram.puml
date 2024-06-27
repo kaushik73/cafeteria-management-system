@@ -1,0 +1,67 @@
+@startuml
+entity User {
+    * user_id : INT <<PK>>
+    --
+    role : ENUM('admin', 'chef', 'employee') <<NOT NULL>>
+    name : VARCHAR(255) <<NOT NULL>>
+    email : VARCHAR(255) <<NOT NULL, UNIQUE>>
+    emp_id : INT <<UNIQUE>>
+    password : VARCHAR(255) <<NOT NULL>>
+}
+
+entity Menu {
+    * menu_id : INT <<PK>>
+    --
+    item_name : VARCHAR(255) <<NOT NULL>>
+    price : DECIMAL(10, 2) <<NOT NULL>>
+    availability_status : BOOLEAN <<NOT NULL>>
+    meal_type : ENUM('lunch', 'dinner', 'breakfast') <<NOT NULL>>
+}
+
+entity Feedback {
+    * feedback_id : INT <<PK>>
+    --
+    rating : INT <<NOT NULL>>
+    comment : TEXT
+    feedback_date : DATE <<NOT NULL>>
+    user_id : INT <<FK>>
+    menu_id : INT <<FK>>
+}
+
+entity Notification {
+    * notification_id : INT <<PK>>
+    --
+    notification_type : ENUM('recommendation', 'menuUpdate', 'availabilityChange') <<NOT NULL>>
+    message : TEXT <<NOT NULL>>
+    notification_date : DATE <<NOT NULL>>
+    menu_id : INT <<FK>>
+}
+
+entity Recommendation {
+    * recommendation_id : INT <<PK>>
+    --
+    meal_type : ENUM('lunch', 'dinner', 'breakfast') <<NOT NULL>>
+    recommendation_date : DATE <<NOT NULL>>
+    average_rating : INT <<NOT NULL>>
+    is_prepared : Boolean <<NOT NULL>>
+    menu_id : INT <<FK>>
+
+}
+
+entity Report {
+    * report_id : INT <<PK>>
+    --
+    report_type : ENUM('monthlyFeedback') <<NOT NULL>>
+    generated_date : DATE <<NOT NULL>>
+    menu_id : INT <<FK>>
+    recommendation_id : INT <<FK>>
+
+}
+
+User ||--o{ Feedback : "user_id"
+Menu ||--o{ Feedback : "menu_id"
+Menu ||--o{ Notification : "menu_id"
+Menu ||--o{ Recommendation : "menu_id"
+Menu ||--o{ Report : "menu_id"
+Recommendation ||--o{ Report :recommendation_id
+@enduml

@@ -1,0 +1,46 @@
+import ChefService from "../services/ChefService";
+import { loginUI } from "./LoginUI";
+import { IUser } from "../models/User";
+import OutputService from "../services/OutputService";
+
+export default class ChefUI {
+  async showChefMenu(userDetail: IUser) {
+    let continueLoop = true;
+
+    while (continueLoop) {
+      const choice: string = await ChefService.showChefMenu(userDetail);
+
+      switch (choice) {
+        case "1":
+          await ChefService.showMenuItems();
+          break;
+        case "2":
+          await ChefService.viewFoodRecommendation();
+          break;
+        case "3":
+          await ChefService.rolloutFoodToEmployees();
+          break;
+        case "4":
+          await ChefService.showDiscardItems();
+          break;
+        case "5":
+          await ChefService.viewFeedbackReport();
+          break;
+        case "6":
+          await ChefService.viewEmployeeVotes();
+          break;
+        case "0":
+          continueLoop = false;
+          loginUI.showLoginMenu();
+          break;
+        default:
+          OutputService.printMessage(
+            "Invalid choice. Please select a valid option."
+          );
+          ChefService.showChefMenu(userDetail);
+      }
+    }
+  }
+}
+
+export const chefUI = new ChefUI();

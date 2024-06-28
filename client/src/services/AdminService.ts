@@ -135,64 +135,64 @@ export default class AdminService {
         )
       );
 
+      const item: Partial<Menu> = { menu_id: menuId };
+
       const itemName: string = InputService.takeOptionalInputWithValidation(
         "Enter new menu item name (press enter to keep current): ",
         validateInputLength
       );
+      if (itemName) item.item_name = itemName;
 
-      const price: number = parseInt(
-        InputService.takeOptionalInputWithValidation(
-          "Enter new menu item price (press enter to keep current): ",
-          validatePrice
-        )
+      const priceInput: string = InputService.takeOptionalInputWithValidation(
+        "Enter new menu item price (press enter to keep current): ",
+        validatePrice
       );
+      if (priceInput) item.price = parseFloat(priceInput);
 
-      const availabilityStatus: boolean =
+      const availabilityStatusInput: string =
         InputService.takeOptionalInputWithValidation(
           "Is the item available? (yes/no), press enter to keep current: ",
           validateBoolean
-        ).toLowerCase() === "yes";
+        );
+      if (availabilityStatusInput)
+        item.availability_status =
+          availabilityStatusInput.toLowerCase() === "yes";
 
       const mealType: MealType = InputService.takeOptionalInputWithValidation(
         "Enter meal type? (lunch/dinner/breakfast), press enter to keep current: ",
         validateMealType
       ) as MealType;
+      if (mealType) item.meal_type = mealType;
 
       const dietaryType: DietaryType =
         InputService.takeOptionalInputWithValidation(
           "Enter dietary type? (vegetarian/non-Vegetarian/eggetarian), press enter to keep current: ",
           validateDietaryType
         ) as DietaryType;
+      if (dietaryType) item.dietary_type = dietaryType;
 
       const spiceType: SpiceType = InputService.takeOptionalInputWithValidation(
         "Enter spice type? (high/medium/low), press enter to keep current): ",
         validateSpiceType
       ) as SpiceType;
+      if (spiceType) item.spice_type = spiceType;
 
       const cuisineType: CuisineType =
         InputService.takeOptionalInputWithValidation(
           "Enter cuisine type? (north-indian/south-indian/other), press enter to keep current: ",
           validateCuisineType
         ) as CuisineType;
+      if (cuisineType) item.cuisine_type = cuisineType;
 
-      const sweetToothType: boolean =
+      const sweetToothTypeInput: string =
         InputService.takeOptionalInputWithValidation(
           "Are you sweet tooth type? (yes/no), press enter to keep current: ",
           validateBoolean
-        ).toLowerCase() === "yes";
+        );
+      if (sweetToothTypeInput)
+        item.sweet_tooth_type = sweetToothTypeInput.toLowerCase() === "yes";
 
-      const item: Partial<Menu> = {
-        menu_id: menuId,
-        item_name: itemName,
-        price,
-        availability_status: availabilityStatus,
-        meal_type: mealType,
-        dietary_type: dietaryType,
-        spice_type: spiceType,
-        cuisine_type: cuisineType,
-        sweet_tooth_type: sweetToothType,
-        is_discard: false,
-      };
+      console.log("current Item : ", item);
 
       socketService.emitEvent("updateMenuItem", item, (response: any) => {
         OutputService.printMessage(response.message);
@@ -270,11 +270,27 @@ export default class AdminService {
   }
 
   static viewFeedbackReport() {
-    return new Promise((resolve, reject) => {
-      socketService.emitEvent("viewFeedbackReport", {}, (response: any) => {
-        OutputService.printTable(response);
-        resolve("viewFeedbackReport");
-      });
+    return new Promise(async (resolve, reject) => {
+      const fromInput = InputService.takeInputWithValidation(
+        "Enter the start date (YYYY-MM-DD): ",
+        validateService.validateDate
+      );
+      const toInput = InputService.takeInputWithValidation(
+        "Enter the end date (YYYY-MM-DD): ",
+        validateService.validateDate
+      );
+
+      console.log(fromInput, toInput);
+
+      socketService.emitEvent(
+        "viewFeedbackReport",
+        { fromInput, toInput },
+        // { from: formattedFrom, to: formattedTo },
+        (response: any) => {
+          OutputService.printTable(response.message);
+          resolve(response.message);
+        }
+      );
     });
   }
 

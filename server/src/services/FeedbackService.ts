@@ -4,11 +4,7 @@ import { DiscardMenuFeedback } from "../models/DiscardMenuFeedback";
 
 export default class FeedbackService {
   static async giveFeedback(feedback: Feedback) {
-    console.log("giveFeedback");
-
     const result = await sqlDBOperations.insert("Feedback", feedback);
-    console.log("feedback res", result);
-
     return result;
   }
 
@@ -19,15 +15,11 @@ export default class FeedbackService {
       {},
       {}
     )) as Feedback[];
-    console.log("feedback res", feedbacks);
-
     return feedbacks;
   }
   static async addToDiscardMenuFeedback(
     DiscardMenuFeedback: DiscardMenuFeedback
   ) {
-    console.log("DiscardMenuFeedback", DiscardMenuFeedback);
-
     const result = await sqlDBOperations.insert(
       "DiscardMenuFeedback",
       DiscardMenuFeedback

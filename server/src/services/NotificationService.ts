@@ -12,8 +12,6 @@ export default class NotificationService {
     menuId: number | null
   ) {
     const currentDate = DateService.getCurrentDate();
-    console.log("addNotification", currentDate);
-
     const notification = {
       notification_type: type,
       message: message,
@@ -23,7 +21,6 @@ export default class NotificationService {
 
     try {
       await sqlDBOperations.insert("Notification", notification);
-      console.log("Notification added successfully:", notification);
     } catch (error: any) {
       throw new Error("Error adding notification: " + error.message);
     }

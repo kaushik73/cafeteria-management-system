@@ -127,15 +127,25 @@ CREATE TABLE DiscardMenuFeedback(
         NULL
 );
 
---from '2024-01-01';
--- to '2024-07-01';
-DELIMITER / / - - CREATE PROCEDURE FeedbackReport(IN startDate DATE, IN endDate DATE) BEGIN
+CREATE TABLE votedItem (
+    voted_item_id INT PRIMARY KEY,
+    menu_id INT NOT NULL,
+    vote_count INT NOT NULL,
+    voted_item_date DATETIME NOT NULL,
+    is_prepared BOOLEAN NOT NULL
+);
+
+-- TRIGGERS & STORED PROCEDURE
+--from '2024-01-01'  to '2024-07-01';
+DELIMITER / / -- 
+CREATE PROCEDURE FeedbackReport(IN startDate DATE, IN endDate DATE) BEGIN
 SELECT
     m.item_name AS itemName,
-    COALESCE(AVG(f.rating), 0) AS averageRating,
+    m.meal_type as mealType,
+    COALESCE(FLOOR(AVG(f.rating)), 0) AS averageRating,
     COALESCE(COUNT(f.feedback_id), 0) AS totalFeedbacks,
     COALESCE(COUNT(r.recommendation_id), 0) AS timesRecommended,
-    COALESCE(SUM(r.is_prepared), 0) AS isPrepared
+    COALESCE(SUM(r.rollout_to_employee), 0) AS rolloutToEmployee
 FROM
     Menu m
     LEFT JOIN Feedback f ON f.menu_id = m.menu_id
@@ -145,13 +155,15 @@ FROM
     AND r.recommendation_date BETWEEN startDate
     AND endDate
 GROUP BY
-    m.menu_id
+    m.menu_id,
+    f.rating
 ORDER BY
-    averageRating DESC;
+    FIELD(m.meal_type, 'breakfast', 'lunch', 'dinner'),
+    f.rating desc;
 
 END;
 
-DELIMITER / / CREATE TRIGGER after_menu_insert
+CREATE TRIGGER after_menu_insert
 AFTER
 INSERT
     ON Menu FOR EACH ROW BEGIN
@@ -160,12 +172,5 @@ INSERT INTO
 VALUES
     (3, 'normal taste', NOW(), NULL, NEW.menu_id);
 
-END / / DELIMITER;
-
-CREATE TABLE votedItem (
-    voted_item_id INT PRIMARY KEY,
-    menu_id INT NOT NULL,
-    vote_count INT NOT NULL,
-    voted_item_date DATETIME NOT NULL,
-    is_prepared BOOLEAN NOT NULL
-);
+END -- 
+/ / DELIMITER;

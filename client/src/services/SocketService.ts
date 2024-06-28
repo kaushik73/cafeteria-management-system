@@ -19,12 +19,13 @@ class SocketService {
       });
 
       this.socket.on("connect_error", (error) => {
-        OutputService.printMessage(`Connection error:${error}`);
-        reject(error);
+        // OutputService.printMessage(`Server Crashed, Try again later!`);
+        reject("Server Crashed, Try again later!");
       });
 
       this.socket.on("disconnect", (reason) => {
-        OutputService.printMessage(`Disconnected from server:${reason}`);
+        // OutputService.printMessage(`Disconnected from server:${reason}`);
+        reject(`Disconnected from server:${reason}`);
       });
     });
   }

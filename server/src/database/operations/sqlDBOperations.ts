@@ -13,7 +13,6 @@ class SqlOperation {
   async init() {
     try {
       this.connection = await MySqlConnection.getConnection();
-      console.log("init called");
     } catch (error) {
       throw error;
     }
@@ -28,15 +27,12 @@ class SqlOperation {
   async insert(entityName: string, data: unknown): Promise<any> {
     try {
       await this.ensureInitialized();
-      // console.log(`Inserting data into ${entityName}...`);
       const [result] = await this.connection.query(
         `INSERT INTO ${entityName} SET ?`,
         [data]
       );
       return result;
-      // console.log(`Data inserted into ${entityName} successfully.`);
     } catch (error) {
-      // console.error(`Error inserting data into ${entityName}:`, error);
       throw error;
     }
   }
@@ -102,7 +98,6 @@ class SqlOperation {
             .map((key) => `${key} ${orderBy[key] === "asc" ? "ASC" : "DESC"}`)
             .join(", ");
       }
-      console.log(query, queryParams);
 
       const [rows]: any = await this.connection.query(query, queryParams);
       return rows;
@@ -132,13 +127,6 @@ class SqlOperation {
         `SELECT * FROM ${entityName} WHERE ${whereClause} LIMIT 1`,
         filterValues
       );
-      console.log(
-        `SELECT * FROM ${entityName} WHERE ${whereClause} LIMIT 1`,
-        filterValues
-      );
-
-      console.log("row", row, "row[0]", row[0]);
-
       return row[0];
     } catch (error) {
       console.error(`Error selecting one row from ${entityName}:`, error);
@@ -163,11 +151,7 @@ class SqlOperation {
           params.push((filter as any)[key]);
         });
       }
-
-      console.log(deleteQuery, params);
-
       const [result]: any = await this.connection.query(deleteQuery, params);
-
       return result;
     } catch (error) {
       console.error(`Error deleting data from ${entityName}:`, error);

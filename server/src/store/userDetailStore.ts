@@ -4,8 +4,6 @@ export default class UserDetailStore {
   static userDetail: IUserAndPreference | null;
 
   static setUserDetail(userDetail: IUserAndPreference) {
-    console.log("UserDetailStore - userDetail", userDetail);
-
     UserDetailStore.userDetail = userDetail;
   }
 

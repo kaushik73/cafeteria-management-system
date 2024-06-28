@@ -12,31 +12,21 @@ class EngineRecommendationService {
   async generateNextDayRecommendations(
     mealType: "breakfast" | "lunch" | "dinner"
   ): Promise<Object> {
-    console.log(
-      `Starting to generate next day recommendations for ${mealType}`
-    );
     try {
       const nextDay = DateService.getNthPreviousDate(-1);
-      console.log(`Retrieved next day: ${nextDay}`);
 
       const numberOfRecommendations = this.getNumberOfRecommendations(mealType);
-      console.log(
-        `Number of recommendations for ${mealType}: ${numberOfRecommendations}`
-      );
 
       const topRatedItems = await engineMenuService.getTopRatedMenuItems(
         mealType,
         numberOfRecommendations
       );
-      console.log(`Top rated items for ${mealType}:`, topRatedItems);
 
       const recommendations = await this.createRecommendations(
         topRatedItems,
         mealType,
         nextDay
       );
-      console.log(`Created recommendations for ${mealType}:`, recommendations);
-
       return {
         status: "success",
         message: `Next day recommendations for ${mealType} generated successfully.`,
@@ -64,21 +54,11 @@ class EngineRecommendationService {
         const feedbacks = await engineFeedbackService.getFeedbackForMenu(
           item.menu_id
         );
-        console.log(`Feedbacks for menu item ${item.menu_id}:`, feedbacks);
-
         const averageRating = this.calculateAverageRating(feedbacks);
-        console.log(
-          `Average rating for menu item ${item.menu_id}: ${averageRating}`
-        );
-
         const averageSentiment =
           await engineSentimentAnalysisService.calculateAverageSentiment(
             feedbacks
           );
-        console.log(
-          `Average sentiment for menu item ${item.menu_id}: ${averageSentiment}`
-        );
-
         const recommendation = await this.saveRecommendation(
           item.menu_id,
           mealType,
@@ -86,11 +66,6 @@ class EngineRecommendationService {
           averageRating,
           averageSentiment
         );
-        console.log(
-          `Saved recommendation for menu item ${item.menu_id}:`,
-          recommendation
-        );
-
         return recommendation;
       })
     );
@@ -132,13 +107,6 @@ class EngineRecommendationService {
           await engineSentimentAnalysisService.calculateAverageSentiment(
             feedbacks
           );
-        console.log(
-          "Testing - setDiscardStatus",
-          menuItem.item_name,
-          averageRating,
-          averageSentiment
-        );
-
         if (
           averageRating < defaultItemValues.discard_item_rating_limit &&
           averageSentiment < defaultItemValues.discard_item_feedback_limit
@@ -150,8 +118,6 @@ class EngineRecommendationService {
           );
         }
       }
-
-      console.log("Discard status updated successfully.");
     } catch (error) {
       console.error("Error setting discard status:", error);
       throw new Error("Error setting discard status.");

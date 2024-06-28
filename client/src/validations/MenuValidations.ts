@@ -1,4 +1,3 @@
-// import { MealTypes } from "../../../server/src/models/Menu";
 import {
   CuisineType,
   DietaryType,
@@ -39,15 +38,3 @@ export function validateMenuID(input: string): boolean {
   const id = parseInt(input);
   return !isNaN(id) && id > 0;
 }
-
-// export function validateDescription(input: string): boolean {
-//   return input.trim().length > 0;
-// }
-
-// export function validateCategory(input: string): boolean {
-//   return input.trim().length > 0;
-// }
-
-// export function validateNotificationMessage(input: string): boolean {
-//   return input.trim().length > 0;
-// }

@@ -12,20 +12,12 @@ class AuthService {
       const userDetail: any = (await sqlDBOperations.runCustomQuery(
         `select * from User U inner JOIN preference P on P.user_id = U.user_ID where U.user_id = ${employeeID} and password = '${password}`
       )) as IUserAndPreference;
-      // const userDetail: any = (await sqlDBOperations.selectOne("user", {
-      //   user_id: employeeID,
-      //   password: password,
-      // })) as IUser;
-
       const action = `${userDetail.name} logged in as ${userDetail.role}`;
       const logOutput = await LogService.insertIntoLog(
         action,
         userDetail.user_id as number
       );
       userDetailStore.setUserDetail(userDetail);
-
-      console.log("auth-service,userDetail", userDetail);
-
       return userDetail ? userDetail : null;
     } catch (error) {
       console.error("Error retrieving user role:", error);
@@ -53,8 +45,6 @@ class AuthService {
         const action = `${userDetail.name} logged in as ${userDetail.role}`;
         await LogService.insertIntoLog(action, userDetail.user_id as number);
         userDetailStore.setUserDetail(userDetail);
-
-        console.log("auth-service, userDetail", userDetail);
 
         return userDetail;
       } else {

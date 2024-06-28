@@ -30,11 +30,6 @@ export default class RecommendationService {
     mealType: MealType,
     recommendationDate: string
   ): Promise<boolean> {
-    console.log(
-      "recommendationDate-checkRecommendationsExist",
-      recommendationDate
-    );
-
     const recommendations = await sqlDBOperations.selectAll(
       "Recommendation",
       {
@@ -59,10 +54,8 @@ export default class RecommendationService {
       const today = DateService.getNthPreviousDate(0);
       const query = `select * from Recommendation where meal_type = '${mealType}' and recommendation_date between '${today}' and '${nextDay}'`;
 
-      console.log(query, "query");
       const recommendedFood: Recommendation[] =
         await sqlDBOperations.runCustomQuery(query);
-      console.log({ viewRecommendedFood: recommendedFood });
 
       return recommendedFood == null ? [] : recommendedFood;
     } catch (error) {
@@ -81,10 +74,8 @@ export default class RecommendationService {
       const today = DateService.getNthPreviousDate(0);
       const query = `select * from Recommendation where rollout_to_employee = true and recommendation_date between '${today}' and '${nextDay}'`;
 
-      console.log(query);
       const recommendedFood: Recommendation[] =
         await sqlDBOperations.runCustomQuery(query);
-      console.log({ viewRecommendedFood: recommendedFood });
       if (recommendedFood == null) {
         return [];
       }
@@ -155,7 +146,6 @@ export default class RecommendationService {
     data: { [key: string]: number[] },
     callback: (response: any) => void
   ) {
-    console.log(data);
     try {
       const updatedRecommendations: Recommendation[] = [];
 

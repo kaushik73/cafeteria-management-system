@@ -14,6 +14,7 @@ import ReportService from "../../services/ReportService";
 import { Log } from "../../models/Log";
 import { recommendationEngine } from "../../engine";
 import { DiscardMenuFeedback } from "../../models/DiscardMenuFeedback";
+import DateService from "../../services/DateService";
 
 export default class Admin {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -107,17 +108,32 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
-      const updatedMenu: ResultSetHeader = await MenuService.updateMenuItem(
-        item
-      );
+      const updatedMenu: { [key: string]: any } = {};
+      updatedMenu.menu_id = item.menu_id;
+      if (item.item_name) updatedMenu.item_name = item.item_name;
+      if (item.price) updatedMenu.price = item.price;
+      if (item.availability_status !== undefined)
+        updatedMenu.availability_status = item.availability_status;
+      if (item.meal_type) updatedMenu.meal_type = item.meal_type;
+      if (item.dietary_type) updatedMenu.dietary_type = item.dietary_type;
+      if (item.spice_type) updatedMenu.spice_type = item.spice_type;
+      if (item.cuisine_type) updatedMenu.cuisine_type = item.cuisine_type;
+      if (item.sweet_tooth_type !== undefined)
+        updatedMenu.sweet_tooth_type = item.sweet_tooth_type;
 
-      console.log("updatedMenu", updatedMenu);
-      const MenuDetail: Menu = (await MenuService.getMenuDetailFromName(
-        item.item_name
+      if (Object.keys(updatedMenu).length === 0) {
+        callback({ message: "No field to update" });
+      }
+      console.log(updatedMenu, "updatedMenu");
+
+      await MenuService.updateMenuItem(updatedMenu);
+
+      const MenuDetail: Menu = (await MenuService.getMenuDetailFromId(
+        item.menu_id
       )) as Menu;
       await NotificationService.addNotification(
         "menuUpdate",
-        `Menu item updated: ${item.item_name}`,
+        `Menu item updated: ${MenuDetail.item_name}`,
         MenuDetail.menu_id
       );
       callback({ message: "Menu item updated" });
@@ -191,8 +207,6 @@ export default class Admin {
     callback: (response: { message: Feedback[] }) => void
   ) {
     try {
-      console.log("in viewFeedbacks");
-
       const feedbacks: Feedback[] = await FeedbackService.viewFeedbacks(
         data.menu_id
       );
@@ -212,24 +226,13 @@ export default class Admin {
   }
 
   static async viewFeedbackReport(
-    data: any,
+    data: { fromInput: string; toInput: string },
     callback: (response: any) => void
   ) {
     try {
-      console.log("in viewFeedbackReport");
-      const { from, to } = data;
+      const { fromInput: From, toInput: To } = data;
 
-      const formattedFrom = from;
-      const formattedTo = to;
-
-      // const formattedFrom = DateService.formatDate(from);
-      // const formattedTo = DateService.formatDate(to);
-      console.log("dates in viewFeedbackReport", formattedFrom, formattedTo);
-
-      const report = await ReportService.viewFeedbackReport(
-        formattedFrom,
-        formattedTo
-      );
+      const report = await ReportService.viewFeedbackReport(From, To);
       callback({ message: report });
     } catch (error) {
       callback({ message: "Error fetching report" });
@@ -273,7 +276,6 @@ export default class Admin {
           );
           callback({ message: "Discard Items Deleted Successfully" });
         } else {
-          // If the menu item is not marked for discard, send a callback message
           callback({
             message: "Entered Menu ID is not in discard list",
           });

@@ -6,14 +6,13 @@ import { Role } from "../common/types";
 import OutputService from "../services/OutputService";
 import { IUser } from "../models/User";
 import { chefUI } from "./ChefUI";
-import InputService from "../services/InputService";
 
 class LoginUI {
   public role!: Role;
 
   async showLoginMenu() {
     return new Promise(async (resolve, reject) => {
-      let userID: string = "103";
+      let userID: string = "101";
       let password: string = "pass";
       OutputService.printMessage("Welcome to the system! Please log in.");
 
@@ -21,10 +20,10 @@ class LoginUI {
 
       while (!loggedIn) {
         // take id and password as default
-        userID = InputService.takeInputWithValidation("Enter your userID: ");
-        password = InputService.takeInputWithValidation(
-          "Enter your Password: "
-        );
+        // userID = InputService.takeInputWithValidation("Enter your userID: ");
+        // password = InputService.takeInputWithValidation(
+        //   "Enter your Password: "
+        // );
 
         try {
           if (CommonValidations.validateUserID(userID)) {

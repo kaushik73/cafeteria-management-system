@@ -3,10 +3,22 @@ import { socketService } from "./services/SocketService";
 import { loginUI } from "./ui/LoginUI";
 
 export async function main() {
-  try {
-    await socketService.connect();
-    loginUI.showLoginMenu();
-  } catch (error) {
-    OutputService.printMessage(`Failed to connect to server:${error}`);
+  const maxRetries = 3;
+  let retries = 0;
+  while (retries < maxRetries) {
+    try {
+      await socketService.connect();
+      loginUI.showLoginMenu();
+      return;
+    } catch (error) {
+      retries++;
+      OutputService.printMessage(`Attempt ${retries} failed: ${error}`);
+      if (retries === maxRetries) {
+        OutputService.printMessage(
+          "Maximum retry attempts reached. Logging out."
+        );
+        process.exit(1);
+      }
+    }
   }
 }

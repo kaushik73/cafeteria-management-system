@@ -1,7 +1,7 @@
 export const mealTypeLimit = {
-  lunch_limit: 1,
-  breakfast_limit: 2,
-  dinner_limit: 1,
+  lunch_limit: 5,
+  breakfast_limit: 5,
+  dinner_limit: 5,
 };
 
 export const defaultItemValues = {

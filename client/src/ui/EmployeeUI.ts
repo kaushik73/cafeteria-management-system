@@ -19,7 +19,7 @@ class EmployeeUI {
           await EmployeeService.seeNotifications();
           break;
         case "3":
-          await EmployeeService.viewRecommendedFood();
+          await EmployeeService.viewPreferenceRecommendedFood();
           break;
         case "4":
           await EmployeeService.voteForRecommendedFood();

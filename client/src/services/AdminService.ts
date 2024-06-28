@@ -119,9 +119,7 @@ export default class AdminService {
         is_discard: false,
       };
 
-      console.log("in client admin service, above");
       socketService.emitEvent("addMenuItem", item, (response: any) => {
-        console.log("in client admin service, below");
         OutputService.printMessage(response.message);
         resolve(response.message);
       });
@@ -273,13 +271,12 @@ export default class AdminService {
 
   static viewFeedbackReport() {
     return new Promise((resolve, reject) => {
-      socketService.emitEvent("viewFeedbackReport", {}, (response) => {
-        OutputService.printMessage(response);
+      socketService.emitEvent("viewFeedbackReport", {}, (response: any) => {
+        OutputService.printTable(response);
+        resolve("viewFeedbackReport");
       });
     });
   }
-
-  // done till above
 
   static showDiscardItems() {
     return new Promise((resolve, reject) => {
@@ -287,8 +284,6 @@ export default class AdminService {
         "showDiscardItems",
         {},
         (response: { message: Menu[] }) => {
-          console.log("response - showDiscardItems", response);
-
           OutputService.printTable(response.message);
           resolve("showDiscardItems");
         }

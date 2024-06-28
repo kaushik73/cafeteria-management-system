@@ -9,7 +9,7 @@ import LogService from "../../services/LogService";
 import { Feedback } from "../../models/Feedback";
 import userDetailStore from "../../store/userDetailStore";
 import User from "../User/User";
-import { IUser } from "../../models/User";
+import { IUserAndPreference } from "../../models/User";
 import ReportService from "../../services/ReportService";
 import { Log } from "../../models/Log";
 import { recommendationEngine } from "../../engine";
@@ -191,10 +191,13 @@ export default class Admin {
     callback: (response: { message: Feedback[] }) => void
   ) {
     try {
+      console.log("in viewFeedbacks");
+
       const feedbacks: Feedback[] = await FeedbackService.viewFeedbacks(
         data.menu_id
       );
-      const userDetail: IUser | null = await userDetailStore.getUserDetail();
+      const userDetail: IUserAndPreference | null =
+        await userDetailStore.getUserDetail();
 
       const action = `For Menu id : ${data.menu_id} ${userDetail?.name} view Feedback`;
       const logOutput = await LogService.insertIntoLog(
@@ -213,6 +216,7 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
+      console.log("in viewFeedbackReport");
       const { from, to } = data;
 
       const formattedFrom = from;
@@ -252,12 +256,29 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
-      data.menuIdArray.map((menuId) => {
+      data.menuIdArray.map(async (menuId) => {
         console.log(menuId);
-        // todo : uncomment this to delete discard items
-        // MenuService.deleteMenuItem(menuId);
+
+        const MenuDetail: Menu = (await MenuService.getMenuDetailFromId(
+          menuId
+        )) as Menu;
+
+        if (MenuDetail.is_discard) {
+          // todo : Uncomment the line below to actually delete the discard items
+          // await MenuService.deleteMenuItem(menuId);
+          await NotificationService.addNotification(
+            "menuUpdate",
+            `Deleted ${MenuDetail.item_name} from ${MenuDetail.meal_type}`,
+            menuId
+          );
+          callback({ message: "Discard Items Deleted Successfully" });
+        } else {
+          // If the menu item is not marked for discard, send a callback message
+          callback({
+            message: "Entered Menu ID is not in discard list",
+          });
+        }
       });
-      callback({ message: "Discard Items Deleted Successfully" });
     } catch (error) {
       callback({ message: "Error removing discard Items" });
       console.error("Error removing discard Items:", error);

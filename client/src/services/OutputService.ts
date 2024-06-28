@@ -2,7 +2,7 @@ import Table from "cli-table3";
 
 export default class OutputService {
   static printMessage(message: any): void {
-    console.log(`---------${message}---------\n`);
+    console.log(`${message}\n`);
   }
 
   static printArray(arr: any[]): void {

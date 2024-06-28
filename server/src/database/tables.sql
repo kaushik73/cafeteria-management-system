@@ -24,18 +24,6 @@ CREATE TABLE Menu (
     is_discard BOOLEAN NULL
 );
 
-CREATE TABLE Preference (
-    preference_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    dietary_preference ENUM('vegetarian', 'non-vegetarian', 'eggetarian') NOT NULL,
-    spice_level ENUM('high', 'medium', 'low') NOT NULL,
-    cuisine_preference ENUM('north-indian', 'south-indian', 'other') NOT NULL,
-    sweet_tooth BOOLEAN NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE
-    SET
-        NULL
-);
-
 CREATE TABLE Feedback (
     feedback_id INT AUTO_INCREMENT PRIMARY KEY,
     rating INT NOT NULL,
@@ -47,6 +35,18 @@ CREATE TABLE Feedback (
     SET
         NULL,
         FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE
+    SET
+        NULL
+);
+
+CREATE TABLE Preference (
+    preference_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    dietary_preference ENUM('vegetarian', 'non-vegetarian', 'eggetarian') NOT NULL,
+    spice_level ENUM('high', 'medium', 'low') NOT NULL,
+    cuisine_preference ENUM('north-indian', 'south-indian', 'other') NOT NULL,
+    sweet_tooth BOOLEAN NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE
     SET
         NULL
 );
@@ -150,6 +150,17 @@ ORDER BY
     averageRating DESC;
 
 END;
+
+DELIMITER / / CREATE TRIGGER after_menu_insert
+AFTER
+INSERT
+    ON Menu FOR EACH ROW BEGIN
+INSERT INTO
+    Feedback (rating, comment, feedback_date, user_id, menu_id)
+VALUES
+    (3, 'normal taste', NOW(), NULL, NEW.menu_id);
+
+END / / DELIMITER;
 
 CREATE TABLE votedItem (
     voted_item_id INT PRIMARY KEY,

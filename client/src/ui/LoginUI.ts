@@ -13,7 +13,7 @@ class LoginUI {
 
   async showLoginMenu() {
     return new Promise(async (resolve, reject) => {
-      let userID: string = "102";
+      let userID: string = "103";
       let password: string = "pass";
       OutputService.printMessage("Welcome to the system! Please log in.");
 

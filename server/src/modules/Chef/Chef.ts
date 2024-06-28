@@ -12,6 +12,7 @@ import DateService from "../../services/DateService";
 import { engineRecommendationService } from "../../engine/services/EngineRecommendationService";
 import { VotedItem } from "../../models/VotedItem";
 import VoteService from "../../services/VoteService";
+import NotificationService from "../../services/NotificationService";
 
 class Chef {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -26,7 +27,7 @@ class Chef {
     socketService.registerEventHandler(
       socket,
       "viewFoodRecommendation",
-      Chef.viewFoodRecommendation
+      Chef.handleViewFoodRecommendation
     );
     socketService.registerEventHandler(
       socket,
@@ -97,6 +98,35 @@ class Chef {
     }
   }
 
+  static async handleViewFoodRecommendation(
+    data: { mealType: MealType },
+    callback: (response: {
+      status: string;
+      message: string;
+      recommendations: Recommendation[];
+    }) => void
+  ) {
+    const today = DateService.getNthPreviousDate(0);
+    const recommendationsExist =
+      await RecommendationService.checkRecommendationsExist(
+        data.mealType,
+        today
+      );
+
+    if (!recommendationsExist) {
+      await engineRecommendationService.generateNextDayRecommendations(
+        data.mealType
+      );
+      NotificationService.addNotification(
+        "recommendation",
+        "Food Recommendations are out for tomorrow",
+        null
+      );
+    }
+
+    Chef.viewFoodRecommendation(data, callback);
+  }
+
   static async viewFoodRecommendation(
     data: { mealType: MealType },
     callback: (response: {
@@ -106,19 +136,6 @@ class Chef {
     }) => void
   ) {
     try {
-      const nextDay = DateService.getNthPreviousDate(-1);
-      const recommendationsExist =
-        await RecommendationService.checkRecommendationsExist(
-          data.mealType,
-          nextDay
-        );
-
-      if (!recommendationsExist) {
-        await engineRecommendationService.generateNextDayRecommendations(
-          data.mealType
-        );
-      }
-
       const recommendations = await RecommendationService.viewRecommendedFood(
         data.mealType
       );

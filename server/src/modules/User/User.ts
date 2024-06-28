@@ -7,7 +7,7 @@ import { Role } from "../../common/types";
 import Admin from "../Admin/Admin";
 import Employee from "../Employee/Employee";
 import Chef from "../Chef/Chef";
-import { IUser } from "../../models/User";
+import { IUserAndPreference } from "../../models/User";
 
 export default class User {
   static socketService: SocketService;
@@ -28,10 +28,10 @@ export default class User {
   static async handleLogin(data: any, callback: any) {
     try {
       const { employeeID, password } = data;
-      const userDetail: IUser = (await AuthService.login(
+      const userDetail: IUserAndPreference = (await AuthService.login(
         employeeID,
         password
-      )) as IUser;
+      )) as IUserAndPreference;
       console.log(userDetail, "fdsfsfsdfs");
       if (userDetail) {
         const role: Role = userDetail.role as Role;

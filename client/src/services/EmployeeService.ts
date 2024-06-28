@@ -20,7 +20,7 @@ export default class EmployeeService {
         `Employee Menu:\n` +
           `1. See Menu\n` +
           `2. See Notifications\n` +
-          `3. View Recommended Food\n` +
+          `3. View Preference Recommended Food\n` +
           `4. Vote for Recommended Food\n` +
           `5. Give Feedback\n` +
           `0. Logout`
@@ -79,19 +79,40 @@ export default class EmployeeService {
       });
     });
   }
-  static async viewRecommendedFood() {
+  static async viewPreferenceRecommendedFood() {
     return new Promise((resolve, reject) => {
       socketService.emitEvent(
-        "viewRecommendedFood",
-        {},
+        "viewPreferenceRecommendedFood",
+        { userDatail: EmployeeService.userDetail },
         (response: { recommendedFood: Recommendation[] }) => {
           const recommendedFood = response.recommendedFood;
           if (!recommendedFood) {
             reject("No Food is available");
           } else {
-            console.log(response, "asdgfhjmhng");
-
-            OutputService.printTable(recommendedFood);
+            const filteredRecommendedFood = recommendedFood.map(
+              (eachRecommendedFood: Recommendation) => {
+                const {
+                  recommendation_id,
+                  meal_type,
+                  recommendation_date,
+                  average_rating,
+                  menu_id,
+                  ...restOfRecommededFood
+                } = eachRecommendedFood;
+                const recommendationDate =
+                  EmployeeService.sharedService.getformatedDate(
+                    recommendation_date as unknown as string
+                  );
+                return {
+                  recommendation_id,
+                  meal_type,
+                  recommendationDate,
+                  average_rating,
+                  menu_id,
+                };
+              }
+            );
+            OutputService.printTable(filteredRecommendedFood);
             resolve("viewRecommendedFood");
           }
         }
@@ -100,8 +121,6 @@ export default class EmployeeService {
   }
   static async voteForRecommendedFood() {
     return new Promise((resolve, reject) => {
-      // OutputService.printTable(response.message);
-      //
       const voteIdForBreakfast: string = InputService.takeInputWithValidation(
         "Enter comma (,) separated recommendation_id for breakfast: "
       );

@@ -30,6 +30,11 @@ export default class RecommendationService {
     mealType: MealType,
     recommendationDate: string
   ): Promise<boolean> {
+    console.log(
+      "recommendationDate-checkRecommendationsExist",
+      recommendationDate
+    );
+
     const recommendations = await sqlDBOperations.selectAll(
       "Recommendation",
       {
@@ -58,7 +63,8 @@ export default class RecommendationService {
       const recommendedFood: Recommendation[] =
         await sqlDBOperations.runCustomQuery(query);
       console.log({ viewRecommendedFood: recommendedFood });
-      return recommendedFood;
+
+      return recommendedFood == null ? [] : recommendedFood;
     } catch (error) {
       console.error("Error retrieving recommended food:", error);
       throw new Error("Error in viewRecommendedFood");
@@ -66,9 +72,9 @@ export default class RecommendationService {
   }
 
   //  ordered preference food for employee
-  static async viewPreferenceRecommendedFood(data: any) {
+  static async viewPreferenceRecommendedFood(user_Id: number) {
     try {
-      const userId = data.userId; // Assuming userId is passed in data
+      const userId = user_Id; // Assuming userId is passed in data
       const preferences = await this.getUserPreferences(userId);
 
       const nextDay = DateService.getNthPreviousDate(-1);
@@ -79,7 +85,9 @@ export default class RecommendationService {
       const recommendedFood: Recommendation[] =
         await sqlDBOperations.runCustomQuery(query);
       console.log({ viewRecommendedFood: recommendedFood });
-
+      if (recommendedFood == null) {
+        return [];
+      }
       const sortedRecommendedFood = await this.sortRecommendationsByPreferences(
         recommendedFood,
         preferences

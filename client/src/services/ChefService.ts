@@ -38,14 +38,13 @@ export default class ChefService {
     await ChefService.sharedService.showMenuItems();
   }
 
-  // work start :
   static async viewFoodRecommendation() {
     try {
       await this.viewFoodRecommendationForMeal("breakfast");
       await this.viewFoodRecommendationForMeal("lunch");
       await this.viewFoodRecommendationForMeal("dinner");
     } catch (error) {
-      console.error("Error viewing food recommendations:", error);
+      OutputService.printMessage(`Error viewing food recommendations:${error}`);
     }
   }
 
@@ -60,7 +59,32 @@ export default class ChefService {
           recommendations: Recommendation[];
         }) => {
           OutputService.printMessage(`Recommendations for ${mealType}:`);
-          OutputService.printTable(chefResponse.recommendations);
+
+          const filteredRecommendedFood = chefResponse.recommendations.map(
+            (eachRecommendedFood: Recommendation) => {
+              const {
+                recommendation_id,
+                meal_type,
+                recommendation_date,
+                average_rating,
+                average_sentiment,
+                menu_id,
+                ...restOfRecommededFood
+              } = eachRecommendedFood;
+              const recommendationDate =
+                ChefService.sharedService.getformatedDate(
+                  recommendation_date as unknown as string
+                );
+              return {
+                recommendation_id,
+                meal_type,
+                recommendationDate,
+                average_rating,
+                menu_id,
+              };
+            }
+          );
+          OutputService.printTable(filteredRecommendedFood);
           resolve(chefResponse);
         }
       );
@@ -69,8 +93,6 @@ export default class ChefService {
 
   static rolloutFoodToEmployees() {
     return new Promise(async (resolve, reject) => {
-      // socketService.emitEvent("rolloutFoodToEmployees", {}, (response: any) => {
-      // OutputService.printTable(response.message);
       const recommendationIdForBreakfast: string =
         InputService.takeInputWithValidation(
           "Enter comma (,) separated recommendation_id for breakfast: "
@@ -95,8 +117,6 @@ export default class ChefService {
           .split(",")
           .map((id) => Number(id.trim())),
       };
-
-      console.log(rolloutData, "rolloutData");
 
       socketService.emitEvent(
         "rolloutFoodToEmployees",
@@ -143,8 +163,6 @@ export default class ChefService {
         "showDiscardItems",
         {},
         (response: { message: Menu[] }) => {
-          console.log("response - showDiscardItems", response);
-
           OutputService.printTable(response.message);
           resolve("showDiscardItems");
         }

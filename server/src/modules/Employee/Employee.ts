@@ -4,10 +4,11 @@ import NotificationService from "../../services/NotificationService";
 import FeedbackService from "../../services/FeedbackService";
 import DateService from "../../services/DateService";
 import User from "../User/User";
-import { IUser } from "../../models/User";
+import { IUserAndPreference } from "../../models/User";
 import { sqlDBOperations } from "../../database/operations/sqlDBOperations";
 import { Recommendation } from "../../models/Recommendation";
 import { VotedItem } from "../../models/VotedItem";
+import RecommendationService from "../../services/RecommendationService";
 
 class Employee {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -30,8 +31,8 @@ class Employee {
     );
     socketService.registerEventHandler(
       socket,
-      "viewRecommendedFood",
-      Employee.viewRecommendedFood
+      "viewPreferenceRecommendedFood",
+      Employee.viewPreferenceRecommendedFood
     );
     socketService.registerEventHandler(
       socket,
@@ -76,21 +77,28 @@ class Employee {
     User.handleShowMenuItems(data, callback);
   }
 
-  static async viewRecommendedFood(
-    data: {},
+  static async viewPreferenceRecommendedFood(
+    data: { userDatail: IUserAndPreference },
     callback: (response: any) => void
   ) {
-    const recommendedFood: Recommendation[] = (await sqlDBOperations.selectAll(
-      "recommendation",
-      { rollout_to_employee: true }
-    )) as Recommendation[];
+    console.log("inside viewPreferenceRecommendedFood", data.userDatail);
+
+    const recommendedFood: Recommendation[] =
+      (await RecommendationService.viewPreferenceRecommendedFood(
+        data.userDatail.user_id as number
+      )) as Recommendation[];
+    console.log(
+      recommendedFood,
+      "viewPreferenceRecommendedFood from emp server"
+    );
+
     callback({ recommendedFood: recommendedFood });
   }
 
   static async voteForRecommendedFood(
     data: {
       voteForRecommendedFood: { [key: string]: number[] };
-      userDetail: IUser;
+      userDetail: IUserAndPreference;
     },
     callback: (response: { message: string }) => void
   ) {

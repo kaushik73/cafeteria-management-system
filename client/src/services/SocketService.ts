@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+import OutputService from "./OutputService";
 
 class SocketService {
   private socket: Socket;
@@ -13,17 +14,17 @@ class SocketService {
   public async connect(): Promise<Socket> {
     return new Promise((resolve, reject) => {
       this.socket.on("connect", () => {
-        console.log(`Connected with id: ${this.socket.id}`);
+        OutputService.printMessage(`Connected with id: ${this.socket.id}`);
         resolve(this.socket);
       });
 
       this.socket.on("connect_error", (error) => {
-        console.error("Connection error:", error);
+        OutputService.printMessage(`Connection error:${error}`);
         reject(error);
       });
 
       this.socket.on("disconnect", (reason) => {
-        console.warn("Disconnected from server:", reason);
+        OutputService.printMessage(`Disconnected from server:${reason}`);
       });
     });
   }

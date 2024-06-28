@@ -9,40 +9,32 @@ export class SharedService {
         "showMenuItems",
         { meal_type: "desc" },
         (response: any) => {
-          // console.log(response.message);
-
-          OutputService.printTable(response.message);
+          const filteredResponse = response.message.map((menu: Menu) => {
+            const {
+              menu_id,
+              item_name,
+              price,
+              availability_status,
+              ...restOfMenu
+            } = menu;
+            const availabilityStatus =
+              availability_status == false ? "not available" : "available";
+            return { menu_id, item_name, price, availabilityStatus };
+          });
+          // todo : change date format from server/ client
+          OutputService.printTable(filteredResponse);
           resolve(response.message);
         }
       );
     });
   }
 
-  // static getMenuIdFromName(menu_name: string): Promise<number> {
-  //   return new Promise((resolve, reject) => {
-  //     socketService.emitEvent(
-  //       "getMenuIdFromName",
-  //       menu_name,
-  //       (response: { message: number }) => {
-  //         if (response && response.message) {
-  //           resolve(response.message);
-  //         } else {
-  //           reject(new Error("Failed to get menu ID"));
-  //         }
-  //       }
-  //     );
-  //   });
-  // }
-
-  // static getMenuDetailFromId(menu_id: number): Promise<Menu> {
-  //   return new Promise((resolve, reject) => {
-  //     socketService.emitEvent(
-  //       "getMenuDetailFromId",
-  //       { menu_id },
-  //       (response: { message: Menu }) => {
-  //         resolve(response.message);
-  //       }
-  //     );
-  //   });
-  // }
+  getformatedDate(dateString: string): string {
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  }
 }

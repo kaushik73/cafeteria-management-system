@@ -31,6 +31,7 @@ class AdminUI {
           break;
         case "6":
           await AdminService.viewFeedbacksofItem();
+          break;
         case "7":
           await AdminService.viewFeedbackReport();
           break;

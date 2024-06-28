@@ -1,12 +1,16 @@
 import { defaultItemValues } from "../common/contants";
 import { sqlDBOperations } from "../database/operations/sqlDBOperations";
-import { IUser } from "../models/User";
+import { IUserAndPreference } from "../models/User";
 import userDetailStore from "../store/userDetailStore";
 import DateService from "./DateService";
 import LogService from "./LogService";
 
 export default class NotificationService {
-  static async addNotification(type: string, message: string, menuId: number) {
+  static async addNotification(
+    type: string,
+    message: string,
+    menuId: number | null
+  ) {
     const currentDate = DateService.getCurrentDate();
     console.log("addNotification", currentDate);
 
@@ -29,7 +33,8 @@ export default class NotificationService {
     const expiryDays = defaultItemValues.notification_expiry;
     const expiryDate = DateService.getNthPreviousDate(expiryDays);
     const formatedExpiryDate = expiryDate.split(" ")[0];
-    const userDetail: IUser | null = await userDetailStore.getUserDetail();
+    const userDetail: IUserAndPreference | null =
+      await userDetailStore.getUserDetail();
     const action = `${userDetail?.name} saw Notification`;
     const logOutput = await LogService.insertIntoLog(
       action,

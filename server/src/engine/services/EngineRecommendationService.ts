@@ -140,7 +140,7 @@ class EngineRecommendationService {
         );
 
         if (
-          averageRating < defaultItemValues.discard_item_rating_limit ||
+          averageRating < defaultItemValues.discard_item_rating_limit &&
           averageSentiment < defaultItemValues.discard_item_feedback_limit
         ) {
           await sqlDBOperations.update(

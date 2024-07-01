@@ -12,8 +12,6 @@ import RecommendationService from "../../services/RecommendationService";
 
 class Employee {
   static registerHandlers(socketService: SocketService, socket: Socket) {
-    console.log("in registerHandlers employee");
-
     socketService.registerEventHandler(
       socket,
       "seeNotifications",
@@ -60,9 +58,7 @@ class Employee {
     try {
       const feedback_date = DateService.getCurrentDate();
       const updatedData = { feedback_date, ...data };
-      console.log("handleGiveFeedback", updatedData);
       const feedback = await FeedbackService.giveFeedback(updatedData);
-      console.log("message - feedback", { message: feedback });
       callback({ message: "Feedback Added" });
     } catch (error) {
       callback({ message: "Error giving feedback" });
@@ -81,17 +77,10 @@ class Employee {
     data: { userDatail: IUserAndPreference },
     callback: (response: any) => void
   ) {
-    console.log("inside viewPreferenceRecommendedFood", data.userDatail);
-
     const recommendedFood: Recommendation[] =
       (await RecommendationService.viewPreferenceRecommendedFood(
         data.userDatail.user_id as number
       )) as Recommendation[];
-    console.log(
-      recommendedFood,
-      "viewPreferenceRecommendedFood from emp server"
-    );
-
     callback({ recommendedFood: recommendedFood });
   }
 
@@ -103,12 +92,8 @@ class Employee {
     callback: (response: { message: string }) => void
   ) {
     try {
-      console.log(data.voteForRecommendedFood, "data.voteForRecommendedFood");
-
       for (const mealType of Object.keys(data.voteForRecommendedFood)) {
         const votedIds = data.voteForRecommendedFood[mealType];
-        console.log("mealType", mealType, "votedIds", votedIds);
-
         for (const votedId of votedIds) {
           if (votedId !== 0) {
             const votedItemObj: VotedItem = {
@@ -120,7 +105,6 @@ class Employee {
               "votedItem",
               votedItemObj
             );
-            console.log(result, "result");
           }
         }
       }

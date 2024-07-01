@@ -11,9 +11,6 @@ class RecommendationEngine {
         await engineRecommendationService.generateNextDayRecommendations(
           mealType
         );
-
-      console.log("TEST - generate", result);
-
       return result;
     } catch (error) {
       return "Error generating daily recommendation.";

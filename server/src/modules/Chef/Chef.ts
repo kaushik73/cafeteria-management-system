@@ -16,8 +16,6 @@ import NotificationService from "../../services/NotificationService";
 
 class Chef {
   static registerHandlers(socketService: SocketService, socket: Socket) {
-    console.log("in registerHandlers Chef");
-
     socketService.registerEventHandler(
       socket,
       "showMenuItems",
@@ -68,11 +66,6 @@ class Chef {
 
       const formattedFrom = from;
       const formattedTo = to;
-
-      // const formattedFrom = DateService.formatDate(from);
-      // const formattedTo = DateService.formatDate(to);
-      console.log("dates in viewFeedbackReport", formattedFrom, formattedTo);
-
       const report = await ReportService.viewFeedbackReport(
         formattedFrom,
         formattedTo
@@ -158,19 +151,11 @@ class Chef {
     data: { [key: string]: number[] },
     callback: (response: any) => void
   ) {
-    console.log(data);
     try {
       const updatedRecommendations: Recommendation[] = [];
 
       for (const mealType of Object.keys(data)) {
         const recommendationIds = data[mealType];
-        console.log(
-          "mealType",
-          mealType,
-          "recommendationIds",
-          recommendationIds
-        );
-
         for (const recommendationId of recommendationIds) {
           if (recommendationId == 0) {
             break;
@@ -185,8 +170,6 @@ class Chef {
           }
         }
       }
-
-      console.log("Updated recommendations:", updatedRecommendations);
       callback("Chef Roll out Success");
     } catch (error) {
       console.error("Error in rolloutFoodToEmployees:", error);
@@ -201,7 +184,6 @@ class Chef {
     try {
       const employeeVotes: any[] = await VoteService.getEmployeeVotes();
       callback({ employeeVotes });
-      console.log("success rolloutFoodToEmployees:");
     } catch (error) {
       console.error("Error in rolloutFoodToEmployees:", error);
     }

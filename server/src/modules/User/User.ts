@@ -13,7 +13,6 @@ export default class User {
   static socketService: SocketService;
   static socket: Socket;
   static registerHandlers(socketService: SocketService, socket: Socket) {
-    console.log("in registerHandlers user");
     User.socket = socket;
     User.socketService = socketService;
     socketService.registerEventHandler(socket, "login", User.handleLogin);
@@ -32,18 +31,15 @@ export default class User {
         employeeID,
         password
       )) as IUserAndPreference;
-      console.log(userDetail, "fdsfsfsdfs");
       if (userDetail) {
         const role: Role = userDetail.role as Role;
         User.navigateToClass(role, User.socketService, User.socket);
-        console.log({ userDetail: userDetail, message: "valid user" });
 
         callback({ userDetail: userDetail, message: "valid user" });
       } else if (userDetail == null) {
         callback({ userDetail: null, message: "Invalid Credianlts" });
       } else {
         callback({ userDetail: null, message: "Error Validating User" });
-        console.log(userDetail);
       }
     } catch (error) {
       console.error("Error during login process:", error);
@@ -57,8 +53,6 @@ export default class User {
 
   static async handleLogout(data: any, callback: any) {
     try {
-      console.log("handleLogout- server", data);
-
       await AuthService.logOut(data.userDetail);
       callback({ message: "log out successfull" });
     } catch (error) {}
@@ -69,10 +63,7 @@ export default class User {
     callback: (response: any) => void
   ) {
     try {
-      console.log(data, "from handleShowMenuItems");
-
       const menuItems = await MenuService.showMenuItems(data);
-      console.log({ message: menuItems });
 
       callback({ message: menuItems });
     } catch (error) {
@@ -86,8 +77,6 @@ export default class User {
     socketService: SocketService,
     socket: Socket
   ) {
-    console.log("dsdsf", { role });
-
     switch (role) {
       case Role.Admin:
         Admin.registerHandlers(socketService, socket);

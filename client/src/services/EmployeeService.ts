@@ -4,7 +4,6 @@ import { socketService } from "./SocketService";
 import validateService from "../validations/CommonValidation";
 import { IUser } from "../models/User";
 import { SharedService } from "./SharedService";
-import { Response } from "../common/types";
 import { Recommendation } from "../models/Recommendation";
 
 export default class EmployeeService {
@@ -41,11 +40,9 @@ export default class EmployeeService {
     return new Promise(async (resolve, reject) => {
       const itemID: string = InputService.takeInputWithValidation(
         "Enter menu item id to give feedback:"
-        // validateItemID
       );
       const comment: string = InputService.takeInputWithValidation(
         "Enter your comment:"
-        // validateItemName
       );
 
       const rating: number = parseFloat(
@@ -113,7 +110,7 @@ export default class EmployeeService {
               }
             );
             OutputService.printTable(filteredRecommendedFood);
-            resolve("viewRecommendedFood");
+            resolve(filteredRecommendedFood);
           }
         }
       );

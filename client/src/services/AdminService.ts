@@ -387,7 +387,7 @@ export default class AdminService {
     return new Promise((resolve, reject) => {
       socketService.emitEvent("viewLog", {}, (response: { message: Log[] }) => {
         OutputService.printTable(response.message);
-        resolve("logs");
+        resolve(response.message);
       });
     });
   }

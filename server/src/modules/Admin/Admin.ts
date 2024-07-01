@@ -124,8 +124,6 @@ export default class Admin {
       if (Object.keys(updatedMenu).length === 0) {
         callback({ message: "No field to update" });
       }
-      console.log(updatedMenu, "updatedMenu");
-
       await MenuService.updateMenuItem(updatedMenu);
 
       const MenuDetail: Menu = (await MenuService.getMenuDetailFromId(
@@ -159,8 +157,6 @@ export default class Admin {
       const deletedMenu: ResultSetHeader = await MenuService.deleteMenuItem(
         item.menu_id
       );
-      console.log("result before callback", deletedMenu);
-
       callback({ message: "Menu item deleted" });
     } catch (error) {
       callback({ message: "Error deleting menu item" });
@@ -173,8 +169,6 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
-      console.log("handleUpdateItemAvailability inside");
-
       const result: ResultSetHeader = await MenuService.updateItemAvailability(
         data.menu_id,
         data.availability_status
@@ -194,8 +188,6 @@ export default class Admin {
       result.insertId == 1
         ? callback({ message: "Item availability updated" })
         : callback({ message: "Error in Item availability updated" });
-
-      console.log(result, "result ");
     } catch (error) {
       callback({ message: "Error updating item availability" });
       console.error("Error updating item availability:", error);
@@ -260,8 +252,6 @@ export default class Admin {
   ) {
     try {
       data.menuIdArray.map(async (menuId) => {
-        console.log(menuId);
-
         const MenuDetail: Menu = (await MenuService.getMenuDetailFromId(
           menuId
         )) as Menu;

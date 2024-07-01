@@ -164,7 +164,7 @@ export default class ChefService {
         {},
         (response: { message: Menu[] }) => {
           OutputService.printTable(response.message);
-          resolve("showDiscardItems");
+          resolve(response.message);
         }
       );
     });

@@ -21,7 +21,6 @@ class EngineMenuService {
     return this.getMenuItems(mealType, sortedMenuIds);
   }
 
-  //  todo : modify this for prefernce :
   private async sortMenuItemsByRatingSentiment(
     menuFeedbackMap: {
       [key: number]: {

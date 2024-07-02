@@ -192,8 +192,6 @@ export default class AdminService {
       if (sweetToothTypeInput)
         item.sweet_tooth_type = sweetToothTypeInput.toLowerCase() === "yes";
 
-      console.log("current Item : ", item);
-
       socketService.emitEvent("updateMenuItem", item, (response: any) => {
         OutputService.printMessage(response.message);
         resolve(response.message);
@@ -259,9 +257,10 @@ export default class AdminService {
         (response: { message: any }) => {
           const filteredResponse = response.message.map((feedback: any) => {
             const { rating, comment, menu_id, feedback_date } = feedback;
-            return { rating, comment, menu_id, feedback_date };
+            const feedbackDate =
+              AdminService.sharedService.getformatedDate(feedback_date);
+            return { rating, comment, menu_id, feedbackDate };
           });
-          // todo : change date format from server/ client
           OutputService.printTable(filteredResponse);
           resolve(response.message);
         }
@@ -280,12 +279,9 @@ export default class AdminService {
         validateService.validateDate
       );
 
-      console.log(fromInput, toInput);
-
       socketService.emitEvent(
         "viewFeedbackReport",
         { fromInput, toInput },
-        // { from: formattedFrom, to: formattedTo },
         (response: any) => {
           OutputService.printTable(response.message);
           resolve(response.message);
@@ -386,8 +382,16 @@ export default class AdminService {
   static async viewLogs() {
     return new Promise((resolve, reject) => {
       socketService.emitEvent("viewLog", {}, (response: { message: Log[] }) => {
-        OutputService.printTable(response.message);
-        resolve(response.message);
+        // OutputService.printTable(response.message);
+
+        const filteredResponse = response.message.map((log: any) => {
+          const { user_id, action, timestamp, ...restLogData } = log;
+          const formatedTimestamp =
+            AdminService.sharedService.getformatedDate(timestamp);
+          return { user_id, action, formatedTimestamp };
+        });
+        OutputService.printTable(filteredResponse);
+        resolve(filteredResponse);
       });
     });
   }

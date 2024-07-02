@@ -21,7 +21,6 @@ export class SharedService {
               availability_status == false ? "not available" : "available";
             return { menu_id, item_name, price, availabilityStatus };
           });
-          // todo : change date format from server/ client
           OutputService.printTable(filteredResponse);
           resolve(response.message);
         }

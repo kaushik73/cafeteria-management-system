@@ -10,7 +10,7 @@ class DateService {
     return DateService.formatDateTime(now);
   }
 
-  private static formatDateTime(date: Date): string {
+  public static formatDateTime(date: Date): string {
     const day = DateService.pad(date.getDate());
     const month = DateService.pad(date.getMonth() + 1);
     const year = date.getFullYear();

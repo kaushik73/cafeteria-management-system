@@ -8,6 +8,7 @@ import Admin from "../Admin/Admin";
 import Employee from "../Employee/Employee";
 import Chef from "../Chef/Chef";
 import { IUserAndPreference } from "../../models/User";
+import userDetailStore from "../../store/userDetailStore";
 
 export default class User {
   static socketService: SocketService;
@@ -34,10 +35,9 @@ export default class User {
       if (userDetail) {
         const role: Role = userDetail.role as Role;
         User.navigateToClass(role, User.socketService, User.socket);
-
         callback({ userDetail: userDetail, message: "valid user" });
       } else if (userDetail == null) {
-        callback({ userDetail: null, message: "Invalid Credianlts" });
+        callback({ userDetail: null, message: "Invalid Credentials" });
       } else {
         callback({ userDetail: null, message: "Error Validating User" });
       }
@@ -64,7 +64,6 @@ export default class User {
   ) {
     try {
       const menuItems = await MenuService.showMenuItems(data);
-
       callback({ message: menuItems });
     } catch (error) {
       callback({ message: "Error getting menu items" });

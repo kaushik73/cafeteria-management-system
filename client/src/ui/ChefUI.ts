@@ -2,6 +2,7 @@ import ChefService from "../services/ChefService";
 import { loginUI } from "./LoginUI";
 import { IUser } from "../models/User";
 import OutputService from "../services/OutputService";
+import AuthService from "../services/AuthService";
 
 export default class ChefUI {
   async showChefMenu(userDetail: IUser) {
@@ -31,6 +32,7 @@ export default class ChefUI {
           break;
         case "0":
           continueLoop = false;
+          await AuthService.logOut();
           loginUI.showLoginMenu();
           break;
         default:

@@ -96,6 +96,7 @@ export default class Admin {
         `added ${item.item_name} for ${item.meal_type}`,
         addedMenu.insertId
       );
+      await LogService.logAction(`Added Menu Item: ${item.item_name}`);
       callback({ message: "Menu item added" });
     } catch (error) {
       callback({ message: "Error adding menu item" });
@@ -134,6 +135,7 @@ export default class Admin {
         `Menu item updated: ${MenuDetail.item_name}`,
         MenuDetail.menu_id
       );
+      await LogService.logAction(`Updated Menu Item: ${MenuDetail.item_name}`);
       callback({ message: "Menu item updated" });
     } catch (error) {
       callback({ message: "Error updating menu item" });
@@ -154,9 +156,9 @@ export default class Admin {
         `Deleted ${MenuDetail.item_name} from ${MenuDetail.meal_type}`,
         item.menu_id
       );
-      const deletedMenu: ResultSetHeader = await MenuService.deleteMenuItem(
-        item.menu_id
-      );
+      await MenuService.deleteMenuItem(item.menu_id);
+      await LogService.logAction(`Deleted Menu Item: ${MenuDetail.item_name}`);
+
       callback({ message: "Menu item deleted" });
     } catch (error) {
       callback({ message: "Error deleting menu item" });
@@ -184,7 +186,9 @@ export default class Admin {
         `Item ${MenuDetail.item_name} is ${avaialabityStatus} to order`,
         data.menu_id
       );
-
+      await LogService.logAction(
+        `Updated Availability for Menu Item: ${MenuDetail.item_name}`
+      );
       result.insertId == 1
         ? callback({ message: "Item availability updated" })
         : callback({ message: "Error in Item availability updated" });
@@ -204,11 +208,8 @@ export default class Admin {
       );
       const userDetail: IUserAndPreference | null =
         await userDetailStore.getUserDetail();
-
-      const action = `For Menu id : ${data.menu_id} ${userDetail?.name} view Feedback`;
-      const logOutput = await LogService.insertIntoLog(
-        action,
-        userDetail?.user_id as number
+      await LogService.logAction(
+        `For Menu id : ${data.menu_id} ${userDetail?.name} view Feedback`
       );
       callback({ message: feedbacks });
     } catch (error) {
@@ -225,6 +226,9 @@ export default class Admin {
       const { fromInput: From, toInput: To } = data;
 
       const report = await ReportService.viewFeedbackReport(From, To);
+      await LogService.logAction(
+        `Viewed Feedback Report from ${From} to ${To}`
+      );
       callback({ message: report });
     } catch (error) {
       callback({ message: "Error fetching report" });
@@ -239,6 +243,7 @@ export default class Admin {
     try {
       await recommendationEngine.setDiscardStatus();
       const discardMenu = await MenuService.getItemsToDiscard();
+      await LogService.logAction("Viewed Discard Items");
       callback({ message: discardMenu });
     } catch (error) {
       console.error("Error getting discard Items:", error);
@@ -257,12 +262,14 @@ export default class Admin {
         )) as Menu;
 
         if (MenuDetail.is_discard) {
-          // todo : Uncomment the line below to actually delete the discard items
-          // await MenuService.deleteMenuItem(menuId);
+          await MenuService.deleteMenuItem(menuId);
           await NotificationService.addNotification(
             "menuUpdate",
             `Deleted ${MenuDetail.item_name} from ${MenuDetail.meal_type}`,
             menuId
+          );
+          await LogService.logAction(
+            `Removed Discard Item: ${MenuDetail.item_name}`
           );
           callback({ message: "Discard Items Deleted Successfully" });
         } else {
@@ -293,6 +300,10 @@ export default class Admin {
         await Admin.handleAddToDiscardMenuFeedback(question1, itemId);
         await Admin.handleAddToDiscardMenuFeedback(question2, itemId);
         await Admin.handleAddToDiscardMenuFeedback(question3, itemId);
+        await LogService.logAction(
+          `Requested detailed feedback for discard menu item: ${menuItem.item_name}`
+        );
+
         callback({ message: "added to discard menu feedback" });
       });
     } catch (error) {

@@ -30,13 +30,6 @@ export default class NotificationService {
     const expiryDays = defaultItemValues.notification_expiry;
     const expiryDate = DateService.getNthPreviousDate(expiryDays);
     const formatedExpiryDate = expiryDate.split(" ")[0];
-    const userDetail: IUserAndPreference | null =
-      await userDetailStore.getUserDetail();
-    const action = `${userDetail?.name} saw Notification`;
-    const logOutput = await LogService.insertIntoLog(
-      action,
-      userDetail?.user_id as number
-    );
     const data = await sqlDBOperations.selectAll(
       "Notification",
       {

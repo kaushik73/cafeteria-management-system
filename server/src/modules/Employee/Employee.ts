@@ -9,6 +9,8 @@ import { sqlDBOperations } from "../../database/operations/sqlDBOperations";
 import { Recommendation } from "../../models/Recommendation";
 import { VotedItem } from "../../models/VotedItem";
 import RecommendationService from "../../services/RecommendationService";
+import userDetailStore from "../../store/userDetailStore";
+import LogService from "../../services/LogService";
 
 class Employee {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -44,6 +46,10 @@ class Employee {
   ) {
     try {
       const notifications = await NotificationService.seeNotifications();
+      const userDetail: IUserAndPreference | null =
+        await userDetailStore.getUserDetail();
+      const action = `${userDetail?.name} saw Notification`;
+      await LogService.logAction(action);
       callback({ message: notifications });
     } catch (error) {
       callback({ message: "Error fetching notifications" });
@@ -58,7 +64,11 @@ class Employee {
     try {
       const feedback_date = DateService.getCurrentDate();
       const updatedData = { feedback_date, ...data };
-      const feedback = await FeedbackService.giveFeedback(updatedData);
+      await FeedbackService.giveFeedback(updatedData);
+      const userDetail: IUserAndPreference | null =
+        await userDetailStore.getUserDetail();
+      const action = `${userDetail?.name} gave Feedback`;
+      await LogService.logAction(action);
       callback({ message: "Feedback Added" });
     } catch (error) {
       callback({ message: "Error giving feedback" });
@@ -77,11 +87,20 @@ class Employee {
     data: { userDatail: IUserAndPreference },
     callback: (response: any) => void
   ) {
-    const recommendedFood: Recommendation[] =
-      (await RecommendationService.viewPreferenceRecommendedFood(
-        data.userDatail.user_id as number
-      )) as Recommendation[];
-    callback({ recommendedFood: recommendedFood });
+    try {
+      const recommendedFood: Recommendation[] =
+        (await RecommendationService.viewPreferenceRecommendedFood(
+          data.userDatail.user_id as number
+        )) as Recommendation[];
+      const userDetail: IUserAndPreference | null =
+        await userDetailStore.getUserDetail();
+      const action = `${userDetail?.name} viewed Preference Recommended Food`;
+      await LogService.logAction(action);
+      callback({ recommendedFood: recommendedFood });
+    } catch (error) {
+      callback({ message: "Error fetching recommended food" });
+      console.error("Error fetching recommended food:", error);
+    }
   }
 
   static async voteForRecommendedFood(
@@ -101,13 +120,14 @@ class Employee {
               is_voted: true,
               menu_id: votedId,
             };
-            const result = await sqlDBOperations.insert(
-              "votedItem",
-              votedItemObj
-            );
+            await sqlDBOperations.insert("votedItem", votedItemObj);
           }
         }
       }
+      const userDetail: IUserAndPreference | null =
+        await userDetailStore.getUserDetail();
+      const action = `${userDetail?.name} voted for Recommended Food`;
+      await LogService.logAction(action);
       callback({ message: "vote sent successfully" });
     } catch (error) {
       console.error("Error voting for recommended food:", error);

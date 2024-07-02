@@ -4,27 +4,6 @@ import userDetailStore from "../store/userDetailStore";
 import LogService from "./LogService";
 
 class AuthService {
-  static async loginOLD(
-    employeeID: string,
-    password: string
-  ): Promise<IUserAndPreference | null> {
-    try {
-      const userDetail: any = (await sqlDBOperations.runCustomQuery(
-        `select * from User U inner JOIN preference P on P.user_id = U.user_ID where U.user_id = ${employeeID} and password = '${password}`
-      )) as IUserAndPreference;
-      const action = `${userDetail.name} logged in as ${userDetail.role}`;
-      const logOutput = await LogService.insertIntoLog(
-        action,
-        userDetail.user_id as number
-      );
-      userDetailStore.setUserDetail(userDetail);
-      return userDetail ? userDetail : null;
-    } catch (error) {
-      console.error("Error retrieving user role:", error);
-      throw error;
-    }
-  }
-
   static async login(
     employeeID: string,
     password: string
@@ -38,8 +17,7 @@ class AuthService {
         AND password = '${password}'
       `;
       const result: any = await sqlDBOperations.runCustomQuery(query);
-
-      if (result.length > 0) {
+      if (result != null) {
         const userDetail: IUserAndPreference = result[0];
 
         const action = `${userDetail.name} logged in as ${userDetail.role}`;
@@ -52,7 +30,7 @@ class AuthService {
       }
     } catch (error) {
       console.error("Error retrieving user role:", error);
-      throw error;
+      throw new Error("Invalid Credentails");
     }
   }
 
@@ -62,7 +40,7 @@ class AuthService {
       userDetailStore.clearUserDetail();
       const logOutput = await LogService.insertIntoLog(
         action,
-        userDetail.emp_id
+        userDetail.user_id
       );
     } catch (error) {
       console.error("Error logging out:", error);

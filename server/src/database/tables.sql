@@ -56,6 +56,7 @@ CREATE TABLE VotedItem (
     user_id INT,
     is_voted BOOLEAN NULL,
     menu_id INT,
+    vote_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (menu_id) REFERENCES Menu(menu_id) ON DELETE
     SET
         NULL,
@@ -127,16 +128,8 @@ CREATE TABLE DiscardMenuFeedback(
         NULL
 );
 
-CREATE TABLE votedItem (
-    voted_item_id INT PRIMARY KEY,
-    menu_id INT NOT NULL,
-    vote_count INT NOT NULL,
-    voted_item_date DATETIME NOT NULL,
-    is_prepared BOOLEAN NOT NULL
-);
-
 -- TRIGGERS & STORED PROCEDURE
---from '2024-01-01'  to '2024-07-01';
+--Date Format for Input : from '2024-01-01'  to '2024-07-01';
 DELIMITER / / -- 
 CREATE PROCEDURE FeedbackReport(IN startDate DATE, IN endDate DATE) BEGIN
 SELECT

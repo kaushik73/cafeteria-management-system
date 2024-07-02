@@ -1,9 +1,7 @@
-// import DatabaseOperation from "./databaseOperations";
 import { MySqlConnection } from "../mysqlDBConnection";
 import { Connection, Query, ResultSetHeader } from "mysql2/promise";
 
 class SqlOperation {
-  //implements DatabaseOperation     ---TODO: make it work
   private connection!: Connection;
 
   constructor() {

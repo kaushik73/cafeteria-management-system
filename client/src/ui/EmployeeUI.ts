@@ -1,8 +1,8 @@
-import * as readlineSync from "readline-sync";
 import EmployeeService from "../services/EmployeeService";
 import { loginUI } from "./LoginUI";
 import { IUser } from "../models/User";
 import OutputService from "../services/OutputService";
+import AuthService from "../services/AuthService";
 
 class EmployeeUI {
   async showEmployeeMenu(userDetail: IUser) {
@@ -28,6 +28,7 @@ class EmployeeUI {
           await EmployeeService.giveFeedback();
           break;
         case "0":
+          await AuthService.logOut();
           loginUI.showLoginMenu();
           break;
         default:

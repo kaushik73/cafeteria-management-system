@@ -4,7 +4,6 @@ import { engineRecommendationService } from "./services/EngineRecommendationServ
 class RecommendationEngine {
   async generateNextDayRecommendations(
     mealType: "breakfast" | "lunch" | "dinner"
-    // callback: any
   ) {
     try {
       const result =

@@ -1,6 +1,7 @@
 import { ResultSetHeader } from "mysql2";
 import { sqlDBOperations } from "../database/operations/sqlDBOperations";
 import { Log } from "../models/Log";
+import userDetailStore from "../store/userDetailStore";
 
 class LogService {
   static async insertIntoLog(
@@ -16,6 +17,18 @@ class LogService {
     return result;
   }
 
+  static async logAction(action: string) {
+    try {
+      const userDetail = await userDetailStore.getUserDetail();
+      const logOutput = await LogService.insertIntoLog(
+        action,
+        userDetail?.user_id as number
+      );
+      return logOutput;
+    } catch (error) {
+      console.error("Error logging action:", error);
+    }
+  }
   static async getLog(): Promise<Log[]> {
     const result: Log[] = (await sqlDBOperations.selectAll(
       "log",

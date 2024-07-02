@@ -18,7 +18,7 @@ export default class ChefService {
     return new Promise((resolve, reject) => {
       OutputService.printMessage(
         `Chef Menu:\n` +
-          `1.W View Menu Items\n` +
+          `1. View Menu Items\n` +
           `2. View Food Recommendations\n` +
           `3. Rollout Food to Employees\n` +
           `4. See Discard Items\n` +

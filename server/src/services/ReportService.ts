@@ -2,7 +2,6 @@ import { sqlDBOperations } from "../database/operations/sqlDBOperations";
 import { FeedbackReport } from "../models/Feedback";
 
 export default class ReportService {
-  //  need to work on this or storedProcedure
   static async viewFeedbackReport(
     startDate: string,
     endDate: string

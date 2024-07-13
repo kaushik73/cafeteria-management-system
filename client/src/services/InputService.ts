@@ -22,7 +22,7 @@ export default class InputService {
 
     do {
       userInput = readlineSync.question(question);
-      if (userInput === "") return userInput; // Allow empty input
+      if (userInput === "") return userInput;
     } while (!validate(userInput));
     return userInput;
   }

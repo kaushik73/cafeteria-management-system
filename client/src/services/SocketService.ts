@@ -1,9 +1,9 @@
 import { io, Socket } from "socket.io-client";
 import OutputService from "./OutputService";
+const PORT = 3001;
 
 class SocketService {
   private socket: Socket;
-
   constructor(serverUrl: string) {
     this.socket = io(serverUrl, {
       transports: ["websocket"],
@@ -49,4 +49,4 @@ class SocketService {
   }
 }
 
-export const socketService = new SocketService("http://localhost:3001"); // server URL
+export const socketService = new SocketService(`http://localhost:${PORT}`);

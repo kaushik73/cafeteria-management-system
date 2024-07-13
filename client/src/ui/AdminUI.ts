@@ -1,62 +1,47 @@
 import { IUser } from "../models/User";
 import AdminService from "../services/AdminService";
 import OutputService from "../services/OutputService";
-import { loginUI } from "./LoginUI";
-import AuthService from "../services/AuthService";
 
 class AdminUI {
   static userDetail: IUser;
 
   async showAdminMenu(userDetail: IUser) {
     let continueLoop = true;
-
     while (continueLoop) {
       const choice: string = await AdminService.showAdminMenu(userDetail);
-
-      switch (choice) {
-        case "1":
-          await AdminService.showMenuItems();
-          break;
-        case "2":
-          await AdminService.addMenuItem();
-          break;
-        case "3":
-          await AdminService.updateMenuItem();
-          break;
-        case "4":
-          await AdminService.deleteMenuItem();
-          break;
-        case "5":
-          await AdminService.updateItemAvailability();
-          break;
-        case "6":
-          await AdminService.viewFeedbacksofItem();
-          break;
-        case "7":
-          await AdminService.viewFeedbackReport();
-          break;
-        case "8":
-          await AdminService.showDiscardItems();
-          break;
-        case "9":
-          await AdminService.showDiscardItemsOperations();
-          break;
-        case "10":
-          await AdminService.viewLogs();
-          break;
-        case "0":
-          continueLoop = false;
-          await AuthService.logOut();
-          await loginUI.showLoginMenu();
-          break;
-        default:
-          OutputService.printMessage(
-            "Invalid choice. Please select a valid option."
-          );
-          AdminService.showAdminMenu(userDetail);
-      }
+      continueLoop = await AdminUI.handleMenuChoice(choice);
     }
   }
+
+  private static handleMenuChoice = async (
+    choice: string
+  ): Promise<boolean> => {
+    const menuActions: { [key: string]: () => Promise<any> } = {
+      "1": AdminService.showMenuItems,
+      "2": AdminService.addMenuItem,
+      "3": AdminService.updateMenuItem,
+      "4": AdminService.deleteMenuItem,
+      "5": AdminService.updateItemAvailability,
+      "6": AdminService.viewFeedbacksofItem,
+      "7": AdminService.viewFeedbackReport,
+      "8": AdminService.showDiscardItems,
+      "9": AdminService.showDiscardItemsOperations,
+      "10": AdminService.viewLogs,
+      "0": AdminService.handleLogOut,
+    };
+
+    const action = menuActions[choice];
+
+    if (action) {
+      await action();
+      return choice !== "0";
+    } else {
+      OutputService.printMessage(
+        "Invalid choice. Please select a valid option."
+      );
+      return true;
+    }
+  };
 }
 
 export const adminUI = new AdminUI();

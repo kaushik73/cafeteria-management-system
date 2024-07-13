@@ -84,7 +84,7 @@ class EngineRecommendationService {
       meal_type: mealType as "lunch" | "breakfast" | "dinner",
       recommendation_date: recommendationDate as unknown as Date,
       average_rating: averageRating,
-      rollout_to_employee: null, // set by chef later
+      rollout_to_employee: null,
       average_sentiment: averageSentiment,
       menu_id: menuId,
     };

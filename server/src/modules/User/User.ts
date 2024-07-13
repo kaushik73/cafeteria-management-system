@@ -8,7 +8,6 @@ import Admin from "../Admin/Admin";
 import Employee from "../Employee/Employee";
 import Chef from "../Chef/Chef";
 import { IUserAndPreference } from "../../models/User";
-import userDetailStore from "../../store/userDetailStore";
 
 export default class User {
   static socketService: SocketService;

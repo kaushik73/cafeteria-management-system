@@ -10,6 +10,11 @@ import InputService from "../services/InputService";
 
 class LoginUI {
   public role!: Role;
+  private roleActions: any = {
+    [Role.Admin]: adminUI.showAdminMenu,
+    [Role.Chef]: chefUI.showChefMenu,
+    [Role.Employee]: employeeUI.showEmployeeMenu,
+  };
 
   async showLoginMenu() {
     return new Promise(async (resolve, reject) => {
@@ -42,19 +47,30 @@ class LoginUI {
     });
   }
 
-  navigateToRoleMenu(userDetail: IUser) {
+  private getUserRole(userDetail: IUser): Role | string {
     switch (userDetail.role) {
       case Role.Admin:
-        adminUI.showAdminMenu(userDetail);
-        break;
       case Role.Chef:
-        chefUI.showChefMenu(userDetail);
-        break;
       case Role.Employee:
-        employeeUI.showEmployeeMenu(userDetail);
-        break;
+        return userDetail.role;
       default:
-        OutputService.printMessage("Invalid role!");
+        return "Invalid role!";
+    }
+  }
+
+  navigateToRoleMenu(userDetail: IUser) {
+    const role = this.getUserRole(userDetail);
+
+    if (role === "Invalid role!") {
+      OutputService.printMessage(role);
+      return;
+    }
+
+    const action = this.roleActions[role];
+    if (action) {
+      action(userDetail);
+    } else {
+      OutputService.printMessage("Invalid role!");
     }
   }
 }

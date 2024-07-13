@@ -67,7 +67,7 @@ export default class RecommendationService {
   //  ordered preference food for employee
   static async viewPreferenceRecommendedFood(user_Id: number) {
     try {
-      const userId = user_Id; // Assuming userId is passed in data
+      const userId = user_Id;
       const preferences = await this.getUserPreferences(userId);
 
       const nextDay = DateService.getNthPreviousDate(-1);

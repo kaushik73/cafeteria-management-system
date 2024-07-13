@@ -10,39 +10,35 @@ export default class ChefUI {
 
     while (continueLoop) {
       const choice: string = await ChefService.showChefMenu(userDetail);
-
-      switch (choice) {
-        case "1":
-          await ChefService.showMenuItems();
-          break;
-        case "2":
-          await ChefService.viewFoodRecommendation();
-          break;
-        case "3":
-          await ChefService.rolloutFoodToEmployees();
-          break;
-        case "4":
-          await ChefService.showDiscardItems();
-          break;
-        case "5":
-          await ChefService.viewFeedbackReport();
-          break;
-        case "6":
-          await ChefService.viewEmployeeVotes();
-          break;
-        case "0":
-          continueLoop = false;
-          await AuthService.logOut();
-          loginUI.showLoginMenu();
-          break;
-        default:
-          OutputService.printMessage(
-            "Invalid choice. Please select a valid option."
-          );
-          ChefService.showChefMenu(userDetail);
-      }
+      continueLoop = await ChefUI.handleMenuChoice(choice);
     }
   }
+
+  private static handleMenuChoice = async (
+    choice: string
+  ): Promise<boolean> => {
+    const menuActions: { [key: string]: () => Promise<any> } = {
+      "1": ChefService.showMenuItems,
+      "2": ChefService.viewFoodRecommendation,
+      "3": ChefService.rolloutFoodToEmployees,
+      "4": ChefService.showDiscardItems,
+      "5": ChefService.viewFeedbackReport,
+      "6": ChefService.viewEmployeeVotes,
+      "0": ChefService.handleLogOut,
+    };
+
+    const action = menuActions[choice];
+
+    if (action) {
+      await action();
+      return choice !== "0";
+    } else {
+      OutputService.printMessage(
+        "Invalid choice. Please select a valid option."
+      );
+      return true;
+    }
+  };
 }
 
 export const chefUI = new ChefUI();

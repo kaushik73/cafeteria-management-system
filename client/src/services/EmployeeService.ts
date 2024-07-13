@@ -5,6 +5,8 @@ import validateService from "../validations/CommonValidation";
 import { IUser } from "../models/User";
 import { SharedService } from "./SharedService";
 import { Recommendation } from "../models/Recommendation";
+import AuthService from "./AuthService";
+import { loginUI } from "../ui/LoginUI";
 
 export default class EmployeeService {
   static userDetail: IUser;
@@ -146,5 +148,9 @@ export default class EmployeeService {
         }
       );
     });
+  }
+  static async handleLogOut() {
+    await AuthService.logOut();
+    loginUI.showLoginMenu();
   }
 }

@@ -14,46 +14,39 @@ import LogService from "../../services/LogService";
 
 class Employee {
   static registerHandlers(socketService: SocketService, socket: Socket) {
-    socketService.registerEventHandler(
-      socket,
-      "seeNotifications",
-      Employee.handleSeeNotifications
-    );
-    socketService.registerEventHandler(
-      socket,
-      "showMenuItems",
-      Employee.handleShowMenuItems
-    );
-    socketService.registerEventHandler(
-      socket,
-      "giveFeedback",
-      Employee.handleGiveFeedback
-    );
-    socketService.registerEventHandler(
-      socket,
-      "viewPreferenceRecommendedFood",
-      Employee.viewPreferenceRecommendedFood
-    );
-    socketService.registerEventHandler(
-      socket,
-      "voteForRecommendedFood",
-      Employee.voteForRecommendedFood
-    );
+    const handlers: { [event: string]: (data: any, callback: any) => void } = {
+      seeNotifications: Employee.handleSeeNotifications,
+      showMenuItems: Employee.handleShowMenuItems,
+      giveFeedback: Employee.handleGiveFeedback,
+      viewPreferenceRecommendedFood:
+        Employee.handleViewPreferenceRecommendedFood,
+      voteForRecommendedFood: Employee.handleVoteForRecommendedFood,
+    };
+
+    for (const [event, handler] of Object.entries(handlers)) {
+      socketService.registerEventHandler(socket, event, handler);
+    }
   }
+
+  private static async logAction(action: string) {
+    const userDetail: IUserAndPreference | null =
+      await userDetailStore.getUserDetail();
+    if (userDetail) {
+      await LogService.logAction(`${userDetail.name} ${action}`);
+    }
+  }
+
   static async handleSeeNotifications(
     data: any,
     callback: (response: any) => void
   ) {
     try {
       const notifications = await NotificationService.seeNotifications();
-      const userDetail: IUserAndPreference | null =
-        await userDetailStore.getUserDetail();
-      const action = `${userDetail?.name} saw Notification`;
-      await LogService.logAction(action);
+      await Employee.logAction("saw Notification");
       callback({ message: notifications });
     } catch (error) {
-      callback({ message: "Error fetching notifications" });
       console.error("Error fetching notifications:", error);
+      callback({ message: "Error fetching notifications" });
     }
   }
 
@@ -65,14 +58,11 @@ class Employee {
       const feedback_date = DateService.getCurrentDate();
       const updatedData = { feedback_date, ...data };
       await FeedbackService.giveFeedback(updatedData);
-      const userDetail: IUserAndPreference | null =
-        await userDetailStore.getUserDetail();
-      const action = `${userDetail?.name} gave Feedback`;
-      await LogService.logAction(action);
+      await Employee.logAction("gave Feedback");
       callback({ message: "Feedback Added" });
     } catch (error) {
-      callback({ message: "Error giving feedback" });
       console.error("Error giving feedback:", error);
+      callback({ message: "Error giving feedback" });
     }
   }
 
@@ -83,27 +73,24 @@ class Employee {
     User.handleShowMenuItems(data, callback);
   }
 
-  static async viewPreferenceRecommendedFood(
+  static async handleViewPreferenceRecommendedFood(
     data: { userDatail: IUserAndPreference },
     callback: (response: any) => void
   ) {
     try {
       const recommendedFood: Recommendation[] =
-        (await RecommendationService.viewPreferenceRecommendedFood(
+        await RecommendationService.viewPreferenceRecommendedFood(
           data.userDatail.user_id as number
-        )) as Recommendation[];
-      const userDetail: IUserAndPreference | null =
-        await userDetailStore.getUserDetail();
-      const action = `${userDetail?.name} viewed Preference Recommended Food`;
-      await LogService.logAction(action);
-      callback({ recommendedFood: recommendedFood });
+        );
+      await Employee.logAction("viewed Preference Recommended Food");
+      callback({ recommendedFood });
     } catch (error) {
-      callback({ message: "Error fetching recommended food" });
       console.error("Error fetching recommended food:", error);
+      callback({ message: "Error fetching recommended food" });
     }
   }
 
-  static async voteForRecommendedFood(
+  static async handleVoteForRecommendedFood(
     data: {
       voteForRecommendedFood: { [key: string]: number[] };
       userDetail: IUserAndPreference;
@@ -111,28 +98,36 @@ class Employee {
     callback: (response: { message: string }) => void
   ) {
     try {
-      for (const mealType of Object.keys(data.voteForRecommendedFood)) {
-        const votedIds = data.voteForRecommendedFood[mealType];
-        for (const votedId of votedIds) {
-          if (votedId !== 0) {
-            const votedItemObj: VotedItem = {
-              user_id: data.userDetail.user_id as number,
-              is_voted: true,
-              menu_id: votedId,
-            };
-            await sqlDBOperations.insert("votedItem", votedItemObj);
-          }
-        }
-      }
-      const userDetail: IUserAndPreference | null =
-        await userDetailStore.getUserDetail();
-      const action = `${userDetail?.name} voted for Recommended Food`;
-      await LogService.logAction(action);
+      await Employee.processVotes(
+        data.voteForRecommendedFood,
+        data.userDetail.user_id as number
+      );
+      await Employee.logAction("voted for Recommended Food");
       callback({ message: "vote sent successfully" });
     } catch (error) {
       console.error("Error voting for recommended food:", error);
       callback({ message: "error" });
     }
   }
+
+  private static async processVotes(
+    votes: { [key: string]: number[] },
+    userId: number
+  ) {
+    for (const mealType of Object.keys(votes)) {
+      const votedIds = votes[mealType];
+      for (const votedId of votedIds) {
+        if (votedId !== 0) {
+          const votedItemObj: VotedItem = {
+            user_id: userId,
+            is_voted: true,
+            menu_id: votedId,
+          };
+          await sqlDBOperations.insert("votedItem", votedItemObj);
+        }
+      }
+    }
+  }
 }
+
 export default Employee;

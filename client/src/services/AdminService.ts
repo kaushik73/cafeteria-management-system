@@ -23,6 +23,8 @@ import OutputService from "./OutputService";
 import { IUser } from "../models/User";
 import { SharedService } from "./SharedService";
 import { Log } from "../models/Log";
+import AuthService from "./AuthService";
+import { loginUI } from "../ui/LoginUI";
 
 export default class AdminService {
   static userDetail: IUser;
@@ -382,8 +384,6 @@ export default class AdminService {
   static async viewLogs() {
     return new Promise((resolve, reject) => {
       socketService.emitEvent("viewLog", {}, (response: { message: Log[] }) => {
-        // OutputService.printTable(response.message);
-
         const filteredResponse = response.message.map((log: any) => {
           const { user_id, action, timestamp, ...restLogData } = log;
           const formatedTimestamp =
@@ -394,5 +394,10 @@ export default class AdminService {
         resolve(filteredResponse);
       });
     });
+  }
+
+  static async handleLogOut() {
+    await AuthService.logOut();
+    await loginUI.showLoginMenu();
   }
 }

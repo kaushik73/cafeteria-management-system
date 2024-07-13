@@ -16,38 +16,20 @@ import NotificationService from "../../services/NotificationService";
 
 class Chef {
   static registerHandlers(socketService: SocketService, socket: Socket) {
-    socketService.registerEventHandler(
-      socket,
-      "showMenuItems",
-      Chef.handleShowMenuItems
-    );
+    const handlers: {
+      [event: string]: (data: any, callback: (response: any) => void) => void;
+    } = {
+      showMenuItems: Chef.handleShowMenuItems,
+      viewFoodRecommendation: Chef.handleViewFoodRecommendation,
+      rolloutFoodToEmployees: Chef.handleRolloutFoodToEmployees,
+      showDiscardItems: Chef.handleShowDiscardItems,
+      viewFeedbackReport: Chef.handleViewFeedbackReport,
+      viewEmployeeVotes: Chef.handleViewEmployeeVotes,
+    };
 
-    socketService.registerEventHandler(
-      socket,
-      "viewFoodRecommendation",
-      Chef.handleViewFoodRecommendation
-    );
-    socketService.registerEventHandler(
-      socket,
-      "rolloutFoodToEmployees",
-      Chef.rolloutFoodToEmployees
-    );
-
-    socketService.registerEventHandler(
-      socket,
-      "showDiscardItems",
-      Chef.showDiscardItems
-    );
-    socketService.registerEventHandler(
-      socket,
-      "viewFeedbackReport",
-      Chef.viewFeedbackReport
-    );
-    socketService.registerEventHandler(
-      socket,
-      "viewEmployeeVotes",
-      Chef.viewEmployeeVotes
-    );
+    for (const [event, handler] of Object.entries(handlers)) {
+      socketService.registerEventHandler(socket, event, handler);
+    }
   }
 
   static async handleShowMenuItems(
@@ -57,27 +39,20 @@ class Chef {
     User.handleShowMenuItems(data, callback);
   }
 
-  static async viewFeedbackReport(
+  static async handleViewFeedbackReport(
     data: any,
     callback: (response: any) => void
   ) {
     try {
       const { from, to } = data;
-
-      const formattedFrom = from;
-      const formattedTo = to;
-      const report = await ReportService.viewFeedbackReport(
-        formattedFrom,
-        formattedTo
-      );
+      const report = await ReportService.viewFeedbackReport(from, to);
       callback({ message: report });
     } catch (error) {
-      callback({ message: "Error fetching report" });
-      console.error("Error fetching report:", error);
+      Chef.handleError(callback, "Error fetching report", error);
     }
   }
 
-  static async showDiscardItems(
+  static async handleShowDiscardItems(
     data: {},
     callback: (response: { message: Menu[] }) => void
   ) {
@@ -86,8 +61,7 @@ class Chef {
       const discardMenu = await MenuService.getItemsToDiscard();
       callback({ message: discardMenu });
     } catch (error) {
-      console.error("Error getting discard Items:", error);
-      throw new Error("Error getting discard Items");
+      Chef.handleError(callback, "Error getting discard Items", error);
     }
   }
 
@@ -99,25 +73,33 @@ class Chef {
       recommendations: Recommendation[];
     }) => void
   ) {
-    const today = DateService.getNthPreviousDate(0);
-    const recommendationsExist =
-      await RecommendationService.checkRecommendationsExist(
-        data.mealType,
-        today
-      );
+    try {
+      const today = DateService.getNthPreviousDate(0);
+      const recommendationsExist =
+        await RecommendationService.checkRecommendationsExist(
+          data.mealType,
+          today
+        );
 
-    if (!recommendationsExist) {
-      await engineRecommendationService.generateNextDayRecommendations(
-        data.mealType
-      );
-      NotificationService.addNotification(
-        "recommendation",
-        "Food Recommendations are out for tomorrow",
-        null
+      if (!recommendationsExist) {
+        await engineRecommendationService.generateNextDayRecommendations(
+          data.mealType
+        );
+        NotificationService.addNotification(
+          "recommendation",
+          "Food Recommendations are out for tomorrow",
+          null
+        );
+      }
+
+      Chef.viewFoodRecommendation(data, callback);
+    } catch (error) {
+      Chef.handleError(
+        callback,
+        "Error generating food recommendations",
+        error
       );
     }
-
-    Chef.viewFoodRecommendation(data, callback);
   }
 
   static async viewFoodRecommendation(
@@ -138,18 +120,17 @@ class Chef {
         recommendations,
       });
     } catch (error) {
-      console.error("Error retrieving recommendations:", error);
-      callback({
-        status: "error",
-        message: `Error retrieving recommendations for ${data.mealType}.`,
-        recommendations: [],
-      });
+      Chef.handleError(
+        callback,
+        `Error retrieving recommendations for ${data.mealType}`,
+        error
+      );
     }
   }
 
-  static async rolloutFoodToEmployees(
+  static async handleRolloutFoodToEmployees(
     data: { [key: string]: number[] },
-    callback: (response: any) => void
+    callback: (response: string) => void
   ) {
     try {
       const updatedRecommendations: Recommendation[] = [];
@@ -157,36 +138,45 @@ class Chef {
       for (const mealType of Object.keys(data)) {
         const recommendationIds = data[mealType];
         for (const recommendationId of recommendationIds) {
-          if (recommendationId == 0) {
-            break;
-          }
-          const updatedRecommendation: any = await sqlDBOperations.update(
+          if (recommendationId === 0) break;
+          const updatedRecommendation = await sqlDBOperations.update(
             "Recommendation",
             { rollout_to_employee: true },
             { recommendation_id: recommendationId }
           );
           if (updatedRecommendation) {
-            updatedRecommendations.push(updatedRecommendation);
+            updatedRecommendations.push(
+              updatedRecommendation as unknown as Recommendation
+            );
           }
         }
       }
       callback("Chef Roll out Success");
     } catch (error) {
-      console.error("Error in rolloutFoodToEmployees:", error);
-      callback("Chef Rolledout Failed");
+      Chef.handleError(callback, "Chef Rolled out Failed", error);
     }
   }
 
-  static async viewEmployeeVotes(
+  static async handleViewEmployeeVotes(
     data: {},
     callback: (response: { employeeVotes: VotedItem[] }) => void
   ) {
     try {
-      const employeeVotes: any[] = await VoteService.getEmployeeVotes();
+      const employeeVotes = await VoteService.getEmployeeVotes();
       callback({ employeeVotes });
     } catch (error) {
-      console.error("Error in rolloutFoodToEmployees:", error);
+      Chef.handleError(callback, "Error retrieving employee votes", error);
     }
   }
+
+  private static handleError(
+    callback: (response: any) => void,
+    message: string,
+    error: any
+  ) {
+    console.error(message, error);
+    callback({ status: "error", message });
+  }
 }
+
 export default Chef;

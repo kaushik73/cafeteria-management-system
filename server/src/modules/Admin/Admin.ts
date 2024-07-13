@@ -14,68 +14,34 @@ import ReportService from "../../services/ReportService";
 import { Log } from "../../models/Log";
 import { recommendationEngine } from "../../engine";
 import { DiscardMenuFeedback } from "../../models/DiscardMenuFeedback";
-import DateService from "../../services/DateService";
 
 export default class Admin {
   static registerHandlers(socketService: SocketService, socket: Socket) {
-    socketService.registerEventHandler(
-      socket,
-      "showMenuItems",
-      Admin.handleShowMenuItems
-    );
+    const handlers: { [event: string]: (data: any, callback: any) => void } = {
+      showMenuItems: Admin.handleShowMenuItems,
+      addMenuItem: Admin.handleAddMenuItem,
+      updateMenuItem: Admin.handleUpdateMenuItem,
+      deleteMenuItem: Admin.handleDeleteMenuItem,
+      updateItemAvailability: Admin.handleUpdateItemAvailability,
+      viewFeedbacks: Admin.viewFeedbacks,
+      viewFeedbackReport: Admin.viewFeedbackReport,
+      showDiscardItems: Admin.showDiscardItems,
+      removeDiscardItem: Admin.removeDiscardItem,
+      detailedFeedbackForDiscardMenu: Admin.detailedFeedbackForDiscardMenu,
+      viewLog: Admin.viewLog,
+    };
 
-    socketService.registerEventHandler(
-      socket,
-      "addMenuItem",
-      Admin.handleAddMenuItem
-    );
+    for (const [event, handler] of Object.entries(handlers)) {
+      socketService.registerEventHandler(socket, event, handler);
+    }
+  }
 
-    socketService.registerEventHandler(
-      socket,
-      "updateMenuItem",
-      Admin.handleUpdateMenuItem
-    );
-
-    socketService.registerEventHandler(
-      socket,
-      "deleteMenuItem",
-      Admin.handleDeleteMenuItem
-    );
-
-    socketService.registerEventHandler(
-      socket,
-      "updateItemAvailability",
-      Admin.handleUpdateItemAvailability
-    );
-
-    socketService.registerEventHandler(
-      socket,
-      "viewFeedbacks",
-      Admin.viewFeedbacks
-    );
-    socketService.registerEventHandler(
-      socket,
-      "viewFeedbackReport",
-      Admin.viewFeedbackReport
-    );
-
-    socketService.registerEventHandler(
-      socket,
-      "showDiscardItems",
-      Admin.showDiscardItems
-    );
-
-    socketService.registerEventHandler(
-      socket,
-      "removeDiscardItem",
-      Admin.removeDiscardItem
-    );
-    socketService.registerEventHandler(
-      socket,
-      "detailedFeedbackForDiscardMenu",
-      Admin.detailedFeedbackForDiscardMenu
-    );
-    socketService.registerEventHandler(socket, "viewLog", Admin.viewLog);
+  private static async getUserDetailAndLogAction(action: string) {
+    const userDetail: IUserAndPreference | null =
+      await userDetailStore.getUserDetail();
+    if (userDetail) {
+      await LogService.logAction(`${userDetail.name} ${action}`);
+    }
   }
 
   static async handleShowMenuItems(
@@ -96,7 +62,9 @@ export default class Admin {
         `added ${item.item_name} for ${item.meal_type}`,
         addedMenu.insertId
       );
-      await LogService.logAction(`Added Menu Item: ${item.item_name}`);
+      await Admin.getUserDetailAndLogAction(
+        `Added Menu Item: ${item.item_name}`
+      );
       callback({ message: "Menu item added" });
     } catch (error) {
       callback({ message: "Error adding menu item" });
@@ -109,33 +77,23 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
-      const updatedMenu: { [key: string]: any } = {};
-      updatedMenu.menu_id = item.menu_id;
-      if (item.item_name) updatedMenu.item_name = item.item_name;
-      if (item.price) updatedMenu.price = item.price;
-      if (item.availability_status !== undefined)
-        updatedMenu.availability_status = item.availability_status;
-      if (item.meal_type) updatedMenu.meal_type = item.meal_type;
-      if (item.dietary_type) updatedMenu.dietary_type = item.dietary_type;
-      if (item.spice_type) updatedMenu.spice_type = item.spice_type;
-      if (item.cuisine_type) updatedMenu.cuisine_type = item.cuisine_type;
-      if (item.sweet_tooth_type !== undefined)
-        updatedMenu.sweet_tooth_type = item.sweet_tooth_type;
-
+      const updatedMenu = Admin.createUpdatedMenu(item);
       if (Object.keys(updatedMenu).length === 0) {
         callback({ message: "No field to update" });
+        return;
       }
       await MenuService.updateMenuItem(updatedMenu);
-
-      const MenuDetail: Menu = (await MenuService.getMenuDetailFromId(
+      const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
         item.menu_id
       )) as Menu;
       await NotificationService.addNotification(
         "menuUpdate",
-        `Menu item updated: ${MenuDetail.item_name}`,
-        MenuDetail.menu_id
+        `Menu item updated: ${menuDetail.item_name}`,
+        menuDetail.menu_id
       );
-      await LogService.logAction(`Updated Menu Item: ${MenuDetail.item_name}`);
+      await Admin.getUserDetailAndLogAction(
+        `Updated Menu Item: ${menuDetail.item_name}`
+      );
       callback({ message: "Menu item updated" });
     } catch (error) {
       callback({ message: "Error updating menu item" });
@@ -143,22 +101,39 @@ export default class Admin {
     }
   }
 
+  private static createUpdatedMenu(item: Menu): { [key: string]: any } {
+    const updatedMenu: { [key: string]: any } = {};
+    if (item.menu_id) updatedMenu.menu_id = item.menu_id;
+    if (item.item_name) updatedMenu.item_name = item.item_name;
+    if (item.price) updatedMenu.price = item.price;
+    if (item.availability_status !== undefined)
+      updatedMenu.availability_status = item.availability_status;
+    if (item.meal_type) updatedMenu.meal_type = item.meal_type;
+    if (item.dietary_type) updatedMenu.dietary_type = item.dietary_type;
+    if (item.spice_type) updatedMenu.spice_type = item.spice_type;
+    if (item.cuisine_type) updatedMenu.cuisine_type = item.cuisine_type;
+    if (item.sweet_tooth_type !== undefined)
+      updatedMenu.sweet_tooth_type = item.sweet_tooth_type;
+    return updatedMenu;
+  }
+
   static async handleDeleteMenuItem(
     item: { menu_id: number },
     callback: (response: any) => void
   ) {
     try {
-      const MenuDetail: Menu = (await MenuService.getMenuDetailFromId(
+      const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
         item.menu_id
       )) as Menu;
       await NotificationService.addNotification(
         "menuUpdate",
-        `Deleted ${MenuDetail.item_name} from ${MenuDetail.meal_type}`,
+        `Deleted ${menuDetail.item_name} from ${menuDetail.meal_type}`,
         item.menu_id
       );
       await MenuService.deleteMenuItem(item.menu_id);
-      await LogService.logAction(`Deleted Menu Item: ${MenuDetail.item_name}`);
-
+      await Admin.getUserDetailAndLogAction(
+        `Deleted Menu Item: ${menuDetail.item_name}`
+      );
       callback({ message: "Menu item deleted" });
     } catch (error) {
       callback({ message: "Error deleting menu item" });
@@ -175,23 +150,26 @@ export default class Admin {
         data.menu_id,
         data.availability_status
       );
-      const MenuDetail: Menu = (await MenuService.getMenuDetailFromId(
+      const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
         data.menu_id
       )) as Menu;
-      const avaialabityStatus = data.availability_status
+      const availabilityStatus = data.availability_status
         ? "available"
         : "not available";
       await NotificationService.addNotification(
         "menuUpdate",
-        `Item ${MenuDetail.item_name} is ${avaialabityStatus} to order`,
+        `Item ${menuDetail.item_name} is ${availabilityStatus} to order`,
         data.menu_id
       );
-      await LogService.logAction(
-        `Updated Availability for Menu Item: ${MenuDetail.item_name}`
+      await Admin.getUserDetailAndLogAction(
+        `Updated Availability for Menu Item: ${menuDetail.item_name}`
       );
-      result.insertId == 1
-        ? callback({ message: "Item availability updated" })
-        : callback({ message: "Error in Item availability updated" });
+      callback({
+        message:
+          result.insertId == 1
+            ? "Item availability updated"
+            : "Error in Item availability updated",
+      });
     } catch (error) {
       callback({ message: "Error updating item availability" });
       console.error("Error updating item availability:", error);
@@ -200,21 +178,19 @@ export default class Admin {
 
   static async viewFeedbacks(
     data: { menu_id: number },
-    callback: (response: { message: Feedback[] }) => void
+    callback: (response: { message: Feedback[] | string }) => void
   ) {
     try {
       const feedbacks: Feedback[] = await FeedbackService.viewFeedbacks(
         data.menu_id
       );
-      const userDetail: IUserAndPreference | null =
-        await userDetailStore.getUserDetail();
-      await LogService.logAction(
-        `For Menu id : ${data.menu_id} ${userDetail?.name} view Feedback`
+      await Admin.getUserDetailAndLogAction(
+        `For Menu id : ${data.menu_id} viewed Feedback`
       );
       callback({ message: feedbacks });
     } catch (error) {
       console.error("Error getting Feedbacks:", error);
-      throw new Error("Error getting Feedbacks");
+      callback({ message: "Error getting Feedbacks" });
     }
   }
 
@@ -224,9 +200,8 @@ export default class Admin {
   ) {
     try {
       const { fromInput: From, toInput: To } = data;
-
       const report = await ReportService.viewFeedbackReport(From, To);
-      await LogService.logAction(
+      await Admin.getUserDetailAndLogAction(
         `Viewed Feedback Report from ${From} to ${To}`
       );
       callback({ message: report });
@@ -238,16 +213,16 @@ export default class Admin {
 
   static async showDiscardItems(
     data: {},
-    callback: (response: { message: Menu[] }) => void
+    callback: (response: { message: Menu[] | string }) => void
   ) {
     try {
       await recommendationEngine.setDiscardStatus();
       const discardMenu = await MenuService.getItemsToDiscard();
-      await LogService.logAction("Viewed Discard Items");
+      await Admin.getUserDetailAndLogAction("Viewed Discard Items");
       callback({ message: discardMenu });
     } catch (error) {
       console.error("Error getting discard Items:", error);
-      throw new Error("Error getting discard Items");
+      callback({ message: "Error getting discard Items" });
     }
   }
 
@@ -256,28 +231,26 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
-      data.menuIdArray.map(async (menuId) => {
-        const MenuDetail: Menu = (await MenuService.getMenuDetailFromId(
+      for (const menuId of data.menuIdArray) {
+        const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
           menuId
         )) as Menu;
-
-        if (MenuDetail.is_discard) {
+        if (menuDetail.is_discard) {
           await MenuService.deleteMenuItem(menuId);
           await NotificationService.addNotification(
             "menuUpdate",
-            `Deleted ${MenuDetail.item_name} from ${MenuDetail.meal_type}`,
+            `Deleted ${menuDetail.item_name} from ${menuDetail.meal_type}`,
             menuId
           );
-          await LogService.logAction(
-            `Removed Discard Item: ${MenuDetail.item_name}`
+          await Admin.getUserDetailAndLogAction(
+            `Removed Discard Item: ${menuDetail.item_name}`
           );
-          callback({ message: "Discard Items Deleted Successfully" });
         } else {
-          callback({
-            message: "Entered Menu ID is not in discard list",
-          });
+          callback({ message: "Entered Menu ID is not in discard list" });
+          return;
         }
-      });
+      }
+      callback({ message: "Discard Items Deleted Successfully" });
     } catch (error) {
       callback({ message: "Error removing discard Items" });
       console.error("Error removing discard Items:", error);
@@ -289,23 +262,23 @@ export default class Admin {
     callback: (response: { message: string }) => void
   ) {
     try {
-      data.menuIdArray.map(async (itemId) => {
+      for (const itemId of data.menuIdArray) {
         const menuItem: Menu = (await MenuService.getMenuDetailFromId(
           itemId
         )) as Menu;
-
-        const question1 = `Q1. What did you not like about ${menuItem.item_name} ?`;
-        const question2 = `Q2. How would you like ${menuItem.item_name} to taste ?`;
-        const question3 = `Q3. Share your mom recipie for ${menuItem.item_name} ?`;
-        await Admin.handleAddToDiscardMenuFeedback(question1, itemId);
-        await Admin.handleAddToDiscardMenuFeedback(question2, itemId);
-        await Admin.handleAddToDiscardMenuFeedback(question3, itemId);
-        await LogService.logAction(
+        const questions = [
+          `Q1. What did you not like about ${menuItem.item_name}?`,
+          `Q2. How would you like ${menuItem.item_name} to taste?`,
+          `Q3. Share your mom's recipe for ${menuItem.item_name}?`,
+        ];
+        for (const question of questions) {
+          await Admin.handleAddToDiscardMenuFeedback(question, itemId);
+        }
+        await Admin.getUserDetailAndLogAction(
           `Requested detailed feedback for discard menu item: ${menuItem.item_name}`
         );
-
-        callback({ message: "added to discard menu feedback" });
-      });
+      }
+      callback({ message: "Added to discard menu feedback" });
     } catch (error) {
       callback({ message: "Error detailedFeedbackForDiscardMenu" });
       console.error("Error detailedFeedbackForDiscardMenu:", error);
@@ -316,24 +289,23 @@ export default class Admin {
     question: string,
     itemId: number
   ) {
-    const DiscardMenuFeedback: DiscardMenuFeedback = {
-      question: question,
+    const discardMenuFeedback: DiscardMenuFeedback = {
+      question,
       menu_id: itemId,
     };
-    await FeedbackService.addToDiscardMenuFeedback(DiscardMenuFeedback);
+    await FeedbackService.addToDiscardMenuFeedback(discardMenuFeedback);
   }
 
   static async viewLog(
     data: {},
-    callback: (response: { message: Log[] }) => void
+    callback: (response: { message: Log[] | string }) => void
   ) {
-    const logs: Log[] = await LogService.getLog();
-
-    callback({ message: logs });
     try {
+      const logs: Log[] = await LogService.getLog();
+      callback({ message: logs });
     } catch (error) {
-      console.error("Error removing discard Items:", error);
-      throw new Error("Error removing discard Items");
+      console.error("Error viewing logs:", error);
+      callback({ message: "Error viewing logs" });
     }
   }
 }

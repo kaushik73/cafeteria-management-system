@@ -7,6 +7,8 @@ import { socketService } from "./SocketService";
 import { Menu, allowedMealTypes, MealType } from "../models/Menu";
 import { Recommendation } from "../models/Recommendation";
 import { VotedItem } from "../models/VotedItem";
+import AuthService from "./AuthService";
+import { loginUI } from "../ui/LoginUI";
 export default class ChefService {
   static userDetail: IUser;
   private static sharedService: SharedService;
@@ -142,14 +144,9 @@ export default class ChefService {
 
       const from = fromInput;
       const to = toInput;
-
-      // const formattedFrom = Vali.formatDate(from);
-      // const formattedTo = DateService.formatDate(to);
-
       socketService.emitEvent(
         "viewFeedbackReport",
         { from, to },
-        // { from: formattedFrom, to: formattedTo },
         (response: any) => {
           OutputService.printTable(response.message);
           resolve(response.message);
@@ -181,5 +178,10 @@ export default class ChefService {
         }
       );
     });
+  }
+
+  static async handleLogOut() {
+    await AuthService.logOut();
+    await loginUI.showLoginMenu();
   }
 }

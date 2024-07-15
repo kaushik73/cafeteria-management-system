@@ -136,13 +136,13 @@ class Chef {
       const updatedRecommendations: Recommendation[] = [];
 
       for (const mealType of Object.keys(data)) {
-        const recommendationIds = data[mealType];
-        for (const recommendationId of recommendationIds) {
-          if (recommendationId === 0) break;
+        const menuIds = data[mealType];
+        for (const menuId of menuIds) {
+          if (menuId === 0) break;
           const updatedRecommendation = await sqlDBOperations.update(
             "Recommendation",
             { rollout_to_employee: true },
-            { recommendation_id: recommendationId }
+            { menu_id: menuId }
           );
           if (updatedRecommendation) {
             updatedRecommendations.push(
@@ -159,10 +159,11 @@ class Chef {
 
   static async handleViewEmployeeVotes(
     data: {},
-    callback: (response: { employeeVotes: VotedItem[] }) => void
+    callback: (response: { employeeVotes: VotedItem[] | null }) => void
   ) {
     try {
-      const employeeVotes = await VoteService.getEmployeeVotes();
+      const employeeVotes: VotedItem[] | null =
+        await VoteService.getEmployeeVotes();
       callback({ employeeVotes });
     } catch (error) {
       Chef.handleError(callback, "Error retrieving employee votes", error);

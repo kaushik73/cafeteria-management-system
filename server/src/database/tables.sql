@@ -1,7 +1,3 @@
-CREATE database testDB;
-
-use testDB;
-
 CREATE TABLE Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     role ENUM('admin', 'chef', 'employee') NOT NULL,

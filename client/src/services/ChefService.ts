@@ -42,9 +42,9 @@ export default class ChefService {
 
   static async viewFoodRecommendation() {
     try {
-      await this.viewFoodRecommendationForMeal("breakfast");
-      await this.viewFoodRecommendationForMeal("lunch");
-      await this.viewFoodRecommendationForMeal("dinner");
+      await ChefService.viewFoodRecommendationForMeal("breakfast");
+      await ChefService.viewFoodRecommendationForMeal("lunch");
+      await ChefService.viewFoodRecommendationForMeal("dinner");
     } catch (error) {
       OutputService.printMessage(`Error viewing food recommendations:${error}`);
     }
@@ -68,8 +68,6 @@ export default class ChefService {
                 recommendation_id,
                 meal_type,
                 recommendation_date,
-                average_rating,
-                average_sentiment,
                 menu_id,
                 ...restOfRecommededFood
               } = eachRecommendedFood;
@@ -81,7 +79,6 @@ export default class ChefService {
                 recommendation_id,
                 meal_type,
                 recommendationDate,
-                average_rating,
                 menu_id,
               };
             }
@@ -172,8 +169,10 @@ export default class ChefService {
       socketService.emitEvent(
         "viewEmployeeVotes",
         {},
-        (response: { employeeVotes: VotedItem[] }) => {
-          OutputService.printTable(response.employeeVotes);
+        (response: { employeeVotes: VotedItem[] | null }) => {
+          response.employeeVotes
+            ? OutputService.printTable(response.employeeVotes)
+            : OutputService.printMessage("No Votes");
           resolve(response.employeeVotes);
         }
       );

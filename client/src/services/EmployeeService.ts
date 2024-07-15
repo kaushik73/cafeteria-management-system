@@ -94,7 +94,6 @@ export default class EmployeeService {
                   recommendation_id,
                   meal_type,
                   recommendation_date,
-                  average_rating,
                   menu_id,
                   ...restOfRecommededFood
                 } = eachRecommendedFood;
@@ -106,7 +105,6 @@ export default class EmployeeService {
                   recommendation_id,
                   meal_type,
                   recommendationDate,
-                  average_rating,
                   menu_id,
                 };
               }

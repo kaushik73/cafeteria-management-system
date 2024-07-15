@@ -278,7 +278,7 @@ export default class Admin {
           `Requested detailed feedback for discard menu item: ${menuItem.item_name}`
         );
       }
-      callback({ message: "Added to discard menu feedback" });
+      callback({ message: "Rolled Out Question for Feedback " });
     } catch (error) {
       callback({ message: "Error detailedFeedbackForDiscardMenu" });
       console.error("Error detailedFeedbackForDiscardMenu:", error);

@@ -1,5 +1,3 @@
-USE testDB;
-
 -- Insert 10 rows into Users
 INSERT INTO
     Users (role, name, email, emp_id, password)

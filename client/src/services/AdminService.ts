@@ -298,8 +298,25 @@ export default class AdminService {
         "showDiscardItems",
         {},
         (response: { message: Menu[] }) => {
-          OutputService.printTable(response.message);
-          resolve("showDiscardItems");
+          const filteredResponse = response.message.map((discardItem: any) => {
+            const {
+              menu_id,
+              item_name,
+              price,
+              meal_type,
+              availability_status,
+              ...restDiscardData
+            } = discardItem;
+            return {
+              menu_id,
+              item_name,
+              price,
+              meal_type,
+              availability_status,
+            };
+          });
+          OutputService.printTable(filteredResponse);
+          resolve(filteredResponse);
         }
       );
     });

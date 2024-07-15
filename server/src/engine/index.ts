@@ -26,7 +26,7 @@ class RecommendationEngine {
       );
       return discardItems;
     } catch (error) {
-      console.error("TEST - Error setting discard Items", error);
+      console.error("Error setting discard Items", error);
       throw new Error("Error setting discard Items");
     }
   }

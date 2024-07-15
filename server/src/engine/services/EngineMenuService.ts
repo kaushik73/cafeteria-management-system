@@ -13,7 +13,7 @@ class EngineMenuService {
       sentimentResults
     );
 
-    const sortedMenuIds = await this.sortMenuItemsByRatingSentiment(
+    const sortedMenuIds = await this.sortMenuItemsByRatingAndSentiment(
       menuFeedbackMap,
       limit,
       mealType
@@ -21,7 +21,7 @@ class EngineMenuService {
     return this.getMenuItems(mealType, sortedMenuIds);
   }
 
-  private async sortMenuItemsByRatingSentiment(
+  private async sortMenuItemsByRatingAndSentiment(
     menuFeedbackMap: {
       [key: number]: {
         totalRating: number;

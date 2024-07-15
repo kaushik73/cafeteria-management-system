@@ -18,7 +18,7 @@ class VoteService {
         group by M.menu_id
         order by count(VI.is_voted) desc
     `);
-    return employeeVotes;
+    return employeeVotes ? employeeVotes : null;
   }
 }
 

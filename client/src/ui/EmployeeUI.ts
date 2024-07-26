@@ -23,6 +23,7 @@ class EmployeeUI {
       "3": EmployeeService.viewPreferenceRecommendedFood,
       "4": EmployeeService.voteForRecommendedFood,
       "5": EmployeeService.giveFeedback,
+      "6": EmployeeService.updatePreference,
       "0": EmployeeService.handleLogOut,
     };
 

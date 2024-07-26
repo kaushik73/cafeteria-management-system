@@ -100,6 +100,22 @@ class MenuService {
       throw new Error("Error getting discard Menu Items ");
     }
   }
+
+  static async updatedUserPreference(data: any): Promise<Menu[]> {
+    try {
+      const discardMenu: Menu[] = await sqlDBOperations.runCustomQuery(
+        `UPDATE preference SET 
+          cuisine_preference = '${data.updatedPreference.cuisine_type}',
+          sweet_tooth = ${data.updatedPreference.sweet_tooth_type},
+          dietary_preference = '${data.updatedPreference.dietary_type}',
+          spice_level = '${data.updatedPreference.spice_type}'
+        WHERE user_id = ${data.userDetail.user_id};`
+      );
+      return discardMenu;
+    } catch {
+      throw new Error("Error updating user preference");
+    }
+  }
 }
 
 export default MenuService;

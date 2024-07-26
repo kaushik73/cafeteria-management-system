@@ -7,6 +7,13 @@ import { SharedService } from "./SharedService";
 import { Recommendation } from "../models/Recommendation";
 import AuthService from "./AuthService";
 import { loginUI } from "../ui/LoginUI";
+import { CuisineType, DietaryType, Menu, SpiceType } from "../models/Menu";
+import {
+  validateBoolean,
+  validateCuisineType,
+  validateDietaryType,
+  validateSpiceType,
+} from "../validations/MenuValidations";
 
 export default class EmployeeService {
   static userDetail: IUser;
@@ -24,6 +31,7 @@ export default class EmployeeService {
           `3. View Preference Recommended Food\n` +
           `4. Vote for Recommended Food\n` +
           `5. Give Feedback\n` +
+          `6. Update Preference\n` +
           `0. Logout`
       );
       const choice = InputService.takeInputWithValidation(
@@ -138,6 +146,53 @@ export default class EmployeeService {
         "voteForRecommendedFood",
         {
           voteForRecommendedFood: votesByEmployeeForNextDayFood,
+          userDetail: EmployeeService.userDetail,
+        },
+        (response: { message: string }) => {
+          OutputService.printMessage(response.message);
+          resolve(response.message);
+        }
+      );
+    });
+  }
+  static async updatePreference() {
+    return new Promise((resolve, reject) => {
+      const updatedPreference: Partial<Menu> = {};
+      const dietaryType: DietaryType =
+        InputService.takeOptionalInputWithValidation(
+          "Enter dietary type? (vegetarian/non-Vegetarian/eggetarian): ",
+          validateDietaryType
+        ) as DietaryType;
+      if (dietaryType) updatedPreference.dietary_type = dietaryType;
+
+      const spiceType: SpiceType = InputService.takeOptionalInputWithValidation(
+        "Enter spice type? (high/medium/low): ",
+        validateSpiceType
+      ) as SpiceType;
+      if (spiceType) updatedPreference.spice_type = spiceType;
+
+      const cuisineType: CuisineType =
+        InputService.takeOptionalInputWithValidation(
+          "Enter cuisine type? (north-indian/south-indian/other): ",
+          validateCuisineType
+        ) as CuisineType;
+      if (cuisineType) updatedPreference.cuisine_type = cuisineType;
+
+      const sweetToothTypeInput: string =
+        InputService.takeOptionalInputWithValidation(
+          "Are you sweet tooth type? (yes/no): ",
+          validateBoolean
+        );
+      if (sweetToothTypeInput)
+        updatedPreference.sweet_tooth_type =
+          sweetToothTypeInput.toLowerCase() === "yes";
+
+      console.log("test updated", updatedPreference);
+
+      socketService.emitEvent(
+        "updatedPreference",
+        {
+          updatedPreference: updatedPreference,
           userDetail: EmployeeService.userDetail,
         },
         (response: { message: string }) => {

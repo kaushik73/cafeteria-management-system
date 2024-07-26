@@ -11,6 +11,7 @@ import { VotedItem } from "../../models/VotedItem";
 import RecommendationService from "../../services/RecommendationService";
 import userDetailStore from "../../store/userDetailStore";
 import LogService from "../../services/LogService";
+import MenuService from "../../services/MenuService";
 
 class Employee {
   static registerHandlers(socketService: SocketService, socket: Socket) {
@@ -21,6 +22,7 @@ class Employee {
       viewPreferenceRecommendedFood:
         Employee.handleViewPreferenceRecommendedFood,
       voteForRecommendedFood: Employee.handleVoteForRecommendedFood,
+      updatedPreference: Employee.handleUpdatedPreference,
     };
 
     for (const [event, handler] of Object.entries(handlers)) {
@@ -108,6 +110,14 @@ class Employee {
       console.error("Error voting for recommended food:", error);
       callback({ message: "error" });
     }
+  }
+
+  static async handleUpdatedPreference(
+    data: any,
+    callback: (response: { message: string }) => void
+  ) {
+    await MenuService.updatedUserPreference(data);
+    callback({ message: "Preference updated successfully" });
   }
 
   private static async processVotes(

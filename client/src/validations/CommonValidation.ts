@@ -21,4 +21,8 @@ export default class CommonValidations {
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
     return datePattern.test(dateString) && !isNaN(Date.parse(dateString));
   }
+  static validateRating(input: string): boolean {
+    const rating = parseInt(input);
+    return !isNaN(rating) && rating >= 1 && rating <= 5;
+  }
 }

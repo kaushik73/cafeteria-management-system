@@ -26,9 +26,7 @@ class LoginUI {
 
       while (!loggedIn) {
         userID = InputService.takeInputWithValidation("Enter your userID: ");
-        password = InputService.takeInputWithValidation(
-          "Enter your Password: "
-        );
+        password = InputService.takeMaskedInput("Enter your Password: ");
         // userID = "102";
         // password = "pass";
 

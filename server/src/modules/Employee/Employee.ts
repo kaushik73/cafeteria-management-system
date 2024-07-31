@@ -57,11 +57,15 @@ class Employee {
     callback: (response: any) => void
   ) {
     try {
-      const feedback_date = DateService.getCurrentDate();
-      const updatedData = { feedback_date, ...data };
-      await FeedbackService.giveFeedback(updatedData);
-      await Employee.logAction("gave Feedback");
-      callback({ message: "Feedback Added" });
+      if (await MenuService.isMenuIdExist(data.menu_id)) {
+        const feedback_date = DateService.getCurrentDate();
+        const updatedData = { feedback_date, ...data };
+        await FeedbackService.giveFeedback(updatedData);
+        await Employee.logAction("gave Feedback");
+        callback({ message: "Feedback Added" });
+      } else {
+        callback({ message: "Menu Does not exist" });
+      }
     } catch (error) {
       console.error("Error giving feedback:", error);
       callback({ message: "Error giving feedback" });
@@ -116,24 +120,42 @@ class Employee {
     data: any,
     callback: (response: { message: string }) => void
   ) {
-    await MenuService.updatedUserPreference(data);
-    callback({ message: "Preference updated successfully" });
+    if (
+      data.updatedPreference &&
+      Object.keys(data.updatedPreference).length > 0
+    ) {
+      await MenuService.updatedUserPreference(data);
+      callback({ message: "Preference updated successfully" });
+    } else {
+      callback({ message: "No Updates Made" });
+    }
   }
 
   private static async processVotes(
     votes: { [key: string]: number[] },
     userId: number
   ) {
+    const processedIds: number[] = [];
+
     for (const mealType of Object.keys(votes)) {
       const votedIds = votes[mealType];
+
       for (const votedId of votedIds) {
-        if (votedId !== 0) {
+        if (votedId === 0 || processedIds.includes(votedId)) {
+          continue;
+        }
+
+        const isValid = await MenuService.isMenuIdExist(votedId);
+
+        if (isValid) {
           const votedItemObj: VotedItem = {
             user_id: userId,
             is_voted: true,
             menu_id: votedId,
           };
+
           await sqlDBOperations.insert("votedItem", votedItemObj);
+          processedIds.push(votedId);
         }
       }
     }

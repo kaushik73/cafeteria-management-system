@@ -14,6 +14,7 @@ import {
   validateDietaryType,
   validateSpiceType,
 } from "../validations/MenuValidations";
+import CommonValidations from "../validations/CommonValidation";
 
 export default class EmployeeService {
   static userDetail: IUser;
@@ -56,7 +57,10 @@ export default class EmployeeService {
       );
 
       const rating: number = parseFloat(
-        InputService.takeInputWithValidation("Enter your rating (1-5): ")
+        InputService.takeInputWithValidation(
+          "Enter your rating (1-5): ",
+          CommonValidations.validateRating
+        )
       );
 
       const feedback = {
@@ -97,12 +101,13 @@ export default class EmployeeService {
             reject("No Food is available");
           } else {
             const filteredRecommendedFood = recommendedFood.map(
-              (eachRecommendedFood: Recommendation) => {
+              (eachRecommendedFood: any) => {
                 const {
                   recommendation_id,
                   meal_type,
                   recommendation_date,
                   menu_id,
+                  item_name,
                   ...restOfRecommededFood
                 } = eachRecommendedFood;
                 const recommendationDate =
@@ -114,6 +119,7 @@ export default class EmployeeService {
                   meal_type,
                   recommendationDate,
                   menu_id,
+                  item_name,
                 };
               }
             );
@@ -126,22 +132,14 @@ export default class EmployeeService {
   }
   static async voteForRecommendedFood() {
     return new Promise((resolve, reject) => {
-      const voteIdForBreakfast: string = InputService.takeInputWithValidation(
-        "Enter comma (,) separated recommendation_id for breakfast: "
-      );
-
-      const voteIdForLunch: string = InputService.takeInputWithValidation(
-        "Enter comma (,) separated recommendation_id for lunch: "
-      );
-      const voteForDinner: string = InputService.takeInputWithValidation(
-        "Enter comma (,) separated recommendation_id for dinner: "
+      const votes: string = InputService.takeInputWithValidation(
+        "Enter comma (,) separated menu id : "
       );
 
       const votesByEmployeeForNextDayFood = {
-        breakfast: voteIdForBreakfast.split(",").map((id) => Number(id.trim())),
-        lunch: voteIdForLunch.split(",").map((id) => Number(id.trim())),
-        dinner: voteForDinner.split(",").map((id) => Number(id.trim())),
+        breakfast: votes.split(",").map((id) => Number(id.trim())),
       };
+
       socketService.emitEvent(
         "voteForRecommendedFood",
         {
@@ -186,8 +184,6 @@ export default class EmployeeService {
       if (sweetToothTypeInput)
         updatedPreference.sweet_tooth_type =
           sweetToothTypeInput.toLowerCase() === "yes";
-
-      console.log("test updated", updatedPreference);
 
       socketService.emitEvent(
         "updatedPreference",

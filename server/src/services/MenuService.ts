@@ -1,8 +1,6 @@
 import { ResultSetHeader } from "mysql2";
 import { sqlDBOperations } from "../database/operations/sqlDBOperations";
 import { Menu } from "../models/Menu";
-import DateService from "./DateService";
-import { Recommendation } from "../models/Recommendation";
 
 class MenuService {
   static async addMenuItem(item: Menu) {
@@ -103,17 +101,51 @@ class MenuService {
 
   static async updatedUserPreference(data: any): Promise<Menu[]> {
     try {
-      const discardMenu: Menu[] = await sqlDBOperations.runCustomQuery(
-        `UPDATE preference SET 
-          cuisine_preference = '${data.updatedPreference.cuisine_type}',
-          sweet_tooth = ${data.updatedPreference.sweet_tooth_type},
-          dietary_preference = '${data.updatedPreference.dietary_type}',
-          spice_level = '${data.updatedPreference.spice_type}'
-        WHERE user_id = ${data.userDetail.user_id};`
+      const updates: string[] = [];
+
+      if (data.updatedPreference.cuisine_type) {
+        updates.push(
+          `cuisine_preference = '${data.updatedPreference.cuisine_type}'`
+        );
+      }
+      if (data.updatedPreference.sweet_tooth_type !== undefined) {
+        updates.push(
+          `sweet_tooth = ${data.updatedPreference.sweet_tooth_type}`
+        );
+      }
+      if (data.updatedPreference.dietary_type) {
+        updates.push(
+          `dietary_preference = '${data.updatedPreference.dietary_type}'`
+        );
+      }
+      if (data.updatedPreference.spice_type) {
+        updates.push(`spice_level = '${data.updatedPreference.spice_type}'`);
+      }
+
+      if (updates.length === 0) {
+        throw new Error("No valid preferences to update");
+      }
+
+      const updateQuery = updates.join(", ");
+
+      const updatedPreference: Menu[] = await sqlDBOperations.runCustomQuery(
+        `UPDATE preference SET ${updateQuery} WHERE user_id = ${data.userDetail.user_id};`
       );
-      return discardMenu;
-    } catch {
+
+      return updatedPreference;
+    } catch (error) {
+      console.error("Error updating user preference:", error);
       throw new Error("Error updating user preference");
+    }
+  }
+
+  static async isMenuIdExist(menuID: Number): Promise<boolean> {
+    try {
+      const menu = await sqlDBOperations.selectOne("Menu", { menu_id: menuID });
+      return menu !== undefined && menu !== null;
+    } catch (error) {
+      console.error("Error checking if menu ID exists:", error);
+      throw new Error("Error checking if menu ID exists");
     }
   }
 }

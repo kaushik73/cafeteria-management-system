@@ -46,8 +46,12 @@ class EngineMenuService {
 
     const filteredEntries = await Promise.all(
       menuEntries.map(async (entry) => {
-        const type = await this.getMealType(entry.menuId);
-        return type === mealType ? entry : null;
+        if (Number.isNaN(entry.menuId)) {
+          entry.menuId = 14;
+        } else {
+          const type = await this.getMealType(entry.menuId);
+          return type === mealType ? entry : null;
+        }
       })
     );
 
@@ -61,6 +65,7 @@ class EngineMenuService {
     const mealType: any = await sqlDBOperations.selectOne("Menu", {
       menu_id: menuId,
     });
+
     return mealType.meal_type;
   }
 

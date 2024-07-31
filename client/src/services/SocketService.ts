@@ -7,7 +7,7 @@ class SocketService {
   constructor(serverUrl: string) {
     this.socket = io(serverUrl, {
       transports: ["websocket"],
-      timeout: 200000, // 20 sec
+      timeout: 900000,
     });
   }
 

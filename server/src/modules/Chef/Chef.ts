@@ -139,6 +139,12 @@ class Chef {
         const menuIds = data[mealType];
         for (const menuId of menuIds) {
           if (menuId === 0) break;
+
+          const isValid = await Chef.isMenuIdOfMealType(menuId, mealType);
+          if (!isValid) {
+            continue;
+          }
+
           const updatedRecommendation = await sqlDBOperations.update(
             "Recommendation",
             { rollout_to_employee: true },
@@ -155,6 +161,17 @@ class Chef {
     } catch (error) {
       Chef.handleError(callback, "Chef Rolled out Failed", error);
     }
+  }
+
+  static async isMenuIdOfMealType(
+    menuId: number,
+    mealType: string
+  ): Promise<any> {
+    const menu: Menu = (await sqlDBOperations.selectOne("Menu", {
+      menu_id: menuId,
+    })) as Menu;
+
+    return menu && menu.meal_type === mealType;
   }
 
   static async handleViewEmployeeVotes(

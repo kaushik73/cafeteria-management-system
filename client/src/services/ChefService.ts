@@ -24,8 +24,7 @@ export default class ChefService {
           `2. View Food Recommendations\n` +
           `3. Rollout Food to Employees\n` +
           `4. See Discard Items\n` +
-          `5. View Feedback Report\n` +
-          `6. View Employee Votes\n` +
+          `5. View Employee Votes\n` +
           `0. Logout`
       );
       const choice = InputService.takeInputWithValidation(
@@ -94,15 +93,15 @@ export default class ChefService {
     return new Promise(async (resolve, reject) => {
       const recommendationIdForBreakfast: string =
         InputService.takeInputWithValidation(
-          "Enter comma (,) separated recommendation_id for breakfast: "
+          "Enter comma (,) separated menu_id for breakfast: "
         );
       const recommendationIdForLunch: string =
         InputService.takeInputWithValidation(
-          "Enter comma (,) separated recommendation_id for lunch: "
+          "Enter comma (,) separated menu_id for lunch: "
         );
       const recommendationIdForDinner: string =
         InputService.takeInputWithValidation(
-          "Enter comma (,) separated recommendation_id for dinner: "
+          "Enter comma (,) separated menu_id for dinner: "
         );
 
       const rolloutData = {

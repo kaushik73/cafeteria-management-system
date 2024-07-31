@@ -71,7 +71,7 @@ export default class RecommendationService {
 
       const nextDay = DateService.getNthPreviousDate(-1);
       const today = DateService.getNthPreviousDate(0);
-      const query = `select * from Recommendation where rollout_to_employee = true and recommendation_date between '${today}' and '${nextDay}'`;
+      const query = `select * from Recommendation r inner join menu m on m.menu_id = r.menu_id where rollout_to_employee = true and recommendation_date between '${today}' and '${nextDay}'`;
 
       const recommendedFood: Recommendation[] =
         await sqlDBOperations.runCustomQuery(query);

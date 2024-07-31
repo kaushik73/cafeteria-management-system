@@ -22,8 +22,7 @@ export default class ChefUI {
       "2": ChefService.viewFoodRecommendation,
       "3": ChefService.rolloutFoodToEmployees,
       "4": ChefService.showDiscardItems,
-      "5": ChefService.viewFeedbackReport,
-      "6": ChefService.viewEmployeeVotes,
+      "5": ChefService.viewEmployeeVotes,
       "0": ChefService.handleLogOut,
     };
 

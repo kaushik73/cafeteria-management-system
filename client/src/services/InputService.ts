@@ -26,4 +26,14 @@ export default class InputService {
     } while (!validate(userInput));
     return userInput;
   }
+  static takeMaskedInput(question: string): string {
+    let userInput: string;
+
+    userInput = readlineSync.question(question, {
+      hideEchoBack: true,
+      mask: "*",
+    });
+
+    return userInput.toLowerCase();
+  }
 }

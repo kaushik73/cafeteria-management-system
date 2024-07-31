@@ -77,24 +77,29 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
-      const updatedMenu = Admin.createUpdatedMenu(item);
-      if (Object.keys(updatedMenu).length === 0) {
-        callback({ message: "No field to update" });
-        return;
+      const isMenuIdExist = await MenuService.isMenuIdExist(item.menu_id);
+      if (item.menu_id && isMenuIdExist) {
+        const updatedMenu = Admin.createUpdatedMenu(item);
+        if (Object.keys(updatedMenu).length === 0) {
+          callback({ message: "No field to update" });
+          return;
+        }
+        await MenuService.updateMenuItem(updatedMenu);
+        const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
+          item.menu_id
+        )) as Menu;
+        await NotificationService.addNotification(
+          "menuUpdate",
+          `Menu item updated: ${menuDetail.item_name}`,
+          menuDetail.menu_id
+        );
+        await Admin.getUserDetailAndLogAction(
+          `Updated Menu Item: ${menuDetail.item_name}`
+        );
+        callback({ message: "Menu item updated" });
+      } else {
+        callback({ message: "Please enter some valid menu ID" });
       }
-      await MenuService.updateMenuItem(updatedMenu);
-      const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
-        item.menu_id
-      )) as Menu;
-      await NotificationService.addNotification(
-        "menuUpdate",
-        `Menu item updated: ${menuDetail.item_name}`,
-        menuDetail.menu_id
-      );
-      await Admin.getUserDetailAndLogAction(
-        `Updated Menu Item: ${menuDetail.item_name}`
-      );
-      callback({ message: "Menu item updated" });
     } catch (error) {
       callback({ message: "Error updating menu item" });
       console.error("Error updating menu item:", error);
@@ -122,19 +127,25 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
-      const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
-        item.menu_id
-      )) as Menu;
-      await NotificationService.addNotification(
-        "menuUpdate",
-        `Deleted ${menuDetail.item_name} from ${menuDetail.meal_type}`,
-        item.menu_id
-      );
-      await MenuService.deleteMenuItem(item.menu_id);
-      await Admin.getUserDetailAndLogAction(
-        `Deleted Menu Item: ${menuDetail.item_name}`
-      );
-      callback({ message: "Menu item deleted" });
+      const isMenuIdExist = await MenuService.isMenuIdExist(item.menu_id);
+      if (item.menu_id && isMenuIdExist) {
+        const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
+          item.menu_id
+        )) as Menu;
+
+        await NotificationService.addNotification(
+          "menuUpdate",
+          `Deleted ${menuDetail.item_name} from ${menuDetail.meal_type}`,
+          item.menu_id
+        );
+        await Admin.getUserDetailAndLogAction(
+          `Deleted Menu Item: ${menuDetail.item_name}`
+        );
+        await MenuService.deleteMenuItem(item.menu_id);
+        callback({ message: "Menu item deleted" });
+      } else {
+        callback({ message: "Please enter some valid menu ID" });
+      }
     } catch (error) {
       callback({ message: "Error deleting menu item" });
       console.error("Error deleting menu item:", error);
@@ -146,30 +157,38 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
-      const result: ResultSetHeader = await MenuService.updateItemAvailability(
-        data.menu_id,
-        data.availability_status
-      );
-      const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
-        data.menu_id
-      )) as Menu;
-      const availabilityStatus = data.availability_status
-        ? "available"
-        : "not available";
-      await NotificationService.addNotification(
-        "menuUpdate",
-        `Item ${menuDetail.item_name} is ${availabilityStatus} to order`,
-        data.menu_id
-      );
-      await Admin.getUserDetailAndLogAction(
-        `Updated Availability for Menu Item: ${menuDetail.item_name}`
-      );
-      callback({
-        message:
-          result.insertId == 1
+      if (await MenuService.isMenuIdExist(data.menu_id)) {
+        const result: ResultSetHeader =
+          await MenuService.updateItemAvailability(
+            data.menu_id,
+            data.availability_status
+          );
+        const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
+          data.menu_id
+        )) as Menu;
+        const availabilityStatus = data.availability_status
+          ? "available"
+          : "not available";
+        await NotificationService.addNotification(
+          "menuUpdate",
+          `Item ${menuDetail.item_name} is ${availabilityStatus} to order`,
+          data.menu_id
+        );
+        await Admin.getUserDetailAndLogAction(
+          `Updated Availability for Menu Item: ${menuDetail.item_name}`
+        );
+        console.log(result, "handleUpdateItemAvailability");
+        const affecedRows = result.affectedRows === 1 ? true : false;
+        callback({
+          message: affecedRows
             ? "Item availability updated"
             : "Error in Item availability updated",
-      });
+        });
+      } else {
+        callback({
+          message: "Menu ID does not exist",
+        });
+      }
     } catch (error) {
       callback({ message: "Error updating item availability" });
       console.error("Error updating item availability:", error);
@@ -199,10 +218,10 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
-      const { fromInput: From, toInput: To } = data;
-      const report = await ReportService.viewFeedbackReport(From, To);
+      const { fromInput, toInput } = data;
+      const report = await ReportService.viewFeedbackReport(fromInput, toInput);
       await Admin.getUserDetailAndLogAction(
-        `Viewed Feedback Report from ${From} to ${To}`
+        `Viewed Feedback Report from ${fromInput} to ${toInput}`
       );
       callback({ message: report });
     } catch (error) {
@@ -231,7 +250,12 @@ export default class Admin {
     callback: (response: any) => void
   ) {
     try {
+      let isItemDeleted = false;
       for (const menuId of data.menuIdArray) {
+        const isMenuIdExist = await MenuService.isMenuIdExist(menuId);
+        if (!isMenuIdExist) {
+          continue;
+        }
         const menuDetail: Menu = (await MenuService.getMenuDetailFromId(
           menuId
         )) as Menu;
@@ -245,12 +269,15 @@ export default class Admin {
           await Admin.getUserDetailAndLogAction(
             `Removed Discard Item: ${menuDetail.item_name}`
           );
+          isItemDeleted = true;
         } else {
           callback({ message: "Entered Menu ID is not in discard list" });
           return;
         }
       }
-      callback({ message: "Discard Items Deleted Successfully" });
+      isItemDeleted
+        ? callback({ message: "Discard Items Deleted Successfully" })
+        : callback({ message: "Enter valid Item ID's" });
     } catch (error) {
       callback({ message: "Error removing discard Items" });
       console.error("Error removing discard Items:", error);
@@ -262,23 +289,35 @@ export default class Admin {
     callback: (response: { message: string }) => void
   ) {
     try {
+      let isQuestionsRolledOut = false;
+
       for (const itemId of data.menuIdArray) {
+        const isMenuIdExist = await MenuService.isMenuIdExist(itemId);
+        if (!isMenuIdExist) {
+          continue;
+        }
+
         const menuItem: Menu = (await MenuService.getMenuDetailFromId(
           itemId
         )) as Menu;
-        const questions = [
-          `Q1. What did you not like about ${menuItem.item_name}?`,
-          `Q2. How would you like ${menuItem.item_name} to taste?`,
-          `Q3. Share your mom's recipe for ${menuItem.item_name}?`,
-        ];
-        for (const question of questions) {
-          await Admin.handleAddToDiscardMenuFeedback(question, itemId);
+        if (menuItem.is_discard) {
+          const questions = [
+            `Q1. What did you not like about ${menuItem.item_name}?`,
+            `Q2. How would you like ${menuItem.item_name} to taste?`,
+            `Q3. Share your mom's recipe for ${menuItem.item_name}?`,
+          ];
+          for (const question of questions) {
+            await Admin.handleAddToDiscardMenuFeedback(question, itemId);
+          }
+          await Admin.getUserDetailAndLogAction(
+            `Requested detailed feedback for discard menu item: ${menuItem.item_name}`
+          );
+          isQuestionsRolledOut = true;
         }
-        await Admin.getUserDetailAndLogAction(
-          `Requested detailed feedback for discard menu item: ${menuItem.item_name}`
-        );
       }
-      callback({ message: "Rolled Out Question for Feedback " });
+      isQuestionsRolledOut
+        ? callback({ message: "Rolled Out Question for Feedback " })
+        : callback({ message: "Enter valid Item ID's" });
     } catch (error) {
       callback({ message: "Error detailedFeedbackForDiscardMenu" });
       console.error("Error detailedFeedbackForDiscardMenu:", error);

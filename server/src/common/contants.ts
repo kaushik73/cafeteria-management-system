@@ -1,0 +1,11 @@
+export const mealTypeLimit = {
+  lunch_limit: 3,
+  breakfast_limit: 3,
+  dinner_limit: 3,
+};
+
+export const defaultItemValues = {
+  discard_item_feedback_limit: 3,
+  discard_item_rating_limit: 3,
+  notification_expiry: 3, // 3 is days
+};

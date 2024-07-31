@@ -1,0 +1,50 @@
+import { io, Socket } from "socket.io-client";
+import OutputService from "./OutputService";
+const PORT = 3001;
+
+class SocketService {
+  private socket: Socket;
+  constructor(serverUrl: string) {
+    this.socket = io(serverUrl, {
+      transports: ["websocket"],
+      timeout: 900000,
+    });
+  }
+
+  public async connect(): Promise<Socket> {
+    return new Promise((resolve, reject) => {
+      this.socket.on("connect", () => {
+        OutputService.printMessage(`Connected with id: ${this.socket.id}`);
+        resolve(this.socket);
+      });
+
+      this.socket.on("connect_error", (error) => {
+        // OutputService.printMessage(`Server Crashed, Try again later!`);
+        reject("Server Crashed, Try again later!");
+      });
+
+      this.socket.on("disconnect", (reason) => {
+        // OutputService.printMessage(`Disconnected from server:${reason}`);
+        reject(`Disconnected from server:${reason}`);
+      });
+    });
+  }
+
+  public onEvent(eventName: string, callback: (data: any) => void): void {
+    this.socket.on(eventName, (data) => {
+      callback(data);
+    });
+  }
+
+  public emitEvent<T>(
+    eventName: string,
+    data: any,
+    callback: (response: T) => void
+  ): void {
+    this.socket.emit(eventName, data, (response: T) => {
+      callback(response);
+    });
+  }
+}
+
+export const socketService = new SocketService(`http://localhost:${PORT}`);
